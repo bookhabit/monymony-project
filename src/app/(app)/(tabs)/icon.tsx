@@ -668,10 +668,10 @@ export default function Test2Screen() {
         <View style={[styles.section, { backgroundColor: theme.background }]}>
           <Pressable
             style={[styles.navButton, { backgroundColor: theme.primary }]}
-            onPress={() => router.push('/test1')}
+            onPress={() => router.push('/(app)/(tabs)/image')}
           >
             <TextBox variant="button2" color="#fff">
-              테스트 스크린 1로 이동
+              이미지 테스트로 이동
             </TextBox>
           </Pressable>
 

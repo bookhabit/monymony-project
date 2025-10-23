@@ -427,10 +427,10 @@ export default function Test1Screen() {
         <View style={[styles.section, { backgroundColor: theme.background }]}>
           <Pressable
             style={[styles.button, { backgroundColor: theme.primary }]}
-            onPress={() => router.push('/test2')}
+            onPress={() => router.push('/(app)/(tabs)/icon')}
           >
             <TextBox variant="button2" color="#fff">
-              테스트 스크린 2로 이동
+              아이콘 테스트로 이동
             </TextBox>
           </Pressable>
 
