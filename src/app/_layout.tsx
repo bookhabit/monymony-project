@@ -39,7 +39,7 @@ export default function RootLayout() {
           name="design-system"
           options={{ title: '디자인 시스템' }}
         />
-        <Stack.Screen name="test1" options={{ title: '테스트 스크린 1' }} />
+        <Stack.Screen name="test1" options={{ title: '이미지 컴포넌트' }} />
         <Stack.Screen name="test2" options={{ title: '테스트 스크린 2' }} />
       </Stack>
     </ThemeProvider>

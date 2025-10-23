@@ -29,7 +29,7 @@ export default function HomeScreen() {
             <Pressable
               style={[styles.button, { backgroundColor: theme.primary }]}
             >
-              <TextBox variant="button1" color="#fff">
+              <TextBox variant="button1" color={theme.text}>
                 📝 디자인 시스템
               </TextBox>
             </Pressable>
@@ -39,8 +39,8 @@ export default function HomeScreen() {
             <Pressable
               style={[styles.button, { backgroundColor: theme.secondary }]}
             >
-              <TextBox variant="button1" color="#fff">
-                🧪 테스트 스크린 1
+              <TextBox variant="button1" color={theme.text}>
+                🧪 이미지 컴포넌트
               </TextBox>
             </Pressable>
           </Link>
@@ -49,7 +49,7 @@ export default function HomeScreen() {
             <Pressable
               style={[styles.button, { backgroundColor: theme.success }]}
             >
-              <TextBox variant="button1" color="#fff">
+              <TextBox variant="button1" color={theme.text}>
                 🧪 테스트 스크린 2
               </TextBox>
             </Pressable>

@@ -1,99 +1,438 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { useRouter } from 'expo-router';
 
+import { useTheme } from '@/context/ThemeProvider';
+
+import {
+  AvatarImage,
+  CoverImage,
+  OptimizedImage,
+  ThumbnailImage,
+} from '@/components/common/OptimizedImage';
+import TextBox from '@/components/common/TextBox';
+
 export default function Test1Screen() {
   const router = useRouter();
+  const { theme } = useTheme();
+  const [imageKey, setImageKey] = useState(0);
+  const [showErrorImage, setShowErrorImage] = useState(false);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>테스트 스크린 1</Text>
-      <Text style={styles.description}>
-        첫 번째 테스트 스크린입니다.{'\n'}
-        여기서 원하는 컴포넌트를 추가할 수 있습니다.
-      </Text>
+    <ScrollView style={[styles.container, { backgroundColor: theme.surface }]}>
+      <View style={styles.content}>
+        <TextBox variant="title2" style={styles.title} color={theme.text}>
+          🖼️ OptimizedImage 예제
+        </TextBox>
 
-      <View style={styles.infoBox}>
-        <Text style={styles.infoTitle}>📱 스크린 정보</Text>
-        <Text style={styles.infoText}>경로: /test1</Text>
-        <Text style={styles.infoText}>상태: 정상 작동</Text>
+        <TextBox
+          variant="body4"
+          style={styles.description}
+          color={theme.textSecondary}
+        >
+          다양한 이미지 컴포넌트 사용 예제입니다
+        </TextBox>
+
+        {/* Avatar Images */}
+        <View style={[styles.section, { backgroundColor: theme.background }]}>
+          <TextBox
+            variant="body2"
+            style={[styles.sectionTitle, { borderBottomColor: theme.border }]}
+            color={theme.text}
+          >
+            Avatar Images (원형)
+          </TextBox>
+
+          <View style={styles.avatarRow}>
+            <View style={styles.avatarItem}>
+              <AvatarImage
+                source={{
+                  uri: 'https://picsum.photos/200/200?random=1',
+                }}
+              />
+              <TextBox variant="caption3" color={theme.textSecondary}>
+                48x48
+              </TextBox>
+            </View>
+
+            <View style={styles.avatarItem}>
+              <AvatarImage
+                source={{
+                  uri: 'https://picsum.photos/200/200?random=2',
+                }}
+                style={{ width: 64, height: 64, borderRadius: 32 }}
+              />
+              <TextBox variant="caption3" color={theme.textSecondary}>
+                64x64
+              </TextBox>
+            </View>
+
+            <View style={styles.avatarItem}>
+              <AvatarImage
+                source={{
+                  uri: 'https://picsum.photos/200/200?random=3',
+                }}
+                style={{ width: 80, height: 80, borderRadius: 40 }}
+              />
+              <TextBox variant="caption3" color={theme.textSecondary}>
+                80x80
+              </TextBox>
+            </View>
+
+            <View style={styles.avatarItem}>
+              <AvatarImage
+                source={{
+                  uri: 'https://picsum.photos/200/200?random=4',
+                }}
+                style={{ width: 100, height: 100, borderRadius: 50 }}
+              />
+              <TextBox variant="caption3" color={theme.textSecondary}>
+                100x100
+              </TextBox>
+            </View>
+          </View>
+        </View>
+
+        {/* Thumbnail Images */}
+        <View style={[styles.section, { backgroundColor: theme.background }]}>
+          <TextBox
+            variant="body2"
+            style={[styles.sectionTitle, { borderBottomColor: theme.border }]}
+            color={theme.text}
+          >
+            Thumbnail Images (16:9)
+          </TextBox>
+
+          <ThumbnailImage
+            source={{
+              uri: 'https://picsum.photos/800/450?random=5',
+            }}
+            style={{ marginBottom: 12 }}
+          />
+
+          <ThumbnailImage
+            source={{
+              uri: 'https://picsum.photos/800/450?random=6',
+            }}
+          />
+        </View>
+
+        {/* Cover Images */}
+        <View style={[styles.section, { backgroundColor: theme.background }]}>
+          <TextBox
+            variant="body2"
+            style={[styles.sectionTitle, { borderBottomColor: theme.border }]}
+            color={theme.text}
+          >
+            Cover Images (2:1)
+          </TextBox>
+
+          <CoverImage
+            source={{
+              uri: 'https://picsum.photos/1000/500?random=7',
+            }}
+            style={{ marginBottom: 12 }}
+          />
+
+          <CoverImage
+            source={{
+              uri: 'https://picsum.photos/1000/500?random=8',
+            }}
+          />
+        </View>
+
+        {/* Custom Aspect Ratio */}
+        <View style={[styles.section, { backgroundColor: theme.background }]}>
+          <TextBox
+            variant="body2"
+            style={[styles.sectionTitle, { borderBottomColor: theme.border }]}
+            color={theme.text}
+          >
+            Custom Aspect Ratio
+          </TextBox>
+
+          <TextBox
+            variant="caption2"
+            style={styles.label}
+            color={theme.textSecondary}
+          >
+            Square (1:1)
+          </TextBox>
+          <OptimizedImage
+            source={{
+              uri: 'https://picsum.photos/600/600?random=9',
+            }}
+            aspectRatio={1}
+            style={{ width: '100%', marginBottom: 16 }}
+          />
+
+          <TextBox
+            variant="caption2"
+            style={styles.label}
+            color={theme.textSecondary}
+          >
+            Portrait (3:4)
+          </TextBox>
+          <OptimizedImage
+            source={{
+              uri: 'https://picsum.photos/600/800?random=10',
+            }}
+            aspectRatio={3 / 4}
+            style={{ width: '100%', marginBottom: 16 }}
+          />
+
+          <TextBox
+            variant="caption2"
+            style={styles.label}
+            color={theme.textSecondary}
+          >
+            Ultra Wide (21:9)
+          </TextBox>
+          <OptimizedImage
+            source={{
+              uri: 'https://picsum.photos/1400/600?random=11',
+            }}
+            aspectRatio={21 / 9}
+            style={{ width: '100%' }}
+          />
+        </View>
+
+        {/* Loading State Test */}
+        <View style={[styles.section, { backgroundColor: theme.background }]}>
+          <TextBox
+            variant="body2"
+            style={[styles.sectionTitle, { borderBottomColor: theme.border }]}
+            color={theme.text}
+          >
+            Loading State Test (로딩 상태)
+          </TextBox>
+
+          <TextBox
+            variant="caption2"
+            style={styles.label}
+            color={theme.textSecondary}
+          >
+            큰 이미지 로드 중 - Skeleton 표시됨
+          </TextBox>
+
+          <OptimizedImage
+            key={`loading-${imageKey}`}
+            source={{
+              uri: `https://picsum.photos/2000/1500?random=${imageKey}`,
+            }}
+            aspectRatio={4 / 3}
+            style={{ width: '100%', marginBottom: 16 }}
+          />
+
+          <Pressable
+            style={[styles.controlButton, { backgroundColor: theme.secondary }]}
+            onPress={() => setImageKey((prev) => prev + 1)}
+          >
+            <TextBox variant="button3" color="#fff">
+              🔄 새 이미지 로드 (로딩 상태 보기)
+            </TextBox>
+          </Pressable>
+
+          <TextBox
+            variant="caption2"
+            style={[styles.label, { marginTop: 16 }]}
+            color={theme.textSecondary}
+          >
+            Placeholder 없이 로드 (showPlaceholder=false)
+          </TextBox>
+
+          <OptimizedImage
+            key={`no-placeholder-${imageKey}`}
+            source={{
+              uri: `https://picsum.photos/800/600?random=${imageKey + 100}`,
+            }}
+            aspectRatio={4 / 3}
+            style={{ width: '100%' }}
+            showPlaceholder={false}
+          />
+        </View>
+
+        {/* Error State */}
+        <View style={[styles.section, { backgroundColor: theme.background }]}>
+          <TextBox
+            variant="body2"
+            style={[styles.sectionTitle, { borderBottomColor: theme.border }]}
+            color={theme.text}
+          >
+            Error State (에러 상태)
+          </TextBox>
+
+          <TextBox
+            variant="caption2"
+            style={styles.label}
+            color={theme.textSecondary}
+          >
+            기본 에러 메시지
+          </TextBox>
+
+          <OptimizedImage
+            source={{
+              uri: 'https://invalid-url-example.com/image.jpg',
+            }}
+            aspectRatio={16 / 9}
+            style={{ width: '100%', marginBottom: 16 }}
+          />
+
+          <TextBox
+            variant="caption2"
+            style={styles.label}
+            color={theme.textSecondary}
+          >
+            커스텀 에러 컴포넌트
+          </TextBox>
+
+          <OptimizedImage
+            source={{
+              uri: 'https://invalid-url-example-custom.com/image.jpg',
+            }}
+            aspectRatio={16 / 9}
+            style={{ width: '100%', marginBottom: 16 }}
+            errorComponent={
+              <View style={styles.customError}>
+                <TextBox variant="body5" color={theme.error}>
+                  ❌ 커스텀 에러 메시지
+                </TextBox>
+                <TextBox variant="caption3" color={theme.textSecondary}>
+                  이미지를 불러올 수 없습니다
+                </TextBox>
+              </View>
+            }
+          />
+
+          <TextBox
+            variant="caption2"
+            style={styles.label}
+            color={theme.textSecondary}
+          >
+            에러 상태 토글 테스트
+          </TextBox>
+
+          <OptimizedImage
+            key={`error-toggle-${showErrorImage}`}
+            source={{
+              uri: showErrorImage
+                ? 'https://invalid-url-test.com/error.jpg'
+                : `https://picsum.photos/800/450?random=${Date.now()}`,
+            }}
+            aspectRatio={16 / 9}
+            style={{ width: '100%', marginBottom: 16 }}
+          />
+
+          <Pressable
+            style={[
+              styles.controlButton,
+              { backgroundColor: showErrorImage ? theme.success : theme.error },
+            ]}
+            onPress={() => setShowErrorImage(!showErrorImage)}
+          >
+            <TextBox variant="button3" color="#fff">
+              {showErrorImage ? '✅ 정상 이미지 보기' : '❌ 에러 발생시키기'}
+            </TextBox>
+          </Pressable>
+        </View>
+
+        {/* Navigation */}
+        <View style={[styles.section, { backgroundColor: theme.background }]}>
+          <Pressable
+            style={[styles.button, { backgroundColor: theme.primary }]}
+            onPress={() => router.push('/test2')}
+          >
+            <TextBox variant="button2" color="#fff">
+              테스트 스크린 2로 이동
+            </TextBox>
+          </Pressable>
+
+          <Pressable
+            style={[styles.button, { backgroundColor: theme.textSecondary }]}
+            onPress={() => router.back()}
+          >
+            <TextBox variant="button2" color="#fff">
+              뒤로 가기
+            </TextBox>
+          </Pressable>
+        </View>
       </View>
-
-      <Pressable style={styles.button} onPress={() => router.push('/test2')}>
-        <Text style={styles.buttonText}>테스트 스크린 2로 이동</Text>
-      </Pressable>
-
-      <Pressable
-        style={[styles.button, styles.backButton]}
-        onPress={() => router.back()}
-      >
-        <Text style={styles.buttonText}>뒤로 가기</Text>
-      </Pressable>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#e8f4f8',
+  },
+  content: {
     padding: 20,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#007AFF',
+    marginTop: 10,
+    marginBottom: 8,
+    textAlign: 'center',
   },
   description: {
-    fontSize: 16,
-    color: '#666',
     textAlign: 'center',
     marginBottom: 30,
-    lineHeight: 24,
   },
-  infoBox: {
-    backgroundColor: '#fff',
+  section: {
     padding: 20,
     borderRadius: 15,
-    marginBottom: 30,
-    width: '100%',
-    maxWidth: 300,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  infoTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#333',
+  sectionTitle: {
+    marginBottom: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
   },
-  infoText: {
-    fontSize: 14,
-    color: '#666',
-    marginVertical: 3,
+  label: {
+    marginBottom: 8,
+  },
+  avatarRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    flexWrap: 'wrap',
+    gap: 16,
+  },
+  avatarItem: {
+    alignItems: 'center',
+    gap: 8,
+  },
+  customError: {
+    padding: 20,
+    alignItems: 'center',
+    gap: 4,
+  },
+  controlButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  comparisonRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  comparisonItem: {
+    flex: 1,
+  },
+  comparisonLabel: {
+    marginBottom: 8,
+    textAlign: 'center',
   },
   button: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 30,
     paddingVertical: 15,
+    paddingHorizontal: 30,
     borderRadius: 10,
-    marginVertical: 10,
-    width: '100%',
-    maxWidth: 300,
-  },
-  backButton: {
-    backgroundColor: '#8E8E93',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
+    marginVertical: 8,
+    alignItems: 'center',
   },
 });
