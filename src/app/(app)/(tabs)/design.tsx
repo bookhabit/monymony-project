@@ -376,6 +376,14 @@ export default function DesignScreen() {
 
         {/* Navigation */}
         <View style={[styles.section, { backgroundColor: theme.surface }]}>
+          <TextBox
+            variant="body2"
+            style={[styles.sectionTitle, { borderBottomColor: theme.border }]}
+            color={theme.text}
+          >
+            페이지 이동
+          </TextBox>
+
           <Pressable
             style={[styles.navButton, { backgroundColor: theme.primary }]}
             onPress={() => router.push('/(app)/(tabs)/image')}
@@ -391,6 +399,15 @@ export default function DesignScreen() {
           >
             <TextBox variant="button2" color="#fff">
               아이콘 테스트로 이동
+            </TextBox>
+          </Pressable>
+
+          <Pressable
+            style={[styles.navButton, { backgroundColor: theme.primary }]}
+            onPress={() => router.push('/(app)/detail')}
+          >
+            <TextBox variant="button2" color="#fff">
+              CustomHeader 상세 페이지
             </TextBox>
           </Pressable>
         </View>
