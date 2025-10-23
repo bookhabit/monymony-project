@@ -4,6 +4,8 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 
+import { ThemeProvider } from '@/context/ThemeProvider';
+
 // 스플래시 스크린이 자동으로 숨겨지지 않도록 방지
 SplashScreen.preventAutoHideAsync();
 
@@ -30,10 +32,16 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ title: '홈' }} />
-      <Stack.Screen name="test1" options={{ title: '테스트 스크린 1' }} />
-      <Stack.Screen name="test2" options={{ title: '테스트 스크린 2' }} />
-    </Stack>
+    <ThemeProvider>
+      <Stack>
+        <Stack.Screen name="index" options={{ title: '홈' }} />
+        <Stack.Screen
+          name="design-system"
+          options={{ title: '디자인 시스템' }}
+        />
+        <Stack.Screen name="test1" options={{ title: '테스트 스크린 1' }} />
+        <Stack.Screen name="test2" options={{ title: '테스트 스크린 2' }} />
+      </Stack>
+    </ThemeProvider>
   );
 }
