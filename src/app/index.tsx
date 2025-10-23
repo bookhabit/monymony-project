@@ -50,7 +50,7 @@ export default function HomeScreen() {
               style={[styles.button, { backgroundColor: theme.success }]}
             >
               <TextBox variant="button1" color={theme.text}>
-                🧪 테스트 스크린 2
+                🧪 아이콘 컴포넌트
               </TextBox>
             </Pressable>
           </Link>
