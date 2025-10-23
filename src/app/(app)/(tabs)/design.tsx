@@ -5,12 +5,18 @@ import { useRouter } from 'expo-router';
 
 import { useTheme } from '@/context/ThemeProvider';
 
+import Input from '@/components/common/Input';
 import TextBox from '@/components/common/TextBox';
+import { CustomButton } from '@/components/common/button';
 
 export default function DesignScreen() {
   const router = useRouter();
   const { theme, toggleTheme, isDarkMode } = useTheme();
   const [selectedVariant, setSelectedVariant] = useState<string>('title1');
+  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [emailError, setEmailError] = useState('');
 
   const textVariants = [
     'title1',
@@ -158,8 +164,226 @@ export default function DesignScreen() {
           </View>
         </View>
 
+        {/* Button Component Examples */}
+        <View style={[styles.section, { backgroundColor: theme.surface }]}>
+          <TextBox
+            variant="body2"
+            style={[styles.sectionTitle, { borderBottomColor: theme.border }]}
+            color={theme.text}
+          >
+            Button 컴포넌트
+          </TextBox>
+
+          <TextBox
+            variant="caption2"
+            style={styles.label}
+            color={theme.textSecondary}
+          >
+            Variant 별 버튼
+          </TextBox>
+          <View style={styles.buttonGroup}>
+            <CustomButton
+              title="Primary"
+              variant="primary"
+              onPress={() => console.log('Primary')}
+            />
+            <CustomButton
+              title="Secondary"
+              variant="secondary"
+              onPress={() => console.log('Secondary')}
+            />
+            <CustomButton
+              title="Outline"
+              variant="outline"
+              onPress={() => console.log('Outline')}
+            />
+            <CustomButton
+              title="Ghost"
+              variant="ghost"
+              onPress={() => console.log('Ghost')}
+            />
+            <CustomButton
+              title="Danger"
+              variant="danger"
+              onPress={() => console.log('Danger')}
+            />
+          </View>
+
+          <TextBox
+            variant="caption2"
+            style={[styles.label, { marginTop: 20 }]}
+            color={theme.textSecondary}
+          >
+            Size 별 버튼
+          </TextBox>
+          <View style={styles.buttonGroup}>
+            <CustomButton
+              title="Small Button"
+              size="small"
+              onPress={() => console.log('Small')}
+            />
+            <CustomButton
+              title="Medium Button"
+              size="medium"
+              onPress={() => console.log('Medium')}
+            />
+            <CustomButton
+              title="Large Button"
+              size="large"
+              onPress={() => console.log('Large')}
+            />
+          </View>
+
+          <TextBox
+            variant="caption2"
+            style={[styles.label, { marginTop: 20 }]}
+            color={theme.textSecondary}
+          >
+            상태별 버튼
+          </TextBox>
+          <View style={styles.buttonGroup}>
+            <CustomButton
+              title="Loading"
+              loading={isLoading}
+              onPress={() => {
+                setIsLoading(true);
+                setTimeout(() => setIsLoading(false), 2000);
+              }}
+            />
+            <CustomButton
+              title="Disabled"
+              disabled
+              onPress={() => console.log('Disabled')}
+            />
+            <CustomButton
+              title="Full Width"
+              fullWidth
+              onPress={() => console.log('Full Width')}
+            />
+          </View>
+        </View>
+
+        {/* Input Component Examples */}
+        <View style={[styles.section, { backgroundColor: theme.surface }]}>
+          <TextBox
+            variant="body2"
+            style={[styles.sectionTitle, { borderBottomColor: theme.border }]}
+            color={theme.text}
+          >
+            Input 컴포넌트
+          </TextBox>
+
+          <TextBox
+            variant="caption2"
+            style={styles.label}
+            color={theme.textSecondary}
+          >
+            기본 Input
+          </TextBox>
+          <View style={styles.inputGroup}>
+            <Input placeholder="기본 Input" />
+            <Input label="Label이 있는 Input" placeholder="내용을 입력하세요" />
+            <Input label="필수 입력" required placeholder="필수 입력 필드" />
+          </View>
+
+          <TextBox
+            variant="caption2"
+            style={[styles.label, { marginTop: 20 }]}
+            color={theme.textSecondary}
+          >
+            Icon이 있는 Input
+          </TextBox>
+          <View style={styles.inputGroup}>
+            <Input
+              label="이메일"
+              leftIcon="email"
+              placeholder="example@email.com"
+              keyboardType="email-address"
+              value={email}
+              onChangeText={setEmail}
+            />
+            <Input
+              label="검색"
+              leftIcon="search"
+              rightIcon="clear"
+              placeholder="검색어를 입력하세요"
+              onRightIconPress={() => console.log('Clear')}
+            />
+            <Input
+              label="비밀번호"
+              leftIcon="lock"
+              placeholder="비밀번호를 입력하세요"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+            />
+          </View>
+
+          <TextBox
+            variant="caption2"
+            style={[styles.label, { marginTop: 20 }]}
+            color={theme.textSecondary}
+          >
+            상태별 Input
+          </TextBox>
+          <View style={styles.inputGroup}>
+            <Input
+              label="에러 상태"
+              placeholder="잘못된 입력"
+              error="올바른 이메일 형식이 아닙니다"
+              value={emailError}
+              onChangeText={(text) => {
+                setEmailError(text);
+                if (text && !text.includes('@')) {
+                  setEmailError(text);
+                }
+              }}
+            />
+            <Input
+              label="Helper Text"
+              placeholder="닉네임"
+              helperText="2~10자의 한글, 영문, 숫자만 가능합니다"
+            />
+            <Input label="Disabled" placeholder="수정 불가" disabled />
+          </View>
+
+          <TextBox
+            variant="caption2"
+            style={[styles.label, { marginTop: 20 }]}
+            color={theme.textSecondary}
+          >
+            Size 별 Input
+          </TextBox>
+          <View style={styles.inputGroup}>
+            <Input size="small" placeholder="Small Input" />
+            <Input size="medium" placeholder="Medium Input" />
+            <Input size="large" placeholder="Large Input" />
+          </View>
+
+          <TextBox
+            variant="caption2"
+            style={[styles.label, { marginTop: 20 }]}
+            color={theme.textSecondary}
+          >
+            Variant 별 Input
+          </TextBox>
+          <View style={styles.inputGroup}>
+            <Input variant="default" placeholder="Default (배경 + 테두리)" />
+            <Input variant="filled" placeholder="Filled (배경만)" />
+            <Input variant="outline" placeholder="Outline (테두리만)" />
+          </View>
+        </View>
+
         {/* Navigation */}
         <View style={[styles.section, { backgroundColor: theme.surface }]}>
+          <TextBox
+            variant="body2"
+            style={[styles.sectionTitle, { borderBottomColor: theme.border }]}
+            color={theme.text}
+          >
+            페이지 이동
+          </TextBox>
+
           <Pressable
             style={[styles.navButton, { backgroundColor: theme.primary }]}
             onPress={() => router.push('/(app)/(tabs)/image')}
@@ -175,6 +399,15 @@ export default function DesignScreen() {
           >
             <TextBox variant="button2" color="#fff">
               아이콘 테스트로 이동
+            </TextBox>
+          </Pressable>
+
+          <Pressable
+            style={[styles.navButton, { backgroundColor: theme.primary }]}
+            onPress={() => router.push('/(app)/detail')}
+          >
+            <TextBox variant="button2" color="#fff">
+              CustomHeader 상세 페이지
             </TextBox>
           </Pressable>
         </View>
@@ -256,5 +489,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: 8,
     alignItems: 'center',
+  },
+  buttonGroup: {
+    gap: 12,
+  },
+  inputGroup: {
+    gap: 16,
+  },
+  label: {
+    marginBottom: 8,
   },
 });

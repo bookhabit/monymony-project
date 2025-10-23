@@ -8,7 +8,10 @@ import { useFonts } from 'expo-font';
 import { Slot } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 
+import { NetworkProvider } from '@/context/NetworkContext';
 import { ThemeProvider } from '@/context/ThemeProvider';
+
+import { OfflineBanner } from '@/components/network/OfflineBanner';
 
 // 스플래시 스크린이 자동으로 숨겨지지 않도록 방지
 SplashScreen.preventAutoHideAsync();
@@ -66,7 +69,10 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <ThemeProvider>
-          <Slot />
+          <NetworkProvider>
+            <Slot />
+            <OfflineBanner />
+          </NetworkProvider>
         </ThemeProvider>
       </GestureHandlerRootView>
     </SafeAreaProvider>
