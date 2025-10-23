@@ -142,6 +142,92 @@ export default function Test1Screen() {
           />
         </View>
 
+        {/* Progressive Loading */}
+        <View style={[styles.section, { backgroundColor: theme.background }]}>
+          <TextBox
+            variant="body2"
+            style={[styles.sectionTitle, { borderBottomColor: theme.border }]}
+            color={theme.text}
+          >
+            Progressive Loading (점진적 로딩)
+          </TextBox>
+
+          <View style={styles.infoBox}>
+            <TextBox variant="caption2" color={theme.textSecondary}>
+              💡 Tip: 네트워크를 느리게 설정하면 효과가 더 명확합니다
+            </TextBox>
+            <TextBox variant="caption3" color={theme.textSecondary}>
+              - iOS: 설정 → 개발자 → Network Link Conditioner
+            </TextBox>
+            <TextBox variant="caption3" color={theme.textSecondary}>
+              - Android: 개발자 옵션 → 네트워크 속도 제한
+            </TextBox>
+          </View>
+
+          <TextBox
+            variant="caption2"
+            style={styles.label}
+            color={theme.textSecondary}
+          >
+            초대형 이미지 (5000x3000) + 블러 효과
+          </TextBox>
+          <OptimizedImage
+            key={`progressive-1-${imageKey}`}
+            source={{
+              uri: `https://picsum.photos/5000/3000?random=${imageKey + 200}`,
+            }}
+            thumbnailSource={`https://picsum.photos/50/30?random=${imageKey + 200}`}
+            blurRadius={50}
+            aspectRatio={5 / 3}
+            style={{ width: '100%', marginBottom: 16 }}
+          />
+
+          <TextBox
+            variant="caption2"
+            style={styles.label}
+            color={theme.textSecondary}
+          >
+            대형 이미지 (3000x2000) + 중간 블러
+          </TextBox>
+          <OptimizedImage
+            key={`progressive-2-${imageKey}`}
+            source={{
+              uri: `https://picsum.photos/3000/2000?random=${imageKey + 201}`,
+            }}
+            thumbnailSource={`https://picsum.photos/50/33?random=${imageKey + 201}`}
+            blurRadius={30}
+            aspectRatio={3 / 2}
+            style={{ width: '100%', marginBottom: 16 }}
+          />
+
+          <TextBox
+            variant="caption2"
+            style={styles.label}
+            color={theme.textSecondary}
+          >
+            블러 없이 (즉시 전환)
+          </TextBox>
+          <OptimizedImage
+            key={`progressive-3-${imageKey}`}
+            source={{
+              uri: `https://picsum.photos/2000/1500?random=${imageKey + 202}`,
+            }}
+            thumbnailSource={`https://picsum.photos/50/37?random=${imageKey + 202}`}
+            blurRadius={0}
+            aspectRatio={4 / 3}
+            style={{ width: '100%', marginBottom: 16 }}
+          />
+
+          <Pressable
+            style={[styles.controlButton, { backgroundColor: theme.warning }]}
+            onPress={() => setImageKey((prev) => prev + 1)}
+          >
+            <TextBox variant="button3" color="#fff">
+              🔄 Progressive Loading 다시 보기
+            </TextBox>
+          </Pressable>
+        </View>
+
         {/* Custom Aspect Ratio */}
         <View style={[styles.section, { backgroundColor: theme.background }]}>
           <TextBox
@@ -395,6 +481,15 @@ const styles = StyleSheet.create({
   },
   label: {
     marginBottom: 8,
+  },
+  infoBox: {
+    backgroundColor: 'rgba(255, 165, 0, 0.1)',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+    borderLeftWidth: 3,
+    borderLeftColor: '#FF9500',
+    gap: 4,
   },
   avatarRow: {
     flexDirection: 'row',

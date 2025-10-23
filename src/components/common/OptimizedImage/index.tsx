@@ -25,6 +25,10 @@ interface OptimizedImageProps extends Omit<ExpoImageProps, 'placeholder'> {
   aspectRatio?: number;
   /** 이미지 스타일 */
   style?: StyleProp<ImageStyle>;
+  /** Progressive loading용 작은 썸네일 URL */
+  thumbnailSource?: string;
+  /** 로딩 중 블러 효과 강도 (0-100) */
+  blurRadius?: number;
 }
 
 export const OptimizedImage: React.FC<OptimizedImageProps> = ({
@@ -34,6 +38,8 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   errorComponent,
   containerStyle,
   aspectRatio,
+  thumbnailSource,
+  blurRadius = 0,
   ...props
 }) => {
   const { theme } = useTheme();
@@ -106,6 +112,8 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
           onError={handleError}
           cachePolicy={'memory-disk'}
           transition={300}
+          placeholder={thumbnailSource ? { uri: thumbnailSource } : undefined}
+          placeholderContentFit="cover"
           {...props}
         />
       )}
