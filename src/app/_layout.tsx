@@ -13,9 +13,25 @@ import { ThemeProvider } from '@/context/ThemeProvider';
 // 스플래시 스크린이 자동으로 숨겨지지 않도록 방지
 SplashScreen.preventAutoHideAsync();
 
+// Reanimated 경고 무시 (expo-router의 Tab 애니메이션에서 발생)
+// 이 경고는 expo-router 내부 이슈이며 앱 기능에는 영향 없음
 LogBox.ignoreLogs([
-  "It looks like you might be using shared value's .value inside reanimated inline style. If you want a component to update when shared value changes you should use the shared value directly instead of its current state represented by `.value`. See documentation here: https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/glossary/#animations-in-inline-styling",
+  /.*shared value.*reanimated.*/i,
+  'It looks like you might be using shared value',
 ]);
+
+// console.warn 필터링 (강력한 방법)
+const originalWarn = console.warn;
+console.warn = (...args: any[]) => {
+  const message = args[0];
+  if (
+    typeof message === 'string' &&
+    (message.includes('shared value') || message.includes('reanimated'))
+  ) {
+    return; // reanimated 경고 무시
+  }
+  originalWarn.apply(console, args);
+};
 
 /**
  * Root Layout

@@ -10,8 +10,6 @@ export default function AuthLayout() {
   // 현재는 하드코딩으로 true (항상 인증된 상태)
   const isAuthenticated = true;
 
-  console.log('AuthLayout isAuthenticated:', isAuthenticated);
-
   if (isAuthenticated) {
     return <Redirect href="/(app)/(tabs)/design" />;
   }
