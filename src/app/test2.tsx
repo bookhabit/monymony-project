@@ -1,6 +1,7 @@
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+
+import { useRouter } from 'expo-router';
 
 export default function Test2Screen() {
   const router = useRouter();
@@ -18,23 +19,38 @@ export default function Test2Screen() {
         <Text style={styles.counterTitle}>🔢 카운터</Text>
         <Text style={styles.counterValue}>{count}</Text>
         <View style={styles.counterButtons}>
-          <Pressable style={styles.counterButton} onPress={() => setCount(count + 1)}>
+          <Pressable
+            style={styles.counterButton}
+            onPress={() => setCount(count + 1)}
+          >
             <Text style={styles.counterButtonText}>+</Text>
           </Pressable>
-          <Pressable style={styles.counterButton} onPress={() => setCount(count - 1)}>
+          <Pressable
+            style={styles.counterButton}
+            onPress={() => setCount(count - 1)}
+          >
             <Text style={styles.counterButtonText}>-</Text>
           </Pressable>
-          <Pressable style={[styles.counterButton, styles.resetButton]} onPress={() => setCount(0)}>
+          <Pressable
+            style={[styles.counterButton, styles.resetButton]}
+            onPress={() => setCount(0)}
+          >
             <Text style={styles.counterButtonText}>초기화</Text>
           </Pressable>
         </View>
       </View>
 
-      <Pressable style={styles.button} onPress={() => router.push('/test1' as any)}>
+      <Pressable
+        style={styles.button}
+        onPress={() => router.push('/test1' as any)}
+      >
         <Text style={styles.buttonText}>테스트 스크린 1로 이동</Text>
       </Pressable>
 
-      <Pressable style={[styles.button, styles.backButton]} onPress={() => router.back()}>
+      <Pressable
+        style={[styles.button, styles.backButton]}
+        onPress={() => router.back()}
+      >
         <Text style={styles.buttonText}>뒤로 가기</Text>
       </Pressable>
     </View>
@@ -129,4 +145,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-

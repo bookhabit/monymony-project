@@ -16,21 +16,25 @@ React Native + Expo 기반 모바일 애플리케이션
 ## 🛠 기술 스택
 
 ### Core
+
 - **React Native** 0.81.5
 - **React** 19.1.0
 - **Expo** ~54.0.19
 - **TypeScript** ~5.9.2
 
 ### Navigation & Routing
+
 - **Expo Router** ~6.0.13 (파일 기반 라우팅)
 - **React Navigation** 7.x
 
 ### UI & Animation
+
 - **React Native Reanimated** ~4.1.1
 - **React Native Gesture Handler** ~2.28.0
 - **Expo Symbols** (iOS SF Symbols 지원)
 
 ### Development Tools
+
 - **ESLint** 9.25.0 (with expo config)
 - **Prettier** (코드 포맷팅)
 
@@ -69,25 +73,22 @@ npm run web
 
 ## 📁 프로젝트 구조
 
-
 ---
 
 ## 💻 개발 가이드
 
 ### 주요 기능
 
-
-
 ### 스크립트
 
-| 명령어 | 설명 |
-|--------|------|
-| `npm start` | Expo 개발 서버 시작 |
-| `npm run ios` | iOS 시뮬레이터 실행 |
-| `npm run android` | Android 에뮬레이터 실행 |
-| `npm run web` | 웹 브라우저 실행 |
-| `npm run lint` | ESLint 검사 |
-| `npm run reset-project` | 프로젝트 초기화 |
+| 명령어                  | 설명                    |
+| ----------------------- | ----------------------- |
+| `npm start`             | Expo 개발 서버 시작     |
+| `npm run ios`           | iOS 시뮬레이터 실행     |
+| `npm run android`       | Android 에뮬레이터 실행 |
+| `npm run web`           | 웹 브라우저 실행        |
+| `npm run lint`          | ESLint 검사             |
+| `npm run reset-project` | 프로젝트 초기화         |
 
 ---
 
@@ -96,7 +97,7 @@ npm run web
 ### 브랜치 구조
 
 ```
-main              # 배포용 
+main              # 배포용
 └── develop        # 개발 통합 브랜치
     ├── feature/...   # 기능 단위 브랜치
     ├── fix/...        # 버그 수정
@@ -106,16 +107,17 @@ main              # 배포용
 
 ### 브랜치 네이밍 규칙
 
-| 목적 | 형식 | 예시 |
-| --- | --- | --- |
-| 기능 추가 | `feature/{기능명}` | `feature/psy-test-flow` |
-| 버그 수정 | `fix/{이슈요약}` | `fix/splash-timing-issue` |
-| 설정/환경 | `chore/{내용}` | `chore/eas-build-setup` |
-| 테스트 | `test/{대상}` | `test/e2e-detox` |
+| 목적      | 형식               | 예시                      |
+| --------- | ------------------ | ------------------------- |
+| 기능 추가 | `feature/{기능명}` | `feature/psy-test-flow`   |
+| 버그 수정 | `fix/{이슈요약}`   | `fix/splash-timing-issue` |
+| 설정/환경 | `chore/{내용}`     | `chore/eas-build-setup`   |
+| 테스트    | `test/{대상}`      | `test/e2e-detox`          |
 
 ### 워크플로우
 
 1. **새 브랜치 생성**
+
    ```bash
    git checkout develop
    git pull origin develop
@@ -123,12 +125,14 @@ main              # 배포용
    ```
 
 2. **작업 후 커밋**
+
    ```bash
    git add .
    git commit -m "feat(auth): add zustand persist store"
    ```
 
 3. **원격 저장소에 푸시**
+
    ```bash
    git push origin feature/new-feature
    ```
@@ -158,20 +162,21 @@ main              # 배포용
 
 ### Type 목록
 
-| Type | 설명 | 예시 |
-| --- | --- | --- |
-| **feat** | 새로운 기능 추가 | `feat(auth): add zustand persist store` |
-| **fix** | 버그 수정 | `fix(ui): splash image not showing on dark mode` |
-| **chore** | 빌드, 설정, 패키지 등 | `chore(eslint): add react-hooks plugin` |
-| **refactor** | 리팩터링 | `refactor(theme): simplify useTheme hook` |
-| **test** | 테스트 관련 코드 | `test(jest): add unit test for PsyTestList` |
-| **docs** | 문서 수정 | `docs(readme): update project setup guide` |
-| **style** | 코드 스타일 변경 | `style(prettier): apply formatting rules` |
-| **perf** | 성능 개선 | `perf(api): optimize query prefetch` |
+| Type         | 설명                  | 예시                                             |
+| ------------ | --------------------- | ------------------------------------------------ |
+| **feat**     | 새로운 기능 추가      | `feat(auth): add zustand persist store`          |
+| **fix**      | 버그 수정             | `fix(ui): splash image not showing on dark mode` |
+| **chore**    | 빌드, 설정, 패키지 등 | `chore(eslint): add react-hooks plugin`          |
+| **refactor** | 리팩터링              | `refactor(theme): simplify useTheme hook`        |
+| **test**     | 테스트 관련 코드      | `test(jest): add unit test for PsyTestList`      |
+| **docs**     | 문서 수정             | `docs(readme): update project setup guide`       |
+| **style**    | 코드 스타일 변경      | `style(prettier): apply formatting rules`        |
+| **perf**     | 성능 개선             | `perf(api): optimize query prefetch`             |
 
 ### Scope 가이드
 
 프로젝트 모듈/영역별로 scope 지정:
+
 - `auth` - 인증/로그인 관련
 - `ui` - UI 컴포넌트
 - `api` - API 통신
@@ -215,6 +220,7 @@ style(eslint): fix import order
 ### 커밋 메시지 작성 팁
 
 ✅ **Good**
+
 ```bash
 feat(auth): add biometric authentication support
 fix(navigation): resolve screen flicker on route change
@@ -222,6 +228,7 @@ chore(deps): update react-native to 0.81.5
 ```
 
 ❌ **Bad**
+
 ```bash
 update code
 fix bug
@@ -245,8 +252,6 @@ git commit -m "feat(auth): add useAuth hook"
 
 ### 현재 구현된 화면
 
-
-
 ---
 
 ## 🔧 환경 설정
@@ -261,6 +266,7 @@ git commit -m "feat(auth): add useAuth hook"
 ### Expo Go 앱
 
 개발 중인 앱을 실제 디바이스에서 테스트:
+
 1. [Expo Go](https://expo.dev/client) 앱 설치 (iOS/Android)
 2. `npm start` 실행
 3. QR 코드 스캔
@@ -283,4 +289,3 @@ git commit -m "feat(auth): add useAuth hook"
 ## 📄 라이선스
 
 Private Project
-

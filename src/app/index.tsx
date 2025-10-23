@@ -1,5 +1,6 @@
-import { Link } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+
+import { Link } from 'expo-router';
 
 export default function HomeScreen() {
   return (
@@ -57,4 +58,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-

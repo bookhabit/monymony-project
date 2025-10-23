@@ -1,5 +1,6 @@
-import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+
+import { useRouter } from 'expo-router';
 
 export default function Test1Screen() {
   const router = useRouter();
@@ -22,7 +23,10 @@ export default function Test1Screen() {
         <Text style={styles.buttonText}>테스트 스크린 2로 이동</Text>
       </Pressable>
 
-      <Pressable style={[styles.button, styles.backButton]} onPress={() => router.back()}>
+      <Pressable
+        style={[styles.button, styles.backButton]}
+        onPress={() => router.back()}
+      >
         <Text style={styles.buttonText}>뒤로 가기</Text>
       </Pressable>
     </View>
@@ -93,4 +97,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-
