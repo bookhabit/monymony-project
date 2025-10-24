@@ -56,5 +56,9 @@ export default {
         projectId: '067668ac-deee-418a-8f2b-29eed40da930',
       },
     },
+    updates: {
+      url: 'https://u.expo.dev/067668ac-deee-418a-8f2b-29eed40da930',
+    },
+    runtimeVersion: '1.0.0',
   },
 };

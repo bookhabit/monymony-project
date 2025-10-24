@@ -366,6 +366,79 @@ npx eas build --platform android --profile production
 - **권한 관리**: EAS 대시보드에서 팀원 권한 설정
 - **GitHub**: Repository 접근 권한 부여
 
+## 🔄 OTA 업데이트 테스트
+
+### 📱 테스트 방법
+
+#### 1️⃣ Release 빌드 생성
+
+```bash
+# Android Preview 빌드
+npm run build:android:preview
+
+# 또는 Production 빌드
+npm run build:android:production
+```
+
+#### 2️⃣ 디바이스에 APK 설치
+
+```bash
+# 빌드된 APK를 디바이스에 설치
+adb install -r android-release.apk
+qrcode로 expo 프로젝트에서 설치 가능합니다.
+```
+
+#### 3️⃣ 코드 변경 후 업데이트 발행
+
+```bash
+# 코드 변경 후
+npm run update:preview
+
+# 또는 Production 채널
+npm run update:production
+```
+
+#### 4️⃣ 앱에서 업데이트 확인
+
+- 앱 실행 후 "업데이트 확인" 버튼 클릭
+- 업데이트 모달이 나타나는지 확인
+- 업데이트 후 앱이 재시작되는지 확인
+
+### 🔧 OTA 업데이트 특징
+
+#### ✅ 가능한 업데이트
+
+- **JavaScript 코드**: React Native 컴포넌트, 로직
+- **이미지/폰트**: assets 폴더의 정적 파일
+- **설정 파일**: app.config.js 변경사항
+
+#### ❌ 불가능한 업데이트
+
+- **네이티브 코드**: iOS/Android 네이티브 모듈
+- **의존성 변경**: package.json의 네이티브 모듈
+- **권한 변경**: Info.plist, AndroidManifest.xml
+
+### 🎯 테스트 시나리오
+
+#### 📱 기본 테스트
+
+1. **Release 빌드 설치**: Preview APK 설치
+2. **코드 변경**: UI 텍스트나 색상 변경
+3. **업데이트 발행**: `npm run update:preview`
+4. **앱에서 확인**: 업데이트 모달 및 적용 확인
+
+#### 🔄 고급 테스트
+
+1. **자동 업데이트**: 앱 시작 시 자동 확인
+2. **수동 업데이트**: 사용자가 직접 확인
+3. **롤백 테스트**: 문제 발생 시 이전 버전 복구
+
+### ⚠️ 주의사항
+
+- **Release 빌드만**: Development 빌드에서는 OTA 비활성화
+- **네트워크 필요**: 인터넷 연결 필수
+- **버전 호환성**: runtimeVersion 일치 필요
+
 ---
 
 ## 📞 문의 및 기여
