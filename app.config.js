@@ -12,10 +12,12 @@ export default {
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
     ios: {
+      bundleIdentifier: 'com.hyunjin-l.monymony',
       supportsTablet: true,
       buildNumber: String(versionInfo.BUILD_NUMBER),
     },
     android: {
+      package: 'com.hyunjin_l.monymony',
       adaptiveIcon: {
         backgroundColor: '#E6F4FE',
         foregroundImage: './src/assets/images/icon.png',
