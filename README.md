@@ -292,6 +292,37 @@ git commit -m "feat(auth): add useAuth hook"
 
 ---
 
+## 📋 버전 관리 스크립트 사용법
+
+🔧 수동 버전 관리
+
+# 버전만 증가 (1.0.0 → 1.0.1)
+
+node version-manager.js --v
+
+# 빌드 번호만 증가 (1 → 2)
+
+node version-manager.js --b
+
+# 런타임 버전만 증가 (1.0.0 → 1.0.1)
+
+node version-manager.js --r
+
+# 모든 버전 증가 (버전, 런타임, 빌드번호)
+
+node version-manager.js --a
+
+🚀 자동 버전업 + 커밋
+
+# 모든 버전 증가 + 자동 커밋
+
+npm run version-up
+
+## 버전업 결과 확인
+
+1. versionInfo.json 변경
+2. app.config.js 자동 반영
+
 ## 🚀 배포
 
 ### EAS Build (Expo Application Services)
