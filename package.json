@@ -12,7 +12,16 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "push:version-up": "git add . && git commit -m \"automated version up\"",
-    "version-up": "node ./version-manager.js --all && npm run push:version-up"
+    "version-up": "node ./version-manager.js --all && npm run push:version-up",
+    "build:android:dev": "eas build --platform android --profile development",
+    "build:android:preview": "eas build --platform android --profile preview",
+    "build:android:production": "eas build --platform android --profile production",
+    "build:ios:dev": "eas build --platform ios --profile development",
+    "build:ios:preview": "eas build --platform ios --profile preview",
+    "build:ios:production": "eas build --platform ios --profile production",
+    "build:all:dev": "eas build --platform all --profile development",
+    "build:all:preview": "eas build --platform all --profile preview",
+    "build:all:production": "eas build --platform all --profile production"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -23,6 +32,7 @@
     "babel-plugin-module-resolver": "^5.0.2",
     "expo": "~54.0.19",
     "expo-constants": "~18.0.10",
+    "expo-dev-client": "~6.0.16",
     "expo-font": "~14.0.9",
     "expo-haptics": "~15.0.7",
     "expo-image": "~3.0.10",

@@ -327,6 +327,45 @@ npm run version-up
 
 ### EAS Build (Expo Application Services)
 
+#### 📱 다른 PC에서 EAS 설정하기
+
+```bash
+# 1. EAS CLI 설치
+npm install -g @expo/eas-cli
+
+# 2. EAS 로그인 (팀 계정)
+npx eas login
+# → hyunjin_l 계정으로 로그인
+
+# 3. 프로젝트 클론
+git clone <repository-url>
+cd monymony
+npm install
+
+# 4. EAS 프로젝트 연결
+npx eas init
+# → 기존 프로젝트에 연결
+```
+
+#### 🔧 빌드 명령어
+
+```bash
+# Android 빌드
+npx eas build --platform android --profile preview
+
+# iOS 빌드
+npx eas build --platform ios --profile preview
+
+# 프로덕션 빌드
+npx eas build --platform android --profile production
+```
+
+#### ⚠️ 주의사항
+
+- **계정 공유**: `hyunjin_l` 계정 정보 공유 필요
+- **권한 관리**: EAS 대시보드에서 팀원 권한 설정
+- **GitHub**: Repository 접근 권한 부여
+
 ---
 
 ## 📞 문의 및 기여

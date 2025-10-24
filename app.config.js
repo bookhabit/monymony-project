@@ -6,6 +6,7 @@ export default {
     slug: 'monymony',
     version: versionInfo.VERSION,
     runtimeVersion: versionInfo.RUNTIME_VERSION,
+    appVersionSource: 'local',
     orientation: 'portrait',
     icon: 'src/assets/images/icon.png',
     scheme: 'monymony',
@@ -49,6 +50,11 @@ export default {
     experiments: {
       typedRoutes: true,
       reactCompiler: true,
+    },
+    extra: {
+      eas: {
+        projectId: '067668ac-deee-418a-8f2b-29eed40da930',
+      },
     },
   },
 };
