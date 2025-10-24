@@ -69,6 +69,13 @@ npm run android
 
 # 웹 브라우저
 npm run web
+
+# expo go vs development build
+npm start 시 s (switch) 를 통해 expo go 또는 development build로 확인 가능합니다.
+
+development build 또는 release.apk  필요 시
+메일 남겨주시면 eas 계정을 공유해드리겠습니다.
+
 ```
 
 ## 📁 프로젝트 구조
@@ -326,6 +333,139 @@ npm run version-up
 ## 🚀 배포
 
 ### EAS Build (Expo Application Services)
+
+#### 📱 다른 PC에서 EAS 설정하기
+
+```bash
+# 1. EAS CLI 설치
+npm install -g @expo/eas-cli
+
+# 2. EAS 로그인 (팀 계정)
+npx eas login
+# → hyunjin_l 계정으로 로그인
+
+# 3. 프로젝트 클론
+git clone <repository-url>
+cd monymony
+npm install
+
+# 4. EAS 프로젝트 연결
+npx eas init
+# → 기존 프로젝트에 연결
+```
+
+#### 🔧 빌드 명령어
+
+```bash
+# Android 빌드
+npx eas build --platform android --profile preview
+
+# iOS 빌드
+npx eas build --platform ios --profile preview
+
+# 프로덕션 빌드
+npx eas build --platform android --profile production
+```
+
+#### ⚠️ 주의사항
+
+- **계정 공유**: `hyunjin_l` 계정 정보 공유 필요
+- **권한 관리**: EAS 대시보드에서 팀원 권한 설정
+- **GitHub**: Repository 접근 권한 부여
+
+## 🔄 OTA 업데이트 테스트
+
+### 📱 테스트 방법
+
+#### 1️⃣ Release 빌드 생성
+
+```bash
+# Android Preview 빌드
+npm run build:android:preview
+
+# 또는 Production 빌드
+npm run build:android:production
+```
+
+#### 2️⃣ 디바이스에 APK 설치
+
+```bash
+# 빌드된 APK를 디바이스에 설치
+adb install -r android-release.apk
+qrcode로 expo 프로젝트에서 설치 가능합니다.
+```
+
+#### 3️⃣ 코드 변경 후 업데이트 발행
+
+```bash
+# 코드 변경 후
+npm run update:preview
+
+# 또는 Production 채널
+npm run update:production
+```
+
+#### 4️⃣ 앱에서 업데이트 확인
+
+- 앱 실행 후 "업데이트 확인" 버튼 클릭
+- 업데이트 모달이 나타나는지 확인
+- 업데이트 후 앱이 재시작되는지 확인
+
+### 🔧 OTA 업데이트 특징
+
+#### ✅ 가능한 업데이트
+
+- **JavaScript 코드**: React Native 컴포넌트, 로직
+- **이미지/폰트**: assets 폴더의 정적 파일
+- **설정 파일**: app.config.js 변경사항
+
+#### ❌ 불가능한 업데이트
+
+- **네이티브 코드**: iOS/Android 네이티브 모듈
+- **의존성 변경**: package.json의 네이티브 모듈
+- **권한 변경**: Info.plist, AndroidManifest.xml
+
+### 🎯 테스트 시나리오
+
+#### 📱 기본 테스트
+
+1. **Release 빌드 설치**: Preview APK 설치
+2. **코드 변경**: UI 텍스트나 색상 변경
+3. **업데이트 발행**: `npm run update:preview`
+4. **앱에서 확인**: 업데이트 모달 및 적용 확인
+
+#### 🔄 고급 테스트
+
+1. **자동 업데이트**: 앱 시작 시 자동 확인
+2. **수동 업데이트**: 사용자가 직접 확인
+3. **롤백 테스트**: 문제 발생 시 이전 버전 복구
+
+### ⚠️ 주의사항
+
+- **Release 빌드만**: Development 빌드에서는 OTA 비활성화
+- **네트워크 필요**: 인터넷 연결 필수
+- **버전 호환성**: runtimeVersion 일치 필요
+
+### 🔄 업데이트 정책
+
+#### **OTA 업데이트 (expo-updates)**
+
+- **자동 확인**: 앱 시작 시 자동으로 확인
+- **자동 다운로드**: 업데이트 발견 시 자동 다운로드
+- **자동 재시작**: 다운로드 완료 후 자동 재시작
+- **모달 표시**: 업데이트 진행 중 로딩 모달 표시
+
+#### **스토어 업데이트 (react-native-version-check)**
+
+- **앱스토어 배포 후**: 앱스토어에 앱이 배포되어야 작동
+- **현재 상태**: 개발 단계이므로 비활성화
+- **활성화 시점**: 앱스토어 배포 후 주석 해제
+
+#### **개발 환경**
+
+- **개발 모드**: 모든 업데이트 확인 비활성화
+- **Release 빌드**: OTA 업데이트만 활성화
+- **프로덕션**: OTA + 스토어 업데이트 모두 활성화
 
 ---
 

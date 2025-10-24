@@ -6,16 +6,19 @@ export default {
     slug: 'monymony',
     version: versionInfo.VERSION,
     runtimeVersion: versionInfo.RUNTIME_VERSION,
+    appVersionSource: 'local',
     orientation: 'portrait',
     icon: 'src/assets/images/icon.png',
     scheme: 'monymony',
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
     ios: {
+      bundleIdentifier: 'com.hyunjin-l.monymony',
       supportsTablet: true,
       buildNumber: String(versionInfo.BUILD_NUMBER),
     },
     android: {
+      package: 'com.hyunjin_l.monymony',
       adaptiveIcon: {
         backgroundColor: '#E6F4FE',
         foregroundImage: './src/assets/images/icon.png',
@@ -48,5 +51,14 @@ export default {
       typedRoutes: true,
       reactCompiler: true,
     },
+    extra: {
+      eas: {
+        projectId: '067668ac-deee-418a-8f2b-29eed40da930',
+      },
+    },
+    updates: {
+      url: 'https://u.expo.dev/067668ac-deee-418a-8f2b-29eed40da930',
+    },
+    runtimeVersion: '1.0.0',
   },
 };

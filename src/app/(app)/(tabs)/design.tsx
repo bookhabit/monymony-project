@@ -8,6 +8,7 @@ import { useTheme } from '@/context/ThemeProvider';
 import Input from '@/components/common/Input';
 import TextBox from '@/components/common/TextBox';
 import { CustomButton } from '@/components/common/button';
+import { UpdateChecker } from '@/components/updates/UpdateChecker';
 
 export default function DesignScreen() {
   const router = useRouter();
@@ -373,6 +374,9 @@ export default function DesignScreen() {
             <Input variant="outline" placeholder="Outline (테두리만)" />
           </View>
         </View>
+
+        {/* OTA Updates Test */}
+        <UpdateChecker />
 
         {/* Navigation */}
         <View style={[styles.section, { backgroundColor: theme.surface }]}>

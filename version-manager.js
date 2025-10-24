@@ -76,7 +76,7 @@ fs.readFile(versionInfoFilePath, 'utf8', (err, versionInfoData) => {
   );
 });
 
-const iosProjectFilePath = './ios/apptemplate.xcodeproj/project.pbxproj';
+const iosProjectFilePath = './ios/monymony.xcodeproj/project.pbxproj';
 fs.readFile(iosProjectFilePath, 'utf8', (err, data) => {
   if (err) {
     console.error(err);
