@@ -10,6 +10,7 @@ import * as SplashScreen from 'expo-splash-screen';
 
 import { NetworkProvider } from '@/context/NetworkContext';
 import { ThemeProvider } from '@/context/ThemeProvider';
+import UpdateProvider from '@/context/UpdateProvider';
 
 import { OfflineBanner } from '@/components/network/OfflineBanner';
 
@@ -70,8 +71,10 @@ export default function RootLayout() {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <ThemeProvider>
           <NetworkProvider>
-            <Slot />
-            <OfflineBanner />
+            <UpdateProvider>
+              <Slot />
+              <OfflineBanner />
+            </UpdateProvider>
           </NetworkProvider>
         </ThemeProvider>
       </GestureHandlerRootView>
