@@ -11,7 +11,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:ci": "jest --ci --coverage --maxWorkers=2"
+    "push:version-up": "git add . && git commit -m \"automated version up\"",
+    "version-up": "node ./version-manager.js --all && npm run push:version-up"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
