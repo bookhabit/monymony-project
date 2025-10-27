@@ -1,4 +1,4 @@
-# 🎯 Monymony
+# 🎯 my-template
 
 React Native + Expo 기반 모바일 애플리케이션
 
@@ -72,10 +72,6 @@ npm run web
 
 # expo go vs development build
 npm start 시 s (switch) 를 통해 expo go 또는 development build로 확인 가능합니다.
-
-development build 또는 release.apk  필요 시
-메일 남겨주시면 eas 계정을 공유해드리겠습니다.
-
 ```
 
 ## 📁 프로젝트 구조
