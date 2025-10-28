@@ -53,7 +53,7 @@ export default function AppLayout() {
           }}
         />
         <Stack.Screen
-          name="detail"
+          name="(details)"
           options={{
             headerShown: false,
             // iOS 스와이프로 뒤로가기

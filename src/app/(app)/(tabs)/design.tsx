@@ -408,10 +408,10 @@ export default function DesignScreen() {
 
           <Pressable
             style={[styles.navButton, { backgroundColor: theme.primary }]}
-            onPress={() => router.push('/(app)/detail')}
+            onPress={() => router.push('/(app)/(details)')}
           >
             <TextBox variant="button2" color="#fff">
-              CustomHeader 상세 페이지
+              Study 페이지
             </TextBox>
           </Pressable>
         </View>
