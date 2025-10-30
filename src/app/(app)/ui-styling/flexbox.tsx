@@ -6,23 +6,38 @@ import TextBox from '@/components/common/TextBox';
 import CustomHeader from '@/components/layout/CustomHeader';
 
 /**
- * Algorithm Study Screen
+ * Flexbox Study Screen
  */
-export default function AlgorithmScreen() {
+export default function FlexboxScreen() {
   const { theme } = useTheme();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <CustomHeader title="알고리즘" showBackButton />
+      <CustomHeader title="Flexbox" showBackButton />
 
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
           <View style={[styles.section, { backgroundColor: theme.surface }]}>
             <TextBox variant="title2" color={theme.text} style={styles.heading}>
-              알고리즘 학습
+              Flexbox
             </TextBox>
             <TextBox variant="body3" color={theme.textSecondary}>
-              알고리즘 학습 콘텐츠를 여기에 작성하세요.
+              레이아웃을 위한 1차원 배치 방식
+            </TextBox>
+          </View>
+
+          <View style={[styles.section, { backgroundColor: theme.surface }]}>
+            <TextBox variant="title3" color={theme.text} style={styles.heading}>
+              주요 속성
+            </TextBox>
+            <TextBox variant="body2" color={theme.text} style={styles.listItem}>
+              • flexDirection: 주축 방향
+            </TextBox>
+            <TextBox variant="body2" color={theme.text} style={styles.listItem}>
+              • justifyContent: 주축 정렬
+            </TextBox>
+            <TextBox variant="body2" color={theme.text} style={styles.listItem}>
+              • alignItems: 교차축 정렬
             </TextBox>
           </View>
         </View>
@@ -47,6 +62,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   heading: {
+    marginBottom: 8,
+  },
+  listItem: {
     marginBottom: 8,
   },
 });

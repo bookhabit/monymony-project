@@ -56,7 +56,28 @@ export default function DesignScreen() {
     <ScrollView
       style={[styles.container, { backgroundColor: theme.background }]}
     >
+      {/* OTA Updates Test */}
+      <UpdateChecker />
       <View style={styles.content}>
+        {/* Navigation */}
+        <View style={[styles.section, { backgroundColor: theme.surface }]}>
+          <TextBox
+            variant="body2"
+            style={[styles.sectionTitle, { borderBottomColor: theme.border }]}
+            color={theme.text}
+          >
+            페이지 이동
+          </TextBox>
+
+          <Pressable
+            style={[styles.navButton, { backgroundColor: theme.secondary }]}
+            onPress={() => router.push('/(app)/detail')}
+          >
+            <TextBox variant="button2" color="#fff">
+              앱 스터디 페이지
+            </TextBox>
+          </Pressable>
+        </View>
         <TextBox variant="title1" style={styles.header} color={theme.text}>
           🎨 Design System
         </TextBox>
@@ -374,47 +395,6 @@ export default function DesignScreen() {
             <Input variant="outline" placeholder="Outline (테두리만)" />
           </View>
         </View>
-
-        {/* OTA Updates Test */}
-        <UpdateChecker />
-
-        {/* Navigation */}
-        <View style={[styles.section, { backgroundColor: theme.surface }]}>
-          <TextBox
-            variant="body2"
-            style={[styles.sectionTitle, { borderBottomColor: theme.border }]}
-            color={theme.text}
-          >
-            페이지 이동
-          </TextBox>
-
-          <Pressable
-            style={[styles.navButton, { backgroundColor: theme.primary }]}
-            onPress={() => router.push('/(app)/(tabs)/image')}
-          >
-            <TextBox variant="button2" color="#fff">
-              이미지 테스트로 이동
-            </TextBox>
-          </Pressable>
-
-          <Pressable
-            style={[styles.navButton, { backgroundColor: theme.secondary }]}
-            onPress={() => router.push('/(app)/(tabs)/icon')}
-          >
-            <TextBox variant="button2" color="#fff">
-              아이콘 테스트로 이동
-            </TextBox>
-          </Pressable>
-
-          <Pressable
-            style={[styles.navButton, { backgroundColor: theme.primary }]}
-            onPress={() => router.push('/(app)/detail')}
-          >
-            <TextBox variant="button2" color="#fff">
-              CustomHeader 상세 페이지
-            </TextBox>
-          </Pressable>
-        </View>
       </View>
     </ScrollView>
   );
@@ -435,12 +415,6 @@ const styles = StyleSheet.create({
   section: {
     padding: 20,
     borderRadius: 15,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   sectionTitle: {
     marginBottom: 16,

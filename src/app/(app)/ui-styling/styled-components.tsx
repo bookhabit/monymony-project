@@ -6,23 +6,38 @@ import TextBox from '@/components/common/TextBox';
 import CustomHeader from '@/components/layout/CustomHeader';
 
 /**
- * Native Modules Study Screen
+ * Styled Components Study Screen
  */
-export default function NativeModulesScreen() {
+export default function StyledComponentsScreen() {
   const { theme } = useTheme();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <CustomHeader title="네이티브 모듈" showBackButton />
+      <CustomHeader title="스타일드 컴포넌트" showBackButton />
 
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
           <View style={[styles.section, { backgroundColor: theme.surface }]}>
             <TextBox variant="title2" color={theme.text} style={styles.heading}>
-              네이티브 모듈 학습
+              스타일드 컴포넌트
             </TextBox>
             <TextBox variant="body3" color={theme.textSecondary}>
-              네이티브 모듈 학습 콘텐츠를 여기에 작성하세요.
+              CSS-in-JS 라이브러리
+            </TextBox>
+          </View>
+
+          <View style={[styles.section, { backgroundColor: theme.surface }]}>
+            <TextBox variant="title3" color={theme.text} style={styles.heading}>
+              장점
+            </TextBox>
+            <TextBox variant="body2" color={theme.text} style={styles.listItem}>
+              • 컴포넌트와 스타일 결합
+            </TextBox>
+            <TextBox variant="body2" color={theme.text} style={styles.listItem}>
+              • props 기반 동적 스타일
+            </TextBox>
+            <TextBox variant="body2" color={theme.text} style={styles.listItem}>
+              • 중첩 규칙 지원
             </TextBox>
           </View>
         </View>
@@ -47,6 +62,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   heading: {
+    marginBottom: 8,
+  },
+  listItem: {
     marginBottom: 8,
   },
 });

@@ -5,24 +5,20 @@ import { useTheme } from '@/context/ThemeProvider';
 import TextBox from '@/components/common/TextBox';
 import CustomHeader from '@/components/layout/CustomHeader';
 
-/**
- * TypeScript Study Screen
- */
-export default function TypeScriptScreen() {
+export default function HooksScreen() {
   const { theme } = useTheme();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <CustomHeader title="타입스크립트" showBackButton />
-
+      <CustomHeader title="Hooks" showBackButton />
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
           <View style={[styles.section, { backgroundColor: theme.surface }]}>
             <TextBox variant="title2" color={theme.text} style={styles.heading}>
-              타입스크립트 학습
+              React Hooks
             </TextBox>
             <TextBox variant="body3" color={theme.textSecondary}>
-              타입스크립트 학습 콘텐츠를 여기에 작성하세요.
+              함수형 컴포넌트에서 상태 관리
             </TextBox>
           </View>
         </View>
@@ -32,21 +28,9 @@ export default function TypeScriptScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  content: {
-    padding: 20,
-  },
-  section: {
-    padding: 20,
-    borderRadius: 15,
-    marginBottom: 20,
-  },
-  heading: {
-    marginBottom: 8,
-  },
+  container: { flex: 1 },
+  scrollView: { flex: 1 },
+  content: { padding: 20 },
+  section: { padding: 20, borderRadius: 15, marginBottom: 20 },
+  heading: { marginBottom: 8 },
 });
