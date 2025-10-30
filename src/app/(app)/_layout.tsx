@@ -56,9 +56,88 @@ export default function AppLayout() {
           name="detail"
           options={{
             headerShown: false,
-            // iOS 스와이프로 뒤로가기
             gestureEnabled: true,
-            // 제스처 영역 확대 (화면 왼쪽 전체)
+            fullScreenGestureEnabled: true,
+            presentation: 'card',
+          }}
+        />
+        <Stack.Screen
+          name="algorithm"
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
+            presentation: 'card',
+          }}
+        />
+        <Stack.Screen
+          name="javascript"
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
+            presentation: 'card',
+          }}
+        />
+        <Stack.Screen
+          name="typescript"
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
+            presentation: 'card',
+          }}
+        />
+        <Stack.Screen
+          name="react"
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
+            presentation: 'card',
+          }}
+        />
+        <Stack.Screen
+          name="react-native-and-expo"
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
+            presentation: 'card',
+          }}
+        />
+        <Stack.Screen
+          name="state-management"
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
+            presentation: 'card',
+          }}
+        />
+        <Stack.Screen
+          name="animation"
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
+            presentation: 'card',
+          }}
+        />
+        <Stack.Screen
+          name="ui-styling"
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
+            presentation: 'card',
+          }}
+        />
+        <Stack.Screen
+          name="native-modules"
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
             fullScreenGestureEnabled: true,
             presentation: 'card',
           }}
