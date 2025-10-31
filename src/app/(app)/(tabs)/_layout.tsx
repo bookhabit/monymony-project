@@ -29,6 +29,11 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="palette" size={size} color={color} />
           ),
+          // tabBarBadge: 2,
+          // tabBarBadgeStyle: {
+          //   backgroundColor: 'tomato',
+          //   color: 'white',
+          // },
         }}
       />
       <Tabs.Screen
