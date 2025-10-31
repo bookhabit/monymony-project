@@ -46,6 +46,13 @@ const reactNativeTopics: ReactNativeTopic[] = [
     icon: 'devices',
     emoji: '📱',
   },
+  {
+    id: 'thread',
+    title: 'JS-UI 스레드',
+    route: '/(app)/react-native-and-expo/thread',
+    icon: 'yard',
+    emoji: '🧵',
+  },
 ];
 
 export default function ReactNativeAndExpoScreen() {
