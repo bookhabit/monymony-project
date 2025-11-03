@@ -289,6 +289,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
                       handleSetInputChange(index, 'weight', value)
                     }
                     placeholder={exercise.challengeWeight?.toString() || '0'}
+                    placeholderTextColor={theme.textSecondary}
                     keyboardType="decimal-pad"
                   />
                 )}
@@ -308,6 +309,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
                     handleSetInputChange(index, 'reps', value)
                   }
                   placeholder="5"
+                  placeholderTextColor={theme.textSecondary}
                   keyboardType="number-pad"
                 />
               </View>
