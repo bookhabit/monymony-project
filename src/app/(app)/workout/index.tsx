@@ -42,22 +42,14 @@ const WorkoutMainScreen = () => {
   const router = useRouter();
 
   const navigationButtons: {
+    type: 'today' | 'month' | 'week';
     title: string;
     icon: keyof typeof MaterialIcons.glyphMap;
     route: string;
     handler?: () => void;
   }[] = [
     {
-      title: '월별 기록 ',
-      icon: 'calendar-view-month',
-      route: 'workout/month',
-    },
-    {
-      title: '주별 기록 ',
-      icon: 'calendar-view-week',
-      route: 'workout/this-week',
-    },
-    {
+      type: 'today',
       title: '오늘의 운동',
       icon: 'today',
       route: 'workout/today',
@@ -67,6 +59,13 @@ const WorkoutMainScreen = () => {
       },
     },
     {
+      type: 'month',
+      title: '월별 기록 ',
+      icon: 'calendar-view-month',
+      route: 'workout/month',
+    },
+    {
+      type: 'week',
       title: '종목별 보기',
       icon: 'fitness-center',
       route: 'workout/exercises',
@@ -101,7 +100,7 @@ const WorkoutMainScreen = () => {
                   style={({ pressed }) => [
                     styles.navButton,
                     {
-                      width: (Dimensions.get('window').width - 60) / 2,
+                      width: button.type === 'today' ? '100%' : '48%',
                       backgroundColor: theme.surface,
                       borderColor: workoutColors.accent,
                       borderWidth: 2,

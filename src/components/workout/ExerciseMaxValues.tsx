@@ -31,6 +31,7 @@ const ExerciseMaxValues: React.FC = () => {
   const { exercises, loading, error, refetch } = useAllExercises();
   const [displayLoading, setDisplayLoading] = useState(false);
   const loadingStartTimeRef = useRef<number | null>(null);
+  const isManualRefreshRef = useRef<boolean>(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -46,13 +47,27 @@ const ExerciseMaxValues: React.FC = () => {
         }).start();
       }
     } else {
-      // 로딩이 끝났을 때 최소 시간이 지났는지 확인
+      // 로딩이 끝났을 때
       if (loadingStartTimeRef.current) {
-        const elapsed = Date.now() - loadingStartTimeRef.current;
-        const remaining = Math.max(0, MIN_LOADING_TIME - elapsed);
+        // 수동 refresh인 경우에만 최소 시간 보장
+        if (isManualRefreshRef.current) {
+          const elapsed = Date.now() - loadingStartTimeRef.current;
+          const remaining = Math.max(0, MIN_LOADING_TIME - elapsed);
 
-        setTimeout(() => {
-          // 페이드 아웃 애니메이션
+          setTimeout(() => {
+            // 페이드 아웃 애니메이션
+            Animated.timing(fadeAnim, {
+              toValue: 0,
+              duration: 300,
+              useNativeDriver: true,
+            }).start(() => {
+              setDisplayLoading(false);
+              loadingStartTimeRef.current = null;
+              isManualRefreshRef.current = false;
+            });
+          }, remaining);
+        } else {
+          // 일반 로딩은 즉시 숨김
           Animated.timing(fadeAnim, {
             toValue: 0,
             duration: 300,
@@ -61,12 +76,13 @@ const ExerciseMaxValues: React.FC = () => {
             setDisplayLoading(false);
             loadingStartTimeRef.current = null;
           });
-        }, remaining);
+        }
       }
     }
   }, [loading, fadeAnim]);
 
   const handleRefresh = () => {
+    isManualRefreshRef.current = true;
     loadingStartTimeRef.current = null;
     refetch();
   };

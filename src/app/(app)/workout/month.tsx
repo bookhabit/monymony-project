@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Calendar, DateData } from 'react-native-calendars';
+import { Calendar, DateData, LocaleConfig } from 'react-native-calendars';
 
 import { useRouter } from 'expo-router';
 
@@ -8,11 +8,56 @@ import { useTheme } from '@/context/ThemeProvider';
 import { getDatabase } from '@/db/setupDatabase';
 
 import CustomHeader from '@/components/layout/CustomHeader';
-import MonthStatistics from '@/components/workout/MonthStatistics';
+import WorkoutStatistics from '@/components/workout/WorkoutStatistics';
 
 import { workoutPalette } from '@/constants/colors';
 
 import { formatDate } from '@/utils/routine';
+import { getWeekRange } from '@/utils/week';
+
+// 한글 로케일 설정
+LocaleConfig.locales['ko'] = {
+  monthNames: [
+    '1월',
+    '2월',
+    '3월',
+    '4월',
+    '5월',
+    '6월',
+    '7월',
+    '8월',
+    '9월',
+    '10월',
+    '11월',
+    '12월',
+  ],
+  monthNamesShort: [
+    '1월',
+    '2월',
+    '3월',
+    '4월',
+    '5월',
+    '6월',
+    '7월',
+    '8월',
+    '9월',
+    '10월',
+    '11월',
+    '12월',
+  ],
+  dayNames: [
+    '일요일',
+    '월요일',
+    '화요일',
+    '수요일',
+    '목요일',
+    '금요일',
+    '토요일',
+  ],
+  dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+  today: '오늘',
+};
+LocaleConfig.defaultLocale = 'ko';
 
 interface MarkedDates {
   [key: string]: {
@@ -60,6 +105,11 @@ const MonthScreen = () => {
     const endDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
     return { startDate, endDate };
   }, [currentMonth]);
+
+  // 이번주 날짜 범위 계산
+  const weekDateRange = useMemo(() => {
+    return getWeekRange(new Date());
+  }, []);
 
   // 현재 날짜 문자열 (YYYY-MM-DD) - 안전하게 계산
   const currentDateString = useMemo(() => {
@@ -176,10 +226,18 @@ const MonthScreen = () => {
             />
           </View>
 
-          {/* 월별 통계 */}
-          <MonthStatistics
+          {/* 이번달 통계 */}
+          <WorkoutStatistics
+            type="month"
             startDate={monthDateRange.startDate}
             endDate={monthDateRange.endDate}
+          />
+
+          {/* 이번주 통계 */}
+          <WorkoutStatistics
+            type="week"
+            startDate={weekDateRange.startDate}
+            endDate={weekDateRange.endDate}
           />
         </View>
       </ScrollView>

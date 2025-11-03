@@ -19,7 +19,6 @@ export default function WorkoutLayout() {
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="today" options={{ headerShown: false }} />
-      <Stack.Screen name="this-week" options={{ headerShown: false }} />
       <Stack.Screen name="month" options={{ headerShown: false }} />
       <Stack.Screen name="exercises" options={{ headerShown: false }} />
     </Stack>
