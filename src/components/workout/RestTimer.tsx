@@ -5,9 +5,8 @@ import {
   AppState,
   AppStateStatus,
   TextInput,
+  Vibration,
 } from 'react-native';
-
-import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '@/context/ThemeProvider';
 
@@ -29,9 +28,6 @@ const RestTimer: React.FC<RestTimerProps> = ({ defaultSeconds = 90 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const vibrationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
-    null
-  );
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
   const startTimeRef = useRef<number | null>(null);
   const pausedTimeRef = useRef<number>(0);
@@ -104,38 +100,36 @@ const RestTimer: React.FC<RestTimerProps> = ({ defaultSeconds = 90 }) => {
     };
   }, [isRunning, isPaused, seconds, isFinished]);
 
-  // 진동 무한 반복 처리 (별도 useEffect)
+  // 진동 반복 처리 (3번만)
   useEffect(() => {
+    let vibrationInterval: ReturnType<typeof setInterval> | null = null;
+    let vibrationCount = 0;
+
     if (isFinished) {
       // 즉시 한 번 진동
-      const startVibration = async () => {
-        try {
-          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-        } catch (error) {
-          console.error('진동 실패:', error);
+      Vibration.vibrate([300, 500, 200, 500]);
+      vibrationCount = 1;
+
+      // 1초마다 진동 반복 (최대 3번)
+      vibrationInterval = setInterval(() => {
+        vibrationCount++;
+        if (vibrationCount <= 3) {
+          Vibration.vibrate([300, 500, 200, 500]);
+        } else {
+          // 3번 이후 interval 정리
+          if (vibrationInterval) {
+            clearInterval(vibrationInterval);
+            vibrationInterval = null;
+          }
         }
-      };
-
-      // 즉시 한 번 진동
-      startVibration();
-
-      // 이후 0.5초마다 진동 반복
-      vibrationIntervalRef.current = setInterval(() => {
-        startVibration();
-      }, 500);
-    } else {
-      // isFinished가 false가 되면 진동 중지
-      if (vibrationIntervalRef.current) {
-        clearInterval(vibrationIntervalRef.current);
-        vibrationIntervalRef.current = null;
-      }
+      }, 1000);
     }
 
     return () => {
-      if (vibrationIntervalRef.current) {
-        clearInterval(vibrationIntervalRef.current);
-        vibrationIntervalRef.current = null;
+      if (vibrationInterval) {
+        clearInterval(vibrationInterval);
       }
+      Vibration.cancel();
     };
   }, [isFinished]);
 
@@ -186,11 +180,7 @@ const RestTimer: React.FC<RestTimerProps> = ({ defaultSeconds = 90 }) => {
 
   // 타이머 중지
   const stopTimer = () => {
-    // 진동 중지
-    if (vibrationIntervalRef.current) {
-      clearInterval(vibrationIntervalRef.current);
-      vibrationIntervalRef.current = null;
-    }
+    Vibration.cancel();
     setIsRunning(false);
     setIsPaused(false);
     setIsEditing(false);
@@ -313,14 +303,17 @@ const RestTimer: React.FC<RestTimerProps> = ({ defaultSeconds = 90 }) => {
             onPress={confirmFinished}
             style={{
               ...styles.button,
-              backgroundColor: theme.success || '#4CAF50',
+              backgroundColor: theme.workoutCompleted,
             }}
           />
         ) : !isRunning ? (
           <CustomButton
             title="시작"
             onPress={startTimer}
-            style={{ ...styles.button, backgroundColor: theme.primary }}
+            style={{
+              ...styles.button,
+              backgroundColor: theme.workoutCompleted,
+            }}
           />
         ) : (
           <>
@@ -338,7 +331,7 @@ const RestTimer: React.FC<RestTimerProps> = ({ defaultSeconds = 90 }) => {
               />
             )}
             <CustomButton
-              title="중지"
+              title="초기화"
               onPress={stopTimer}
               style={{ ...styles.button, backgroundColor: theme.error }}
             />
