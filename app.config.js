@@ -4,11 +4,12 @@ export default {
   expo: {
     name: 'monymony',
     slug: 'monymony',
+    platforms: ['ios', 'android'],
     version: versionInfo.VERSION,
     runtimeVersion: versionInfo.RUNTIME_VERSION,
     appVersionSource: 'local',
     orientation: 'portrait',
-    icon: 'src/assets/images/icon.png',
+    icon: 'src/assets/images/ic_launcher.png',
     scheme: 'monymony',
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
@@ -20,8 +21,8 @@ export default {
     android: {
       package: 'com.hyunjin_l.monymony',
       adaptiveIcon: {
-        backgroundColor: '#E6F4FE',
-        foregroundImage: './src/assets/images/icon.png',
+        foregroundImage: './src/assets/images/ic_launcher.png',
+        backgroundColor: '#ffffff', // 아이콘 배경색 (필요시 변경)
       },
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
@@ -36,13 +37,10 @@ export default {
       [
         'expo-splash-screen',
         {
-          image: 'src/assets/images/splash-icon.png',
+          image: 'src/assets/images/ic_launcher.png',
+          backgroundColor: '#ffffff', // 스플래시 배경색 (필요시 변경)
           imageWidth: 200,
           resizeMode: 'contain',
-          backgroundColor: '#ffffff',
-          dark: {
-            backgroundColor: '#000000',
-          },
         },
       ],
       'expo-font',
@@ -59,6 +57,5 @@ export default {
     updates: {
       url: 'https://u.expo.dev/067668ac-deee-418a-8f2b-29eed40da930',
     },
-    runtimeVersion: '1.0.0',
   },
 };
