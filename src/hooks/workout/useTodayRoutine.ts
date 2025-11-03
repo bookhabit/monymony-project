@@ -23,6 +23,7 @@ export interface RoutineExercise extends Exercise {
   lastWeight: number | null;
   lastSuccess: boolean;
   challengeWeight: number | null;
+  maxReps: number | null; // pullup의 경우 최고개수
 }
 
 /**
@@ -84,6 +85,25 @@ export function useTodayRoutine(date?: Date) {
             [exercise.id]
           );
 
+          // pullup의 경우 최고 reps 조회
+          let maxReps: number | null = null;
+          if (exercise.slug === 'pullup') {
+            const entries = await db.getAllAsync<{
+              reps: number;
+            }>(
+              `SELECT we.reps 
+               FROM workout_entries we
+               JOIN workout_sessions ws ON we.session_id = ws.id
+               WHERE we.exercise_id = ?
+               ORDER BY we.reps DESC
+               LIMIT 1`,
+              [exercise.id]
+            );
+            if (entries.length > 0) {
+              maxReps = entries[0].reps;
+            }
+          }
+
           return {
             ...exercise,
             lastWeight: summary?.last_weight || null,
@@ -93,6 +113,7 @@ export function useTodayRoutine(date?: Date) {
               summary?.last_success === 1,
               exercise.default_increment
             ),
+            maxReps,
           };
         })
       );

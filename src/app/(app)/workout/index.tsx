@@ -18,12 +18,29 @@ import TextBox from '@/components/common/TextBox';
 import { CustomButton } from '@/components/common/button';
 import CustomHeader from '@/components/layout/CustomHeader';
 
+import { workoutPalette } from '@/constants/colors';
+
 import { useAllExercises } from '@/hooks/workout/useAllExercises';
 
 import { formatDate } from '@/utils/routine';
 
 const WorkoutMainScreen = () => {
-  const { theme } = useTheme();
+  const { theme, isDarkMode } = useTheme();
+  const workoutColors = isDarkMode
+    ? {
+        routineA: workoutPalette.routineA.dark,
+        routineB: workoutPalette.routineB.dark,
+        routineC: workoutPalette.routineC.dark,
+        accent: workoutPalette.accentOrange.dark,
+        bg: workoutPalette.workoutBg.dark,
+      }
+    : {
+        routineA: workoutPalette.routineA.light,
+        routineB: workoutPalette.routineB.light,
+        routineC: workoutPalette.routineC.light,
+        accent: workoutPalette.accentOrange.light,
+        bg: workoutPalette.workoutBg.light,
+      };
   const router = useRouter();
   const { exercises, loading, error } = useAllExercises();
 
@@ -60,7 +77,7 @@ const WorkoutMainScreen = () => {
   ];
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={[styles.container, { backgroundColor: workoutColors.bg }]}>
       <CustomHeader title="5 x 5 스트렝스 훈련" showBackButton={false} />
 
       <ScrollView
@@ -69,10 +86,19 @@ const WorkoutMainScreen = () => {
       >
         <View style={styles.content}>
           <TextBox variant="title3" color={theme.text} style={styles.heading}>
-            메인 운동
+            현재 중량
           </TextBox>
           {/* 전체 운동종목 무게 표시 */}
-          <View style={[styles.section, { backgroundColor: theme.surface }]}>
+          <View
+            style={[
+              styles.section,
+              {
+                backgroundColor: theme.surface,
+                borderLeftWidth: 4,
+                borderLeftColor: workoutColors.accent,
+              },
+            ]}
+          >
             {loading ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={theme.primary} />
@@ -135,7 +161,7 @@ const WorkoutMainScreen = () => {
                     </TextBox>
                     <TextBox
                       variant="body2"
-                      color={theme.primary}
+                      color={workoutColors.accent}
                       style={styles.maxValue}
                     >
                       {exercise.slug === 'pullup'
@@ -170,7 +196,8 @@ const WorkoutMainScreen = () => {
                     {
                       width: (Dimensions.get('window').width - 60) / 2,
                       backgroundColor: theme.surface,
-                      borderColor: theme.border,
+                      borderColor: workoutColors.accent,
+                      borderWidth: 2,
                     },
                     pressed && { opacity: 0.7 },
                   ]}
@@ -178,7 +205,7 @@ const WorkoutMainScreen = () => {
                   <MaterialIcons
                     name={button.icon}
                     size={32}
-                    color={theme.primary}
+                    color={workoutColors.accent}
                   />
                   <TextBox
                     variant="body2"

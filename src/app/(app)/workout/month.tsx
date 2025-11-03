@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, Pressable } from 'react-native';
+import React, { useState, useEffect, useMemo } from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { Calendar, DateData } from 'react-native-calendars';
 
 import { useRouter } from 'expo-router';
-import * as SQLite from 'expo-sqlite';
-
-import { MaterialIcons } from '@expo/vector-icons';
 
 import { useTheme } from '@/context/ThemeProvider';
 import { getDatabase } from '@/db/setupDatabase';
 
-import TextBox from '@/components/common/TextBox';
 import CustomHeader from '@/components/layout/CustomHeader';
+
+import { workoutPalette } from '@/constants/colors';
 
 import { formatDate } from '@/utils/routine';
 
@@ -25,6 +23,7 @@ interface MarkedDates {
       container?: {
         borderWidth?: number;
         borderColor?: string;
+        borderRadius?: number;
       };
       text?: {
         color?: string;
@@ -34,11 +33,34 @@ interface MarkedDates {
 }
 
 const MonthScreen = () => {
-  const { theme } = useTheme();
+  const { theme, isDarkMode } = useTheme();
+  const workoutColors = isDarkMode
+    ? {
+        completed: workoutPalette.workoutCompleted.dark,
+        bg: workoutPalette.workoutBg.dark,
+        accent: workoutPalette.accentBlue.dark,
+      }
+    : {
+        completed: workoutPalette.workoutCompleted.light,
+        bg: workoutPalette.workoutBg.light,
+        accent: workoutPalette.accentBlue.light,
+      };
   const router = useRouter();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
   const [loading, setLoading] = useState(true);
+
+  // 현재 날짜 문자열 (YYYY-MM-DD) - 안전하게 계산
+  const currentDateString = useMemo(() => {
+    if (
+      !currentMonth ||
+      !(currentMonth instanceof Date) ||
+      isNaN(currentMonth.getTime())
+    ) {
+      return formatDate(new Date());
+    }
+    return formatDate(currentMonth);
+  }, [currentMonth]);
 
   useEffect(() => {
     loadMonthData();
@@ -71,11 +93,12 @@ const MonthScreen = () => {
       sessions.forEach((session) => {
         marked[session.date] = {
           marked: true,
-          dotColor: theme.success,
+          dotColor: workoutColors.completed,
           customStyles: {
             container: {
               borderWidth: 2,
-              borderColor: theme.success,
+              borderColor: workoutColors.completed,
+              borderRadius: 8,
             },
             text: {
               color: theme.text,
@@ -97,47 +120,38 @@ const MonthScreen = () => {
     router.push(`/(app)/workout/today?date=${day.dateString}`);
   };
 
-  const handleMonthChange = (direction: number) => {
-    const newDate = new Date(currentMonth);
-    newDate.setMonth(newDate.getMonth() + direction);
-    setCurrentMonth(newDate);
-  };
-
-  const monthName = `${currentMonth.getFullYear()}년 ${
-    currentMonth.getMonth() + 1
-  }월`;
-
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={[styles.container, { backgroundColor: workoutColors.bg }]}>
       <CustomHeader title="월별 운동기록" showBackButton />
 
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
           <View style={[styles.section, { backgroundColor: theme.surface }]}>
-            {/* 캘린더 */}
             <Calendar
-              current={formatDate(currentMonth)}
+              current={currentDateString}
               onDayPress={handleDayPress}
               markedDates={markedDates}
               markingType="custom"
               monthFormat={'yyyy년 MM월'}
               hideExtraDays={true}
               firstDay={0}
-              onMonthChange={(month) => {
-                setCurrentMonth(new Date(month.year, month.month - 1, 1));
+              onMonthChange={(month: { year: number; month: number }) => {
+                if (month && month.year && month.month) {
+                  setCurrentMonth(new Date(month.year, month.month - 1, 1));
+                }
               }}
               theme={{
                 backgroundColor: theme.surface,
                 calendarBackground: theme.surface,
                 textSectionTitleColor: theme.text,
-                selectedDayBackgroundColor: theme.primary,
+                selectedDayBackgroundColor: workoutColors.accent,
                 selectedDayTextColor: '#ffffff',
-                todayTextColor: theme.primary,
+                todayTextColor: workoutColors.accent,
                 dayTextColor: theme.text,
                 textDisabledColor: theme.textSecondary,
-                dotColor: theme.success,
-                selectedDotColor: theme.success,
-                arrowColor: theme.primary,
+                dotColor: workoutColors.completed,
+                selectedDotColor: workoutColors.completed,
+                arrowColor: workoutColors.accent,
                 monthTextColor: theme.text,
                 textDayFontWeight: '400',
                 textMonthFontWeight: 'bold',
@@ -171,36 +185,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 15,
   },
-  monthHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  navButton: {
-    padding: 8,
-  },
-  monthText: {
-    flex: 1,
-    textAlign: 'center',
-  },
   calendar: {
     borderRadius: 10,
-    marginBottom: 16,
-  },
-  legend: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 16,
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  legendDot: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
   },
 });

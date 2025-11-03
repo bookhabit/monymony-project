@@ -21,6 +21,8 @@ import TextBox from '@/components/common/TextBox';
 import { CustomButton } from '@/components/common/button';
 import CustomHeader from '@/components/layout/CustomHeader';
 
+import { workoutPalette } from '@/constants/colors';
+
 import { useSaveWorkout } from '@/hooks/workout/useSaveWorkout';
 import { useTodayRoutine } from '@/hooks/workout/useTodayRoutine';
 
@@ -37,7 +39,7 @@ interface SetInput {
 }
 
 const TodayScreen = () => {
-  const { theme } = useTheme();
+  const { theme, isDarkMode } = useTheme();
   const params = useLocalSearchParams<{ date?: string }>();
   // 날짜 파라미터가 있으면 해당 날짜, 없으면 오늘
   const today = params.date ? new Date(params.date) : new Date();
@@ -51,9 +53,31 @@ const TodayScreen = () => {
   const [saving, setSaving] = useState(false);
 
   const isToday = !params.date || formatDate(today) === formatDate(new Date());
-  console.log('params', params);
-  console.log('today', today);
-  console.log('isToday', isToday);
+
+  // 루틴별 색상 가져오기
+  const getRoutineColor = (code: RoutineCode): string => {
+    if (code === 'REST') {
+      return isDarkMode ? workoutPalette.rest.dark : workoutPalette.rest.light;
+    }
+    if (code === 'A') {
+      return isDarkMode
+        ? workoutPalette.routineA.dark
+        : workoutPalette.routineA.light;
+    }
+    if (code === 'B') {
+      return isDarkMode
+        ? workoutPalette.routineB.dark
+        : workoutPalette.routineB.light;
+    }
+    return isDarkMode
+      ? workoutPalette.routineC.dark
+      : workoutPalette.routineC.light;
+  };
+
+  const routineColor = getRoutineColor(routineCode);
+  const workoutBg = isDarkMode
+    ? workoutPalette.workoutBg.dark
+    : workoutPalette.workoutBg.light;
 
   // 운동 드롭다운 토글
   const toggleExercise = (exerciseId: number) => {
@@ -102,19 +126,32 @@ const TodayScreen = () => {
   // 저장
   const handleSave = async (exerciseId: number) => {
     const inputs = setInputs[exerciseId] || [];
-    const isValid = inputs.every(
-      (input) => parseFloat(input.weight) > 0 && parseInt(input.reps, 10) > 0
-    );
+    const exercise = exercises.find((e) => e.id === exerciseId);
+    const isPullup = exercise?.slug === 'pullup';
+
+    // pullup은 무게 체크 제외, 일반 운동은 무게와 횟수 모두 체크
+    const isValid = inputs.every((input) => {
+      const repsValid = parseInt(input.reps, 10) > 0;
+      if (isPullup) {
+        return repsValid;
+      }
+      return parseFloat(input.weight) > 0 && repsValid;
+    });
 
     if (!isValid) {
-      Alert.alert('입력 오류', '모든 세트에 무게와 횟수를 입력해주세요.');
+      Alert.alert(
+        '입력 오류',
+        isPullup
+          ? '모든 세트에 횟수를 입력해주세요.'
+          : '모든 세트에 무게와 횟수를 입력해주세요.'
+      );
       return;
     }
 
     setSaving(true);
     const sets = inputs.map((input, index) => ({
       set: index + 1,
-      weight: parseFloat(input.weight),
+      weight: isPullup ? 0 : parseFloat(input.weight), // pullup은 무게 0으로 저장
       reps: parseInt(input.reps, 10),
     }));
 
@@ -155,7 +192,7 @@ const TodayScreen = () => {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: theme.background }]}
+      style={[styles.container, { backgroundColor: workoutBg }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
@@ -170,15 +207,33 @@ const TodayScreen = () => {
         keyboardShouldPersistTaps="handled"
       >
         {/* 날짜 및 루틴 헤더 */}
-        <View style={[styles.header, { backgroundColor: theme.surface }]}>
+        <View
+          style={[
+            styles.header,
+            {
+              backgroundColor: theme.surface,
+              borderLeftWidth: 4,
+              borderLeftColor: routineColor,
+            },
+          ]}
+        >
           <TextBox variant="title1" color={theme.text} style={styles.dateText}>
             {formatDate(today)}
           </TextBox>
           <TextBox variant="body2" color={theme.textSecondary}>
             {getDayName(today)}
           </TextBox>
-          <View style={styles.routineBadge}>
-            <TextBox variant="title2" color={theme.primary}>
+          <View
+            style={[
+              styles.routineBadge,
+              {
+                backgroundColor: routineColor + '20',
+                padding: 12,
+                borderRadius: 12,
+              },
+            ]}
+          >
+            <TextBox variant="title2" color={routineColor}>
               {routineCode} 루틴
             </TextBox>
             <TextBox variant="body3" color={theme.textSecondary}>
@@ -207,7 +262,14 @@ const TodayScreen = () => {
         {exercises.map((exercise) => (
           <View
             key={exercise.id}
-            style={[styles.exerciseCard, { backgroundColor: theme.surface }]}
+            style={[
+              styles.exerciseCard,
+              {
+                backgroundColor: theme.surface,
+                borderLeftWidth: 3,
+                borderLeftColor: routineColor,
+              },
+            ]}
           >
             {/* 운동 헤더 (클릭 가능) */}
             <Pressable onPress={() => toggleExercise(exercise.id)}>
@@ -231,23 +293,38 @@ const TodayScreen = () => {
                             parseFloat(input.weight) > 0 &&
                             parseInt(input.reps, 10) > 0
                         );
+                      const completedColor = isDarkMode
+                        ? workoutPalette.workoutCompleted.dark
+                        : workoutPalette.workoutCompleted.light;
                       return isComplete ? (
                         <MaterialIcons
                           name="check-circle"
                           size={24}
-                          color={theme.success}
+                          color={completedColor}
                         />
                       ) : null;
                     })()}
                   </View>
                   <View style={styles.exerciseStatsRow}>
-                    <TextBox variant="caption2" color={theme.textSecondary}>
-                      최근:{' '}
-                      {exercise.lastWeight ? `${exercise.lastWeight}kg` : '-'}
-                    </TextBox>
-                    <TextBox variant="caption2" color={theme.textSecondary}>
-                      | 세트/횟수: {exercise.lastSuccess ? '5set,5reps' : '-'}
-                    </TextBox>
+                    {exercise.slug === 'pullup' ? (
+                      <TextBox variant="caption2" color={theme.textSecondary}>
+                        최고개수:{' '}
+                        {exercise.maxReps ? `${exercise.maxReps}개` : '-'}
+                      </TextBox>
+                    ) : (
+                      <>
+                        <TextBox variant="caption2" color={theme.textSecondary}>
+                          최근:{' '}
+                          {exercise.lastWeight
+                            ? `${exercise.lastWeight}kg`
+                            : '-'}
+                        </TextBox>
+                        <TextBox variant="caption2" color={theme.textSecondary}>
+                          | 세트/횟수:{' '}
+                          {exercise.lastSuccess ? '5set,5reps' : '-'}
+                        </TextBox>
+                      </>
+                    )}
                   </View>
                 </View>
 
@@ -280,13 +357,15 @@ const TodayScreen = () => {
                   >
                     세트
                   </TextBox>
-                  <TextBox
-                    variant="caption1"
-                    color={theme.textSecondary}
-                    style={styles.inputCol}
-                  >
-                    무게 (kg)
-                  </TextBox>
+                  {exercise.slug !== 'pullup' && (
+                    <TextBox
+                      variant="caption1"
+                      color={theme.textSecondary}
+                      style={styles.inputCol}
+                    >
+                      무게 (kg)
+                    </TextBox>
+                  )}
                   <TextBox
                     variant="caption1"
                     color={theme.textSecondary}
@@ -304,6 +383,8 @@ const TodayScreen = () => {
                     reps: '',
                   };
 
+                  const isPullup = exercise.slug === 'pullup';
+
                   return (
                     <View
                       key={index}
@@ -320,30 +401,32 @@ const TodayScreen = () => {
                         {index + 1}
                       </TextBox>
 
-                      <TextInput
-                        style={[
-                          styles.input,
-                          styles.inputCol,
-                          {
-                            backgroundColor: theme.background,
-                            color: theme.text,
-                            borderColor: theme.border,
-                          },
-                        ]}
-                        value={input.weight}
-                        onChangeText={(value) =>
-                          handleSetInputChange(
-                            exercise.id,
-                            index,
-                            'weight',
-                            value
-                          )
-                        }
-                        placeholder={
-                          exercise.challengeWeight?.toString() || '0'
-                        }
-                        keyboardType="decimal-pad"
-                      />
+                      {!isPullup && (
+                        <TextInput
+                          style={[
+                            styles.input,
+                            styles.inputCol,
+                            {
+                              backgroundColor: theme.background,
+                              color: theme.text,
+                              borderColor: theme.border,
+                            },
+                          ]}
+                          value={input.weight}
+                          onChangeText={(value) =>
+                            handleSetInputChange(
+                              exercise.id,
+                              index,
+                              'weight',
+                              value
+                            )
+                          }
+                          placeholder={
+                            exercise.challengeWeight?.toString() || '0'
+                          }
+                          keyboardType="decimal-pad"
+                        />
+                      )}
 
                       <TextInput
                         style={[
@@ -377,7 +460,11 @@ const TodayScreen = () => {
                     title={saving ? '저장 중...' : '저장'}
                     onPress={() => handleSave(exercise.id)}
                     disabled={saving}
-                    style={styles.saveButton}
+                    style={{
+                      ...styles.saveButton,
+                      backgroundColor: routineColor,
+                      borderColor: routineColor,
+                    }}
                   />
                 </View>
               </View>
