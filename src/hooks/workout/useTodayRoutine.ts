@@ -27,8 +27,9 @@ export interface RoutineExercise extends Exercise {
 
 /**
  * 오늘의 루틴 데이터 조회 훅
+ * @param date 선택적 날짜 파라미터. 제공되지 않으면 오늘 날짜 사용
  */
-export function useTodayRoutine() {
+export function useTodayRoutine(date?: Date) {
   const [routineCode, setRoutineCode] = useState<RoutineCode>('A');
   const [exercises, setExercises] = useState<RoutineExercise[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,8 +38,8 @@ export function useTodayRoutine() {
   const fetchTodayRoutine = useCallback(async () => {
     try {
       setLoading(true);
-      const today = new Date();
-      const code = getRoutineByDate(today);
+      const targetDate = date || new Date();
+      const code = getRoutineByDate(targetDate);
       setRoutineCode(code);
 
       // 휴식일이면 운동 목록 없음
@@ -104,7 +105,7 @@ export function useTodayRoutine() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [date]);
 
   useEffect(() => {
     fetchTodayRoutine();

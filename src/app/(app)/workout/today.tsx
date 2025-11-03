@@ -11,6 +11,8 @@ import {
   Platform,
 } from 'react-native';
 
+import { useLocalSearchParams } from 'expo-router';
+
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { useTheme } from '@/context/ThemeProvider';
@@ -36,7 +38,11 @@ interface SetInput {
 
 const TodayScreen = () => {
   const { theme } = useTheme();
-  const { routineCode, exercises, loading, error, refetch } = useTodayRoutine();
+  const params = useLocalSearchParams<{ date?: string }>();
+  // 날짜 파라미터가 있으면 해당 날짜, 없으면 오늘
+  const today = params.date ? new Date(params.date) : new Date();
+  const { routineCode, exercises, loading, error, refetch } =
+    useTodayRoutine(today);
   const { saveWorkoutSession } = useSaveWorkout();
   const [expandedExercise, setExpandedExercise] = useState<number | null>(null);
   const [setInputs, setSetInputs] = useState<{
@@ -44,7 +50,10 @@ const TodayScreen = () => {
   }>({});
   const [saving, setSaving] = useState(false);
 
-  const today = new Date();
+  const isToday = !params.date || formatDate(today) === formatDate(new Date());
+  console.log('params', params);
+  console.log('today', today);
+  console.log('isToday', isToday);
 
   // 운동 드롭다운 토글
   const toggleExercise = (exerciseId: number) => {
@@ -113,8 +122,7 @@ const TodayScreen = () => {
 
     if (success) {
       Alert.alert('저장 완료', '운동 기록이 저장되었습니다!');
-      setExpandedExercise(null);
-      setSetInputs({ ...setInputs, [exerciseId]: [] });
+      // 입력값은 유지 (계속 수정 가능)
       refetch?.();
     } else {
       Alert.alert('저장 실패', '운동 기록 저장에 실패했습니다.');
@@ -151,7 +159,10 @@ const TodayScreen = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
-      <CustomHeader title="오늘의 운동" showBackButton />
+      <CustomHeader
+        title={isToday ? '오늘의 운동' : formatDate(today)}
+        showBackButton
+      />
 
       <ScrollView
         style={styles.scrollView}
@@ -202,13 +213,33 @@ const TodayScreen = () => {
             <Pressable onPress={() => toggleExercise(exercise.id)}>
               <View style={styles.exerciseHeader}>
                 <View style={styles.exerciseInfo}>
-                  <TextBox
-                    variant="title4"
-                    color={theme.text}
-                    style={styles.exerciseName}
-                  >
-                    {exercise.name}
-                  </TextBox>
+                  <View style={styles.exerciseTitleRow}>
+                    <TextBox
+                      variant="title4"
+                      color={theme.text}
+                      style={styles.exerciseName}
+                    >
+                      {exercise.name}
+                    </TextBox>
+                    {/* 5세트 완료 체크 */}
+                    {(() => {
+                      const inputs = setInputs[exercise.id] || [];
+                      const isComplete =
+                        inputs.length === 5 &&
+                        inputs.every(
+                          (input) =>
+                            parseFloat(input.weight) > 0 &&
+                            parseInt(input.reps, 10) > 0
+                        );
+                      return isComplete ? (
+                        <MaterialIcons
+                          name="check-circle"
+                          size={24}
+                          color={theme.success}
+                        />
+                      ) : null;
+                    })()}
+                  </View>
                   <View style={styles.exerciseStatsRow}>
                     <TextBox variant="caption2" color={theme.textSecondary}>
                       최근:{' '}
@@ -411,6 +442,11 @@ const styles = StyleSheet.create({
   },
   exerciseInfo: {
     flex: 1,
+  },
+  exerciseTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   exerciseName: {
     marginBottom: 4,

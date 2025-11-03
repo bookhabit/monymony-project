@@ -20,6 +20,8 @@ import CustomHeader from '@/components/layout/CustomHeader';
 
 import { useAllExercises } from '@/hooks/workout/useAllExercises';
 
+import { formatDate } from '@/utils/routine';
+
 const WorkoutMainScreen = () => {
   const { theme } = useTheme();
   const router = useRouter();
@@ -29,11 +31,12 @@ const WorkoutMainScreen = () => {
     title: string;
     icon: keyof typeof MaterialIcons.glyphMap;
     route: string;
+    handler?: () => void;
   }[] = [
     {
       title: '월별 기록 ',
       icon: 'calendar-view-month',
-      route: 'workout/this-month',
+      route: 'workout/month',
     },
     {
       title: '주별 기록 ',
@@ -44,6 +47,10 @@ const WorkoutMainScreen = () => {
       title: '오늘의 운동',
       icon: 'today',
       route: 'workout/today',
+      handler: () => {
+        const today = new Date();
+        router.push(`/(app)/workout/today?date=${formatDate(today)}` as any);
+      },
     },
     {
       title: '종목별 보기',
@@ -154,7 +161,10 @@ const WorkoutMainScreen = () => {
               {navigationButtons.map((button, index) => (
                 <Pressable
                   key={index}
-                  onPress={() => router.push(`/(app)/${button.route}` as any)}
+                  onPress={
+                    button.handler ||
+                    (() => router.push(`/(app)/${button.route}` as any))
+                  }
                   style={({ pressed }) => [
                     styles.navButton,
                     {
