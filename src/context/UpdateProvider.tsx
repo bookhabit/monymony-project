@@ -47,27 +47,56 @@ export default function UpdateProvider({ children }: IUpdateProviderProps) {
 
   // OTA 업데이트 확인
   const checkOTAUpdate = useCallback(async () => {
-    if (__DEV__) return;
+    if (__DEV__) {
+      console.log('🔧 개발 모드: 업데이트 확인 건너뜀');
+      return;
+    }
 
     try {
+      // 업데이트 활성화 여부 확인
+      const isEnabled = Updates.isEnabled;
+      console.log('📱 업데이트 활성화 여부:', isEnabled);
+
+      if (!isEnabled) {
+        console.warn('⚠️ 업데이트가 비활성화되어 있습니다.');
+        console.log('현재 업데이트 ID:', Updates.updateId);
+        console.log('현재 채널:', Updates.channel);
+        console.log('현재 런타임 버전:', Updates.runtimeVersion);
+        return;
+      }
+
+      console.log('🔍 업데이트 확인 중...');
+      console.log('현재 업데이트 ID:', Updates.updateId);
+      console.log('현재 채널:', Updates.channel);
+      console.log('현재 런타임 버전:', Updates.runtimeVersion);
+
       const update = await Updates.checkForUpdateAsync();
+      console.log('✅ 업데이트 확인 결과:', {
+        isAvailable: update.isAvailable,
+        manifest: update.manifest ? '있음' : '없음',
+      });
 
       if (update.isAvailable) {
+        console.log('🆕 새로운 업데이트 발견!');
         showOTAUpdateModal(); // 모달 먼저 표시
 
         // 모달이 표시될 시간을 주고 업데이트 진행
         setTimeout(async () => {
           try {
+            console.log('⬇️ 업데이트 다운로드 시작...');
             await Updates.fetchUpdateAsync();
+            console.log('✅ 업데이트 다운로드 완료, 앱 재시작 중...');
             await Updates.reloadAsync();
           } catch (error) {
-            console.error('OTA 업데이트 설치 실패:', error);
+            console.error('❌ OTA 업데이트 설치 실패:', error);
             setShowOTAModal(false); // 모달 숨기기
           }
         }, 2000); // 2초 후 업데이트 진행
+      } else {
+        console.log('✅ 이미 최신 버전입니다.');
       }
     } catch (error) {
-      console.error('OTA 업데이트 확인 실패:', error);
+      console.error('❌ OTA 업데이트 확인 실패:', error);
     }
   }, []);
 
