@@ -11,12 +11,23 @@ export interface ExerciseSummary {
   muscle_group: string;
   maxWeight: number | null;
   maxReps: number | null;
+  // 월별 통계 (startDate, endDate가 있을 때만)
+  monthStartWeight?: number | null;
+  monthStartReps?: number | null;
+  monthMaxWeight?: number | null;
+  monthMaxReps?: number | null;
+}
+
+interface UseAllExercisesOptions {
+  startDate?: string; // YYYY-MM-DD
+  endDate?: string; // YYYY-MM-DD
 }
 
 /**
  * 전체 운동종목 데이터 조회 훅
+ * @param options startDate, endDate를 제공하면 월별 통계도 함께 조회
  */
-export function useAllExercises() {
+export function useAllExercises(options?: UseAllExercisesOptions) {
   const [exercises, setExercises] = useState<ExerciseSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,50 +59,95 @@ export function useAllExercises() {
       // 2. 각 운동별 최대 무게(또는 reps) 조회
       const exercisesWithHistory = await Promise.all(
         allExercises.map(async (exercise) => {
-          // workout_entries에서 해당 운동의 모든 기록 조회
-          const entries = await db.getAllAsync<{
+          // 전체 기록 조회 (최대값 계산용)
+          const allEntries = await db.getAllAsync<{
             weight: number;
             reps: number;
           }>(
             `SELECT we.weight, we.reps 
              FROM workout_entries we
+             JOIN workout_sessions ws ON we.session_id = ws.id
              WHERE we.exercise_id = ?`,
             [exercise.id]
           );
 
-          if (entries.length === 0) {
-            return {
-              id: exercise.id,
-              slug: exercise.slug,
-              name: exercise.name,
-              muscle_group: exercise.muscle_group,
-              maxWeight: null,
-              maxReps: null,
-            };
+          // 전체 최대값 계산
+          let maxWeight: number | null = null;
+          let maxReps: number | null = null;
+
+          if (allEntries.length > 0) {
+            if (exercise.slug === 'pullup') {
+              maxReps = Math.max(...allEntries.map((e) => e.reps));
+            } else {
+              maxWeight = Math.max(...allEntries.map((e) => e.weight));
+            }
           }
 
-          // 풀업은 최대 reps, 나머지는 최대 무게
-          if (exercise.slug === 'pullup') {
-            const maxReps = Math.max(...entries.map((e) => e.reps));
-            return {
-              id: exercise.id,
-              slug: exercise.slug,
-              name: exercise.name,
-              muscle_group: exercise.muscle_group,
-              maxWeight: null,
-              maxReps,
-            };
-          } else {
-            const maxWeight = Math.max(...entries.map((e) => e.weight));
-            return {
-              id: exercise.id,
-              slug: exercise.slug,
-              name: exercise.name,
-              muscle_group: exercise.muscle_group,
-              maxWeight,
-              maxReps: null,
-            };
+          // 월별 통계 계산 (날짜 범위가 있을 때)
+          let monthStartWeight: number | null = null;
+          let monthStartReps: number | null = null;
+          let monthMaxWeight: number | null = null;
+          let monthMaxReps: number | null = null;
+
+          if (options?.startDate && options?.endDate) {
+            // 이번달 기록 조회
+            const monthEntries = await db.getAllAsync<{
+              weight: number;
+              reps: number;
+            }>(
+              `SELECT we.weight, we.reps 
+               FROM workout_entries we
+               JOIN workout_sessions ws ON we.session_id = ws.id
+               WHERE we.exercise_id = ? 
+                 AND ws.date >= ? 
+                 AND ws.date <= ?`,
+              [exercise.id, options.startDate, options.endDate]
+            );
+
+            if (monthEntries.length > 0) {
+              // 이번달 첫 기록 조회
+              const firstEntry = await db.getFirstAsync<{
+                weight: number;
+                reps: number;
+              }>(
+                `SELECT we.weight, we.reps 
+                 FROM workout_entries we
+                 JOIN workout_sessions ws ON we.session_id = ws.id
+                 WHERE we.exercise_id = ? 
+                   AND ws.date >= ? 
+                   AND ws.date <= ?
+                 ORDER BY ws.date ASC, we.set_index ASC
+                 LIMIT 1`,
+                [exercise.id, options.startDate, options.endDate]
+              );
+
+              // 이번달 최대값 및 시작값 계산
+              if (exercise.slug === 'pullup') {
+                monthMaxReps = Math.max(...monthEntries.map((e) => e.reps));
+                if (firstEntry) {
+                  monthStartReps = firstEntry.reps;
+                }
+              } else {
+                monthMaxWeight = Math.max(...monthEntries.map((e) => e.weight));
+                if (firstEntry) {
+                  monthStartWeight = firstEntry.weight;
+                }
+              }
+            }
           }
+
+          return {
+            id: exercise.id,
+            slug: exercise.slug,
+            name: exercise.name,
+            muscle_group: exercise.muscle_group,
+            maxWeight,
+            maxReps,
+            monthStartWeight,
+            monthStartReps,
+            monthMaxWeight,
+            monthMaxReps,
+          };
         })
       );
 
@@ -103,11 +159,11 @@ export function useAllExercises() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [options?.startDate, options?.endDate]);
 
   useEffect(() => {
     fetchAllExercises();
-  }, [fetchAllExercises]);
+  }, [fetchAllExercises, options?.startDate, options?.endDate]);
 
   return { exercises, loading, error, refetch: fetchAllExercises };
 }

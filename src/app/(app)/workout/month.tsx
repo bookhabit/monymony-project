@@ -8,6 +8,7 @@ import { useTheme } from '@/context/ThemeProvider';
 import { getDatabase } from '@/db/setupDatabase';
 
 import CustomHeader from '@/components/layout/CustomHeader';
+import MonthStatistics from '@/components/workout/MonthStatistics';
 
 import { workoutPalette } from '@/constants/colors';
 
@@ -50,6 +51,16 @@ const MonthScreen = () => {
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
   const [loading, setLoading] = useState(true);
 
+  // 이번달 날짜 범위 계산
+  const monthDateRange = useMemo(() => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+    const endDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
+    return { startDate, endDate };
+  }, [currentMonth]);
+
   // 현재 날짜 문자열 (YYYY-MM-DD) - 안전하게 계산
   const currentDateString = useMemo(() => {
     if (
@@ -74,8 +85,9 @@ const MonthScreen = () => {
       const month = currentMonth.getMonth();
 
       // 이번달 날짜 범위
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
       const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
-      const endDate = `${year}-${String(month + 1).padStart(2, '0')}-${new Date(year, month + 1, 0).getDate()}`;
+      const endDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
 
       // 운동 기록이 있는 날짜들 조회
       const sessions = await db.getAllAsync<{
@@ -163,6 +175,12 @@ const MonthScreen = () => {
               style={styles.calendar}
             />
           </View>
+
+          {/* 월별 통계 */}
+          <MonthStatistics
+            startDate={monthDateRange.startDate}
+            endDate={monthDateRange.endDate}
+          />
         </View>
       </ScrollView>
     </View>
