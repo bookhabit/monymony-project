@@ -10,8 +10,6 @@ import { getDatabase } from '@/db/setupDatabase';
 import CustomHeader from '@/components/layout/CustomHeader';
 import WorkoutStatistics from '@/components/workout/WorkoutStatistics';
 
-import { workoutPalette } from '@/constants/colors';
-
 import { formatDate } from '@/utils/routine';
 import { getWeekRange } from '@/utils/week';
 
@@ -79,18 +77,7 @@ interface MarkedDates {
 }
 
 const MonthScreen = () => {
-  const { theme, isDarkMode } = useTheme();
-  const workoutColors = isDarkMode
-    ? {
-        completed: workoutPalette.workoutCompleted.dark,
-        bg: workoutPalette.workoutBg.dark,
-        accent: workoutPalette.accentBlue.dark,
-      }
-    : {
-        completed: workoutPalette.workoutCompleted.light,
-        bg: workoutPalette.workoutBg.light,
-        accent: workoutPalette.accentBlue.light,
-      };
+  const { theme } = useTheme();
   const router = useRouter();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
@@ -155,11 +142,11 @@ const MonthScreen = () => {
       sessions.forEach((session) => {
         marked[session.date] = {
           marked: true,
-          dotColor: workoutColors.completed,
+          dotColor: theme.workoutCompleted,
           customStyles: {
             container: {
               borderWidth: 2,
-              borderColor: workoutColors.completed,
+              borderColor: theme.workoutCompleted,
               borderRadius: 8,
             },
             text: {
@@ -183,7 +170,7 @@ const MonthScreen = () => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: workoutColors.bg }]}>
+    <View style={[styles.container, { backgroundColor: theme.workoutBg }]}>
       <CustomHeader title="월별 운동기록" showBackButton />
 
       <ScrollView style={styles.scrollView}>
@@ -206,14 +193,14 @@ const MonthScreen = () => {
                 backgroundColor: theme.surface,
                 calendarBackground: theme.surface,
                 textSectionTitleColor: theme.text,
-                selectedDayBackgroundColor: workoutColors.accent,
+                selectedDayBackgroundColor: theme.accentBlue,
                 selectedDayTextColor: '#ffffff',
-                todayTextColor: workoutColors.accent,
+                todayTextColor: theme.accentBlue,
                 dayTextColor: theme.text,
                 textDisabledColor: theme.textSecondary,
-                dotColor: workoutColors.completed,
-                selectedDotColor: workoutColors.completed,
-                arrowColor: workoutColors.accent,
+                dotColor: theme.workoutCompleted,
+                selectedDotColor: theme.workoutCompleted,
+                arrowColor: theme.accentBlue,
                 monthTextColor: theme.text,
                 textDayFontWeight: '400',
                 textMonthFontWeight: 'bold',

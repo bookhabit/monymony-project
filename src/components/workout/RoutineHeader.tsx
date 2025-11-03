@@ -5,8 +5,6 @@ import { useTheme } from '@/context/ThemeProvider';
 
 import TextBox from '@/components/common/TextBox';
 
-import { workoutPalette } from '@/constants/colors';
-
 import {
   getRoutineName,
   getDayName,
@@ -20,26 +18,20 @@ interface RoutineHeaderProps {
 }
 
 const RoutineHeader: React.FC<RoutineHeaderProps> = ({ date, routineCode }) => {
-  const { theme, isDarkMode } = useTheme();
+  const { theme } = useTheme();
 
   // 루틴별 색상 가져오기
   const getRoutineColor = (code: RoutineCode): string => {
     if (code === 'REST') {
-      return isDarkMode ? workoutPalette.rest.dark : workoutPalette.rest.light;
+      return theme.rest;
     }
     if (code === 'A') {
-      return isDarkMode
-        ? workoutPalette.routineA.dark
-        : workoutPalette.routineA.light;
+      return theme.routineA;
     }
     if (code === 'B') {
-      return isDarkMode
-        ? workoutPalette.routineB.dark
-        : workoutPalette.routineB.light;
+      return theme.routineB;
     }
-    return isDarkMode
-      ? workoutPalette.routineC.dark
-      : workoutPalette.routineC.light;
+    return theme.routineC;
   };
 
   const routineColor = getRoutineColor(routineCode);

@@ -8,20 +8,11 @@ import TextBox from '@/components/common/TextBox';
 import CustomHeader from '@/components/layout/CustomHeader';
 import ExerciseEntryCard from '@/components/workout/ExerciseEntryCard';
 
-import { workoutPalette } from '@/constants/colors';
-
 import { useExerciseEntries } from '@/hooks/workout/useExerciseEntries';
 import { useExercises } from '@/hooks/workout/useExercises';
 
 const ExercisesScreen = () => {
-  const { theme, isDarkMode } = useTheme();
-  const workoutColors = isDarkMode
-    ? {
-        bg: workoutPalette.workoutBg.dark,
-      }
-    : {
-        bg: workoutPalette.workoutBg.light,
-      };
+  const { theme } = useTheme();
   const { exercises, loading: exercisesLoading } = useExercises();
   const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(
     null
@@ -55,7 +46,7 @@ const ExercisesScreen = () => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: workoutColors.bg }]}>
+    <View style={[styles.container, { backgroundColor: theme.workoutBg }]}>
       <CustomHeader title="종목별 보기" showBackButton />
 
       <View style={styles.content}>

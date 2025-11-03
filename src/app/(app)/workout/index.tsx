@@ -18,27 +18,10 @@ import { CustomButton } from '@/components/common/button';
 import CustomHeader from '@/components/layout/CustomHeader';
 import ExerciseMaxValues from '@/components/workout/ExerciseMaxValues';
 
-import { workoutPalette } from '@/constants/colors';
-
 import { formatDate } from '@/utils/routine';
 
 const WorkoutMainScreen = () => {
-  const { theme, isDarkMode } = useTheme();
-  const workoutColors = isDarkMode
-    ? {
-        routineA: workoutPalette.routineA.dark,
-        routineB: workoutPalette.routineB.dark,
-        routineC: workoutPalette.routineC.dark,
-        accent: workoutPalette.accentOrange.dark,
-        bg: workoutPalette.workoutBg.dark,
-      }
-    : {
-        routineA: workoutPalette.routineA.light,
-        routineB: workoutPalette.routineB.light,
-        routineC: workoutPalette.routineC.light,
-        accent: workoutPalette.accentOrange.light,
-        bg: workoutPalette.workoutBg.light,
-      };
+  const { theme } = useTheme();
   const router = useRouter();
 
   const navigationButtons: {
@@ -73,7 +56,7 @@ const WorkoutMainScreen = () => {
   ];
 
   return (
-    <View style={[styles.container, { backgroundColor: workoutColors.bg }]}>
+    <View style={[styles.container, { backgroundColor: theme.workoutBg }]}>
       <CustomHeader title="5 x 5 스트렝스 훈련" showBackButton={false} />
 
       <ScrollView
@@ -102,7 +85,7 @@ const WorkoutMainScreen = () => {
                     {
                       width: button.type === 'today' ? '100%' : '48%',
                       backgroundColor: theme.surface,
-                      borderColor: workoutColors.accent,
+                      borderColor: theme.accentOrange,
                       borderWidth: 2,
                     },
                     pressed && { opacity: 0.7 },
@@ -111,7 +94,7 @@ const WorkoutMainScreen = () => {
                   <MaterialIcons
                     name={button.icon}
                     size={32}
-                    color={workoutColors.accent}
+                    color={theme.accentOrange}
                   />
                   <TextBox
                     variant="body2"

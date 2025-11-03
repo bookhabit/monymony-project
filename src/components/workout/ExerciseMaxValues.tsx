@@ -13,21 +13,12 @@ import { useTheme } from '@/context/ThemeProvider';
 
 import TextBox from '@/components/common/TextBox';
 
-import { workoutPalette } from '@/constants/colors';
-
 import { useAllExercises } from '@/hooks/workout/useAllExercises';
 
 const MIN_LOADING_TIME = 2000; // 최소 2초
 
 const ExerciseMaxValues: React.FC = () => {
-  const { theme, isDarkMode } = useTheme();
-  const workoutColors = isDarkMode
-    ? {
-        accent: workoutPalette.accentOrange.dark,
-      }
-    : {
-        accent: workoutPalette.accentOrange.light,
-      };
+  const { theme } = useTheme();
   const { exercises, loading, error, refetch } = useAllExercises();
   const [displayLoading, setDisplayLoading] = useState(false);
   const loadingStartTimeRef = useRef<number | null>(null);
@@ -104,7 +95,7 @@ const ExerciseMaxValues: React.FC = () => {
           <MaterialIcons
             name="refresh"
             size={20}
-            color={loading ? theme.textSecondary : workoutColors.accent}
+            color={loading ? theme.textSecondary : theme.accentOrange}
           />
         </Pressable>
       </View>
@@ -114,7 +105,7 @@ const ExerciseMaxValues: React.FC = () => {
           {
             backgroundColor: theme.surface,
             borderLeftWidth: 4,
-            borderLeftColor: workoutColors.accent,
+            borderLeftColor: theme.accentOrange,
           },
         ]}
       >
@@ -123,7 +114,7 @@ const ExerciseMaxValues: React.FC = () => {
             style={[styles.loadingContainer, { opacity: fadeAnim }]}
           >
             <View style={styles.loadingContent}>
-              <ActivityIndicator size="large" color={workoutColors.accent} />
+              <ActivityIndicator size="large" color={theme.accentOrange} />
               <TextBox
                 variant="body2"
                 color={theme.textSecondary}
@@ -176,7 +167,7 @@ const ExerciseMaxValues: React.FC = () => {
                 </TextBox>
                 <TextBox
                   variant="body2"
-                  color={workoutColors.accent}
+                  color={theme.accentOrange}
                   style={styles.maxValue}
                 >
                   {exercise.slug === 'pullup'

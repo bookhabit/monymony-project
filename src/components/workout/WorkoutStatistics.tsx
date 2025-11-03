@@ -7,8 +7,6 @@ import { useTheme } from '@/context/ThemeProvider';
 
 import TextBox from '@/components/common/TextBox';
 
-import { workoutPalette } from '@/constants/colors';
-
 import { useAllExercises } from '@/hooks/workout/useAllExercises';
 
 interface WorkoutStatisticsProps {
@@ -22,14 +20,7 @@ const WorkoutStatistics: React.FC<WorkoutStatisticsProps> = ({
   startDate,
   endDate,
 }) => {
-  const { theme, isDarkMode } = useTheme();
-  const workoutColors = isDarkMode
-    ? {
-        accent: workoutPalette.accentBlue.dark,
-      }
-    : {
-        accent: workoutPalette.accentBlue.light,
-      };
+  const { theme } = useTheme();
   const [expanded, setExpanded] = useState(true);
   const { exercises, loading, error } = useAllExercises({ startDate, endDate });
 
@@ -128,7 +119,7 @@ const WorkoutStatistics: React.FC<WorkoutStatisticsProps> = ({
                         </TextBox>
                         <TextBox
                           variant="body2"
-                          color={workoutColors.accent}
+                          color={theme.accentBlue}
                           style={styles.statValue}
                         >
                           {exercise.monthStartReps
@@ -147,7 +138,7 @@ const WorkoutStatistics: React.FC<WorkoutStatisticsProps> = ({
                         </TextBox>
                         <TextBox
                           variant="body2"
-                          color={workoutColors.accent}
+                          color={theme.accentBlue}
                           style={styles.statValue}
                         >
                           {exercise.monthMaxReps
@@ -168,7 +159,7 @@ const WorkoutStatistics: React.FC<WorkoutStatisticsProps> = ({
                         </TextBox>
                         <TextBox
                           variant="body2"
-                          color={workoutColors.accent}
+                          color={theme.accentBlue}
                           style={styles.statValue}
                         >
                           {exercise.monthStartWeight
@@ -187,7 +178,7 @@ const WorkoutStatistics: React.FC<WorkoutStatisticsProps> = ({
                         </TextBox>
                         <TextBox
                           variant="body2"
-                          color={workoutColors.accent}
+                          color={theme.accentBlue}
                           style={styles.statValue}
                         >
                           {exercise.monthMaxWeight

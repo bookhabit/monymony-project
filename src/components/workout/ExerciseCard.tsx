@@ -9,8 +9,6 @@ import TextBox from '@/components/common/TextBox';
 import { CustomButton } from '@/components/common/button';
 import type { SetData } from '@/components/workout/SetInputTable';
 
-import { workoutPalette } from '@/constants/colors';
-
 import type { RoutineExercise } from '@/hooks/workout/useTodayRoutine';
 
 interface SetInput {
@@ -37,7 +35,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
   onSave,
   refetch,
 }) => {
-  const { theme, isDarkMode } = useTheme();
+  const { theme } = useTheme();
   const [expanded, setExpanded] = useState(false);
   const [setInputs, setSetInputs] = useState<SetInput[]>([]);
   const [saving, setSaving] = useState(false);
@@ -166,9 +164,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
       return parseFloat(input.weight) > 0 && parseInt(input.reps, 10) > 0;
     });
 
-  const completedColor = isDarkMode
-    ? workoutPalette.workoutCompleted.dark
-    : workoutPalette.workoutCompleted.light;
+  const completedColor = theme.workoutCompleted;
 
   return (
     <View

@@ -20,8 +20,6 @@ import RestTimer from '@/components/workout/RestTimer';
 import RoutineHeader from '@/components/workout/RoutineHeader';
 import type { SetData } from '@/components/workout/SetInputTable';
 
-import { workoutPalette } from '@/constants/colors';
-
 import { useSaveWorkout } from '@/hooks/workout/useSaveWorkout';
 import { useTodayRoutine } from '@/hooks/workout/useTodayRoutine';
 
@@ -41,27 +39,18 @@ const TodayScreen = () => {
   // 루틴별 색상 가져오기
   const getRoutineColor = (code: RoutineCode): string => {
     if (code === 'REST') {
-      return isDarkMode ? workoutPalette.rest.dark : workoutPalette.rest.light;
+      return theme.rest;
     }
     if (code === 'A') {
-      return isDarkMode
-        ? workoutPalette.routineA.dark
-        : workoutPalette.routineA.light;
+      return theme.routineA;
     }
     if (code === 'B') {
-      return isDarkMode
-        ? workoutPalette.routineB.dark
-        : workoutPalette.routineB.light;
+      return theme.routineB;
     }
-    return isDarkMode
-      ? workoutPalette.routineC.dark
-      : workoutPalette.routineC.light;
+    return theme.routineC;
   };
 
   const routineColor = getRoutineColor(routineCode);
-  const workoutBg = isDarkMode
-    ? workoutPalette.workoutBg.dark
-    : workoutPalette.workoutBg.light;
 
   // 저장 핸들러
   const handleSave = async (
@@ -82,7 +71,7 @@ const TodayScreen = () => {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: workoutBg }]}
+      style={[styles.container, { backgroundColor: theme.workoutBg }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
