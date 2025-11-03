@@ -16,6 +16,7 @@ import ErrorState from '@/components/workout/ErrorState';
 import ExerciseCard from '@/components/workout/ExerciseCard';
 import LoadingState from '@/components/workout/LoadingState';
 import RestDayMessage from '@/components/workout/RestDayMessage';
+import RestTimer from '@/components/workout/RestTimer';
 import RoutineHeader from '@/components/workout/RoutineHeader';
 import type { SetData } from '@/components/workout/SetInputTable';
 
@@ -97,10 +98,6 @@ const TodayScreen = () => {
       >
         {/* 날짜 및 루틴 헤더 */}
         <RoutineHeader date={today} routineCode={routineCode} />
-
-        {/* 휴식일 메시지 */}
-        {routineCode === 'REST' && <RestDayMessage />}
-
         {/* 운동 리스트 */}
         {exercises.map((exercise) => (
           <ExerciseCard
@@ -112,6 +109,12 @@ const TodayScreen = () => {
             refetch={refetch}
           />
         ))}
+
+        {/* 휴식일 메시지 */}
+        {routineCode === 'REST' && <RestDayMessage />}
+
+        {/* 휴식 타이머 */}
+        {routineCode !== 'REST' && <RestTimer defaultSeconds={90} />}
       </ScrollView>
     </KeyboardAvoidingView>
   );

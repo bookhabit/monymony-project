@@ -44,6 +44,14 @@ export default {
         },
       ],
       'expo-font',
+      [
+        'expo-notifications',
+        {
+          icon: './src/assets/images/ic_launcher.png',
+          color: '#007AFF',
+          sounds: [],
+        },
+      ],
     ],
     experiments: {
       typedRoutes: true,
