@@ -60,13 +60,13 @@ const WorkoutMainScreen = () => {
     },
     {
       type: 'month',
-      title: '월별 기록 ',
+      title: '월별 기록 보기',
       icon: 'calendar-view-month',
       route: 'workout/month',
     },
     {
       type: 'week',
-      title: '종목별 보기',
+      title: '종목별 기록 보기',
       icon: 'fitness-center',
       route: 'workout/exercises',
     },

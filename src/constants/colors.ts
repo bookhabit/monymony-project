@@ -41,6 +41,10 @@ export const palette = {
     light: '#666666',
     dark: '#ABABAB',
   },
+  placeholder: {
+    light: '#999999',
+    dark: '#6D6D6D',
+  },
   border: {
     light: '#E0E0E0',
     dark: '#38383A',
@@ -120,6 +124,7 @@ export const lightTheme = {
   surface: palette.surface.light,
   text: palette.text.light,
   textSecondary: palette.textSecondary.light,
+  placeholder: palette.placeholder.light,
   border: palette.border.light,
 };
 
@@ -133,6 +138,7 @@ export const darkTheme = {
   surface: palette.surface.dark,
   text: palette.text.dark,
   textSecondary: palette.textSecondary.dark,
+  placeholder: palette.placeholder.dark,
   border: palette.border.dark,
 };
 

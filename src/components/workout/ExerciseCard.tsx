@@ -87,10 +87,12 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
     const newInputs = [...setInputs];
     newInputs[setIndex] = { ...newInputs[setIndex], [field]: value };
 
-    // 무게는 1세트에 입력하면 나머지 세트도 모두 동일하게 설정
-    if (field === 'weight' && setIndex === 0 && exercise.slug !== 'pullup') {
-      for (let i = 1; i < newInputs.length; i++) {
-        newInputs[i] = { ...newInputs[i], weight: value };
+    // 무게는 1세트에 입력하면 나머지 세트도 모두 동일하게 설정 (pullup 제외)
+    if (field === 'weight' && exercise.slug !== 'pullup') {
+      const weightValue = setIndex === 0 ? value : newInputs[0].weight;
+      // 1세트의 무게를 기준으로 모든 세트에 동일하게 적용
+      for (let i = 0; i < newInputs.length; i++) {
+        newInputs[i] = { ...newInputs[i], weight: weightValue };
       }
     }
 
@@ -100,45 +102,53 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
   const handleSave = async () => {
     const isPullup = exercise.slug === 'pullup';
 
-    // pullup은 무게 체크 제외, 일반 운동은 무게와 횟수 모두 체크
-    const isValid = setInputs.every((input) => {
-      const repsValid = parseInt(input.reps, 10) > 0;
-      if (isPullup) {
-        return repsValid;
+    // 1세트의 무게 가져오기 (pullup 제외)
+    const firstSetWeight = isPullup
+      ? 0
+      : parseFloat(setInputs[0]?.weight || '0');
+
+    // 1세트에 무게가 없으면 에러
+    if (!isPullup && (firstSetWeight <= 0 || isNaN(firstSetWeight))) {
+      Alert.alert('입력 오류', '1세트에 무게를 입력해주세요.');
+      return;
+    }
+
+    // 입력된 세트만 필터링 (1세트 이상 입력된 것만)
+    const validSets: SetData[] = [];
+    setInputs.forEach((input, index) => {
+      const reps = parseInt(input.reps, 10);
+
+      // 횟수가 0보다 크면 유효한 세트
+      if (reps > 0) {
+        validSets.push({
+          set: index + 1,
+          weight: isPullup ? 0 : firstSetWeight, // 모든 세트에 1세트 무게 적용
+          reps: reps,
+        });
       }
-      return parseFloat(input.weight) > 0 && repsValid;
     });
 
-    if (!isValid) {
+    // 최소 1세트 이상 입력되어야 저장 가능
+    if (validSets.length === 0) {
       Alert.alert(
         '입력 오류',
         isPullup
-          ? '모든 세트에 횟수를 입력해주세요.'
-          : '모든 세트에 무게와 횟수를 입력해주세요.'
+          ? '최소 1세트 이상 횟수를 입력해주세요.'
+          : '최소 1세트 이상 횟수를 입력해주세요.'
       );
       return;
     }
 
     setSaving(true);
-    const sets: SetData[] = setInputs.map((input, index) => ({
-      set: index + 1,
-      weight: isPullup ? 0 : parseFloat(input.weight),
-      reps: parseInt(input.reps, 10),
-    }));
 
     const success = await onSave(
       exercise.id,
-      sets,
+      validSets,
       exercise.hasSavedData || false
     );
 
     if (success) {
-      Alert.alert(
-        '저장 완료',
-        exercise.hasSavedData
-          ? '운동 기록이 수정되었습니다!'
-          : '운동 기록이 저장되었습니다!'
-      );
+      Alert.alert('저장 완료', `${validSets.length}세트 저장되었습니다!`);
       refetch?.();
     } else {
       Alert.alert('저장 실패', '운동 기록 저장에 실패했습니다.');
@@ -200,11 +210,8 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
               ) : (
                 <>
                   <TextBox variant="caption2" color={theme.textSecondary}>
-                    최근:{' '}
+                    최근 중량:{' '}
                     {exercise.lastWeight ? `${exercise.lastWeight}kg` : '-'}
-                  </TextBox>
-                  <TextBox variant="caption2" color={theme.textSecondary}>
-                    | 세트/횟수: {exercise.lastSuccess ? '5set,5reps' : '-'}
                   </TextBox>
                 </>
               )}
@@ -259,6 +266,12 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
             };
 
             const isPullup = exercise.slug === 'pullup';
+            // 무게는 1세트 입력값을 모든 세트에 표시 (pullup 제외)
+            const displayWeight = isPullup
+              ? ''
+              : setInputs[0]?.weight ||
+                exercise.challengeWeight?.toString() ||
+                '';
 
             return (
               <View
@@ -274,24 +287,51 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
                 </TextBox>
 
                 {!isPullup && (
-                  <TextInput
-                    style={[
-                      styles.input,
-                      styles.inputCol,
-                      {
-                        backgroundColor: theme.background,
-                        color: theme.text,
-                        borderColor: theme.border,
-                      },
-                    ]}
-                    value={input.weight}
-                    onChangeText={(value) =>
-                      handleSetInputChange(index, 'weight', value)
-                    }
-                    placeholder={exercise.challengeWeight?.toString() || '0'}
-                    placeholderTextColor={theme.textSecondary}
-                    keyboardType="decimal-pad"
-                  />
+                  <>
+                    {index === 0 ? (
+                      // 1세트: 입력 가능
+                      <TextInput
+                        style={[
+                          styles.input,
+                          styles.inputCol,
+                          {
+                            backgroundColor: theme.background,
+                            color: theme.text,
+                            borderColor: theme.border,
+                          },
+                        ]}
+                        value={input.weight}
+                        onChangeText={(value) =>
+                          handleSetInputChange(0, 'weight', value)
+                        }
+                        placeholder={
+                          exercise.challengeWeight?.toString() || '0'
+                        }
+                        placeholderTextColor={theme.placeholder}
+                        keyboardType="decimal-pad"
+                      />
+                    ) : (
+                      // 2-5세트: 읽기 전용 (1세트 값 표시)
+                      <View
+                        style={[
+                          styles.input,
+                          styles.inputCol,
+                          {
+                            backgroundColor: theme.background,
+                            borderColor: theme.border,
+                          },
+                        ]}
+                      >
+                        <TextBox
+                          variant="caption1"
+                          color={theme.text}
+                          style={styles.readOnlyText}
+                        >
+                          {displayWeight}
+                        </TextBox>
+                      </View>
+                    )}
+                  </>
                 )}
 
                 <TextInput
@@ -309,7 +349,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
                     handleSetInputChange(index, 'reps', value)
                   }
                   placeholder="5"
-                  placeholderTextColor={theme.textSecondary}
+                  placeholderTextColor={theme.placeholder}
                   keyboardType="number-pad"
                 />
               </View>
@@ -401,6 +441,9 @@ const styles = StyleSheet.create({
     padding: 12,
     textAlign: 'center',
     fontSize: 16,
+  },
+  readOnlyText: {
+    textAlign: 'center',
   },
   saveButtonContainer: {
     marginTop: 16,
