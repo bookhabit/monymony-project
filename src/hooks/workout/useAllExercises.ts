@@ -163,7 +163,8 @@ export function useAllExercises(options?: UseAllExercisesOptions) {
 
   useEffect(() => {
     fetchAllExercises();
-  }, [fetchAllExercises, options?.startDate, options?.endDate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchAllExercises]);
 
   return { exercises, loading, error, refetch: fetchAllExercises };
 }

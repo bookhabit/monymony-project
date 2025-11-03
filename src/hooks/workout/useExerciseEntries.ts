@@ -116,12 +116,15 @@ export function useExerciseEntries(exerciseId: number | null) {
     if (exerciseId) {
       setPage(0);
       setHasMore(true);
+      setEntries([]);
       fetchEntries(0, true);
     } else {
       setEntries([]);
       setHasMore(false);
     }
-  }, [exerciseId, fetchEntries]);
+    // fetchEntries는 exerciseId에 의존하므로 안전하게 무시
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exerciseId]);
 
   const loadMore = useCallback(() => {
     if (!loading && hasMore && exerciseId) {

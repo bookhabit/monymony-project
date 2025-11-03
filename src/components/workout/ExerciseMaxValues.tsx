@@ -26,6 +26,8 @@ const ExerciseMaxValues: React.FC = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
     if (loading) {
       if (!loadingStartTimeRef.current) {
         loadingStartTimeRef.current = Date.now();
@@ -45,7 +47,7 @@ const ExerciseMaxValues: React.FC = () => {
           const elapsed = Date.now() - loadingStartTimeRef.current;
           const remaining = Math.max(0, MIN_LOADING_TIME - elapsed);
 
-          setTimeout(() => {
+          timeoutId = setTimeout(() => {
             // 페이드 아웃 애니메이션
             Animated.timing(fadeAnim, {
               toValue: 0,
@@ -70,6 +72,12 @@ const ExerciseMaxValues: React.FC = () => {
         }
       }
     }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [loading, fadeAnim]);
 
   const handleRefresh = () => {

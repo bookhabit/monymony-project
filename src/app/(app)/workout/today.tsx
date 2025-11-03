@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   ScrollView,
@@ -26,31 +26,35 @@ import { useTodayRoutine } from '@/hooks/workout/useTodayRoutine';
 import { formatDate, type RoutineCode } from '@/utils/routine';
 
 const TodayScreen = () => {
-  const { theme, isDarkMode } = useTheme();
+  const { theme } = useTheme();
   const params = useLocalSearchParams<{ date?: string }>();
-  // 날짜 파라미터가 있으면 해당 날짜, 없으면 오늘
-  const today = params.date ? new Date(params.date) : new Date();
+  // 날짜 파라미터가 있으면 해당 날짜, 없으면 오늘 (useMemo로 최적화)
+  const today = useMemo(
+    () => (params.date ? new Date(params.date) : new Date()),
+    [params.date]
+  );
   const { routineCode, exercises, loading, error, refetch } =
     useTodayRoutine(today);
   const { saveWorkoutSession } = useSaveWorkout();
 
-  const isToday = !params.date || formatDate(today) === formatDate(new Date());
+  const isToday = useMemo(
+    () => !params.date || formatDate(today) === formatDate(new Date()),
+    [params.date, today]
+  );
 
-  // 루틴별 색상 가져오기
-  const getRoutineColor = (code: RoutineCode): string => {
-    if (code === 'REST') {
+  // 루틴별 색상 가져오기 (useMemo로 최적화)
+  const routineColor = useMemo(() => {
+    if (routineCode === 'REST') {
       return theme.rest;
     }
-    if (code === 'A') {
+    if (routineCode === 'A') {
       return theme.routineA;
     }
-    if (code === 'B') {
+    if (routineCode === 'B') {
       return theme.routineB;
     }
     return theme.routineC;
-  };
-
-  const routineColor = getRoutineColor(routineCode);
+  }, [routineCode, theme]);
 
   // 저장 핸들러
   const handleSave = async (

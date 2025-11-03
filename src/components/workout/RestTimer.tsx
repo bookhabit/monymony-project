@@ -56,7 +56,11 @@ const RestTimer: React.FC<RestTimerProps> = ({ defaultSeconds = 90 }) => {
           const remaining = Math.max(0, totalSeconds - elapsed);
           setSeconds(remaining);
           if (remaining === 0) {
-            handleTimerEnd();
+            setIsRunning(false);
+            setIsPaused(false);
+            setIsFinished(true);
+            startTimeRef.current = null;
+            pausedTimeRef.current = 0;
           }
         }
       }
@@ -76,7 +80,11 @@ const RestTimer: React.FC<RestTimerProps> = ({ defaultSeconds = 90 }) => {
       intervalRef.current = setInterval(() => {
         setSeconds((prev) => {
           if (prev <= 1) {
-            handleTimerEnd();
+            setIsRunning(false);
+            setIsPaused(false);
+            setIsFinished(true);
+            startTimeRef.current = null;
+            pausedTimeRef.current = 0;
             return 0;
           }
           return prev - 1;
@@ -132,15 +140,6 @@ const RestTimer: React.FC<RestTimerProps> = ({ defaultSeconds = 90 }) => {
       Vibration.cancel();
     };
   }, [isFinished]);
-
-  // 타이머 종료 처리
-  const handleTimerEnd = () => {
-    setIsRunning(false);
-    setIsPaused(false);
-    setIsFinished(true);
-    startTimeRef.current = null;
-    pausedTimeRef.current = 0;
-  };
 
   // 확인 버튼 클릭 (진동 중지, 타이머 초기화)
   const confirmFinished = () => {
