@@ -77,6 +77,14 @@ export default function DesignScreen() {
               앱 스터디 페이지
             </TextBox>
           </Pressable>
+          <Pressable
+            style={[styles.navButton, { backgroundColor: theme.primary }]}
+            onPress={() => router.push('/(app)/workout')}
+          >
+            <TextBox variant="button2" color="#fff">
+              운동 페이지
+            </TextBox>
+          </Pressable>
         </View>
         <TextBox variant="title1" style={styles.header} color={theme.text}>
           🎨 Design System

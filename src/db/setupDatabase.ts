@@ -1,0 +1,130 @@
+import * as SQLite from 'expo-sqlite';
+
+import { initialExercises, initialRoutines, seedDatabase } from './seedData';
+
+const DB_NAME = 'workout_tracker.db';
+
+/**
+ * SQLite 데이터베이스 초기화
+ */
+export async function setupDatabase(): Promise<SQLite.SQLiteDatabase> {
+  try {
+    // DB 열기
+    const db = await SQLite.openDatabaseAsync(DB_NAME);
+
+    console.log('📦 데이터베이스 열기 성공:', DB_NAME);
+
+    // 스키마 실행
+    await executeSchema(db);
+    console.log('✅ 스키마 생성 완료');
+
+    // 초기 데이터 시드
+    await seedDatabase(db);
+    console.log('✅ 초기 데이터 삽입 완료');
+
+    return db;
+  } catch (error) {
+    console.error('❌ 데이터베이스 초기화 실패:', error);
+    throw error;
+  }
+}
+
+/**
+ * 스키마 SQL 파일 실행
+ */
+async function executeSchema(db: SQLite.SQLiteDatabase): Promise<void> {
+  const schemaSQL = `
+    -- 운동종목 테이블 (static)
+    CREATE TABLE IF NOT EXISTS exercises (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      slug TEXT UNIQUE NOT NULL,
+      name TEXT NOT NULL,
+      muscle_group TEXT,
+      default_increment REAL DEFAULT 5.0,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 루틴 (A/B/C) 매핑 테이블
+    CREATE TABLE IF NOT EXISTS routines (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      code TEXT UNIQUE NOT NULL,
+      name TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 루틴-운동 매핑 테이블
+    CREATE TABLE IF NOT EXISTS routine_exercises (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      routine_id INTEGER NOT NULL,
+      exercise_id INTEGER NOT NULL,
+      position INTEGER DEFAULT 0,
+      FOREIGN KEY (routine_id) REFERENCES routines(id),
+      FOREIGN KEY (exercise_id) REFERENCES exercises(id),
+      UNIQUE(routine_id, exercise_id)
+    );
+
+    -- 날짜별 운동 세션 (한 날짜에 하나의 루틴)
+    CREATE TABLE IF NOT EXISTS workout_sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      date TEXT NOT NULL,
+      routine_code TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      UNIQUE(date, routine_code)
+    );
+
+    -- 세부 세트 기록 (각 운동별 5세트)
+    CREATE TABLE IF NOT EXISTS workout_entries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      session_id INTEGER NOT NULL,
+      exercise_id INTEGER NOT NULL,
+      set_index INTEGER NOT NULL,
+      weight REAL NOT NULL,
+      reps INTEGER NOT NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (session_id) REFERENCES workout_sessions(id),
+      FOREIGN KEY (exercise_id) REFERENCES exercises(id)
+    );
+
+    -- 캐시용: 최근 성공 여부 또는 요약
+    CREATE TABLE IF NOT EXISTS workout_summaries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      exercise_id INTEGER NOT NULL,
+      last_date TEXT,
+      last_weight REAL,
+      last_success INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now')),
+      UNIQUE(exercise_id)
+    );
+
+    -- 인덱스 생성 (조회 성능 향상)
+    CREATE INDEX IF NOT EXISTS idx_workout_sessions_date ON workout_sessions(date);
+    CREATE INDEX IF NOT EXISTS idx_workout_entries_session ON workout_entries(session_id);
+    CREATE INDEX IF NOT EXISTS idx_workout_entries_exercise ON workout_entries(exercise_id);
+    CREATE INDEX IF NOT EXISTS idx_workout_summaries_exercise ON workout_summaries(exercise_id);
+  `;
+
+  await db.execAsync(schemaSQL);
+}
+
+/**
+ * 데이터베이스 인스턴스 생성 (싱글톤)
+ */
+let databaseInstance: SQLite.SQLiteDatabase | null = null;
+
+export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
+  if (!databaseInstance) {
+    databaseInstance = await setupDatabase();
+  }
+  return databaseInstance;
+}
+
+/**
+ * DB 연결 해제 (선택적)
+ */
+export async function closeDatabase(): Promise<void> {
+  if (databaseInstance) {
+    await databaseInstance.closeAsync();
+    databaseInstance = null;
+  }
+}

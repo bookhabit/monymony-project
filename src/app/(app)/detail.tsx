@@ -88,6 +88,13 @@ const studyTopics: StudyTopic[] = [
     icon: 'build',
     emoji: '🔧',
   },
+  {
+    id: 'workout',
+    title: '운동',
+    route: '/(app)/workout',
+    icon: 'fitness-center',
+    emoji: '💪',
+  },
 ];
 
 export default function DetailScreen() {

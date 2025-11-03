@@ -62,6 +62,15 @@ export default function AppLayout() {
           }}
         />
         <Stack.Screen
+          name="workout"
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
+            presentation: 'card',
+          }}
+        />
+        <Stack.Screen
           name="algorithm"
           options={{
             headerShown: false,
