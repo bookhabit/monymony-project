@@ -1,5 +1,11 @@
 import React from 'react';
-import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
+import {
+  Pressable,
+  StatusBar,
+  StyleSheet,
+  View,
+  ViewStyle,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useRouter } from 'expo-router';
@@ -41,7 +47,7 @@ export const CustomHeader: React.FC<CustomHeaderProps> = ({
   backgroundColor,
   style,
 }) => {
-  const { theme } = useTheme();
+  const { theme, isDarkMode } = useTheme();
   const { top } = useSafeAreaInsets();
   const router = useRouter();
 
@@ -65,6 +71,10 @@ export const CustomHeader: React.FC<CustomHeaderProps> = ({
         style,
       ]}
     >
+      <StatusBar
+        backgroundColor={theme.background}
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+      />
       <View style={styles.content}>
         {/* Left: Back Button */}
         <View style={styles.leftContainer}>

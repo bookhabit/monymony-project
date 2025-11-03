@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  Pressable,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  View,
+} from 'react-native';
 
 import { useRouter } from 'expo-router';
 
@@ -58,6 +64,10 @@ export default function DesignScreen() {
     >
       {/* OTA Updates Test */}
       <UpdateChecker />
+      <StatusBar
+        backgroundColor={theme.background}
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+      />
       <View style={styles.content}>
         {/* Navigation */}
         <View style={[styles.section, { backgroundColor: theme.surface }]}>
