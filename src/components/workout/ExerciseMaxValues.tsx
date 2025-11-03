@@ -1,5 +1,11 @@
-import React from 'react';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  Pressable,
+  Animated,
+} from 'react-native';
 
 import { MaterialIcons } from '@expo/vector-icons';
 
@@ -11,6 +17,8 @@ import { workoutPalette } from '@/constants/colors';
 
 import { useAllExercises } from '@/hooks/workout/useAllExercises';
 
+const MIN_LOADING_TIME = 2000; // 최소 2초
+
 const ExerciseMaxValues: React.FC = () => {
   const { theme, isDarkMode } = useTheme();
   const workoutColors = isDarkMode
@@ -20,13 +28,70 @@ const ExerciseMaxValues: React.FC = () => {
     : {
         accent: workoutPalette.accentOrange.light,
       };
-  const { exercises, loading, error } = useAllExercises();
+  const { exercises, loading, error, refetch } = useAllExercises();
+  const [displayLoading, setDisplayLoading] = useState(false);
+  const loadingStartTimeRef = useRef<number | null>(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (loading) {
+      if (!loadingStartTimeRef.current) {
+        loadingStartTimeRef.current = Date.now();
+        setDisplayLoading(true);
+        // 페이드 인 애니메이션
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
+      }
+    } else {
+      // 로딩이 끝났을 때 최소 시간이 지났는지 확인
+      if (loadingStartTimeRef.current) {
+        const elapsed = Date.now() - loadingStartTimeRef.current;
+        const remaining = Math.max(0, MIN_LOADING_TIME - elapsed);
+
+        setTimeout(() => {
+          // 페이드 아웃 애니메이션
+          Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+          }).start(() => {
+            setDisplayLoading(false);
+            loadingStartTimeRef.current = null;
+          });
+        }, remaining);
+      }
+    }
+  }, [loading, fadeAnim]);
+
+  const handleRefresh = () => {
+    loadingStartTimeRef.current = null;
+    refetch();
+  };
 
   return (
     <>
-      <TextBox variant="title3" color={theme.text} style={styles.heading}>
-        종목별 현재 최고 중량
-      </TextBox>
+      <View style={styles.headingContainer}>
+        <TextBox variant="title3" color={theme.text} style={styles.heading}>
+          종목별 현재 최고 중량
+        </TextBox>
+        <Pressable
+          onPress={handleRefresh}
+          disabled={loading}
+          style={({ pressed }) => [
+            styles.refreshButton,
+            pressed && styles.refreshButtonPressed,
+          ]}
+        >
+          <MaterialIcons
+            name="refresh"
+            size={20}
+            color={loading ? theme.textSecondary : workoutColors.accent}
+          />
+        </Pressable>
+      </View>
       <View
         style={[
           styles.section,
@@ -37,17 +102,21 @@ const ExerciseMaxValues: React.FC = () => {
           },
         ]}
       >
-        {loading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={theme.primary} />
-            <TextBox
-              variant="body2"
-              color={theme.textSecondary}
-              style={styles.loadingText}
-            >
-              운동 데이터 로딩 중...
-            </TextBox>
-          </View>
+        {displayLoading ? (
+          <Animated.View
+            style={[styles.loadingContainer, { opacity: fadeAnim }]}
+          >
+            <View style={styles.loadingContent}>
+              <ActivityIndicator size="large" color={workoutColors.accent} />
+              <TextBox
+                variant="body2"
+                color={theme.textSecondary}
+                style={styles.loadingText}
+              >
+                최고 중량 계산 중...
+              </TextBox>
+            </View>
+          </Animated.View>
         ) : error ? (
           <View style={styles.errorContainer}>
             <MaterialIcons name="error-outline" size={48} color={theme.error} />
@@ -114,8 +183,21 @@ const ExerciseMaxValues: React.FC = () => {
 export default ExerciseMaxValues;
 
 const styles = StyleSheet.create({
-  heading: {
+  headingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 16,
+    gap: 8,
+  },
+  heading: {
+    flex: 1,
+  },
+  refreshButton: {
+    padding: 4,
+    borderRadius: 20,
+  },
+  refreshButtonPressed: {
+    opacity: 0.6,
   },
   section: {
     padding: 20,
@@ -123,11 +205,17 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   loadingContainer: {
+    paddingVertical: 60,
+    minHeight: 150,
+    justifyContent: 'center',
+  },
+  loadingContent: {
     alignItems: 'center',
-    paddingVertical: 40,
+    justifyContent: 'center',
   },
   loadingText: {
-    marginTop: 12,
+    marginTop: 16,
+    fontSize: 14,
   },
   errorContainer: {
     alignItems: 'center',

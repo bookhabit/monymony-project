@@ -18,12 +18,20 @@ export interface Exercise {
   default_increment: number;
 }
 
+export interface SavedSet {
+  set: number;
+  weight: number;
+  reps: number;
+}
+
 export interface RoutineExercise extends Exercise {
   position: number;
   lastWeight: number | null;
   lastSuccess: boolean;
   challengeWeight: number | null;
   maxReps: number | null; // pullup의 경우 최고개수
+  savedSets?: SavedSet[]; // 해당 날짜에 저장된 세트 데이터
+  hasSavedData?: boolean; // 저장된 데이터가 있는지 여부
 }
 
 /**
@@ -74,7 +82,14 @@ export function useTodayRoutine(date?: Date) {
         [code]
       );
 
-      // 2. 각 운동별 최근 기록 조회
+      // 2. 해당 날짜의 세션 조회
+      const targetDateStr = formatDate(targetDate);
+      const session = await db.getFirstAsync<{ id: number }>(
+        `SELECT id FROM workout_sessions WHERE date = ? AND routine_code = ?`,
+        [targetDateStr, code]
+      );
+
+      // 3. 각 운동별 최근 기록 및 저장된 데이터 조회
       const exercisesWithHistory = await Promise.all(
         routineExercises.map(async (exercise) => {
           const summary = await db.getFirstAsync<{
@@ -104,6 +119,33 @@ export function useTodayRoutine(date?: Date) {
             }
           }
 
+          // 해당 날짜에 저장된 세트 데이터 조회
+          let savedSets: SavedSet[] = [];
+          let hasSavedData = false;
+
+          if (session) {
+            const savedEntries = await db.getAllAsync<{
+              set_index: number;
+              weight: number;
+              reps: number;
+            }>(
+              `SELECT set_index, weight, reps 
+               FROM workout_entries 
+               WHERE session_id = ? AND exercise_id = ?
+               ORDER BY set_index ASC`,
+              [session.id, exercise.id]
+            );
+
+            if (savedEntries.length > 0) {
+              hasSavedData = true;
+              savedSets = savedEntries.map((entry) => ({
+                set: entry.set_index,
+                weight: entry.weight,
+                reps: entry.reps,
+              }));
+            }
+          }
+
           return {
             ...exercise,
             lastWeight: summary?.last_weight || null,
@@ -114,6 +156,8 @@ export function useTodayRoutine(date?: Date) {
               exercise.default_increment
             ),
             maxReps,
+            savedSets,
+            hasSavedData,
           };
         })
       );
