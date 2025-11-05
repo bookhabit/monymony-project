@@ -25,7 +25,7 @@ const WorkoutMainScreen = () => {
   const router = useRouter();
 
   const navigationButtons: {
-    type: 'today' | 'month' | 'week';
+    type: 'today' | 'month' | 'week' | 'hang';
     title: string;
     icon: keyof typeof MaterialIcons.glyphMap;
     route: string;
@@ -52,6 +52,15 @@ const WorkoutMainScreen = () => {
       title: '종목별 기록 보기',
       icon: 'fitness-center',
       route: 'workout/exercises',
+    },
+    {
+      type: 'hang',
+      title: '철봉 매달리기',
+      icon: 'accessibility',
+      route: 'workout/hang',
+      handler: () => {
+        router.push('/(app)/workout/hang' as any);
+      },
     },
   ];
 
@@ -83,7 +92,10 @@ const WorkoutMainScreen = () => {
                   style={({ pressed }) => [
                     styles.navButton,
                     {
-                      width: button.type === 'today' ? '100%' : '48%',
+                      width:
+                        button.type === 'today' || button.type === 'hang'
+                          ? '100%'
+                          : '48%',
                       backgroundColor: theme.surface,
                       borderColor: theme.accentOrange,
                       borderWidth: 2,
