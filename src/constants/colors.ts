@@ -104,18 +104,18 @@ export const workoutPalette = {
     dark: '#26A69A',
   },
   workoutActive: {
-    light: '#FFD93D',
-    dark: '#FFC107',
+    light: '#5B8DEF', // 밝은 블루 - 활성 상태
+    dark: '#4A7FE8',
   },
   workoutChallenge: {
     light: '#FF6B6B',
     dark: '#FF5252',
   },
 
-  // Accent Colors
+  // Accent Colors (메인 액센트 색상)
   accentOrange: {
-    light: '#FF8C42',
-    dark: '#FF7043',
+    light: '#5B8DEF', // 밝은 블루 - 라이트 모드 메인
+    dark: '#4A7FE8', // 진한 블루 - 다크 모드 메인
   },
   accentPurple: {
     light: '#9B59B6',
