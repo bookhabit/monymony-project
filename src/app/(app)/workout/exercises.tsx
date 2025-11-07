@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+
+import { useLocalSearchParams } from 'expo-router';
 
 import { useTheme } from '@/context/ThemeProvider';
 
@@ -13,10 +15,23 @@ import { useExercises } from '@/hooks/workout/useExercises';
 
 const ExercisesScreen = () => {
   const { theme } = useTheme();
+  const params = useLocalSearchParams<{ exerciseId?: string }>();
   const { exercises, loading: exercisesLoading } = useExercises();
   const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(
     null
   );
+
+  // 파라미터로 받은 exerciseId를 초기 선택값으로 설정
+  useEffect(() => {
+    if (params.exerciseId && exercises.length > 0) {
+      const exerciseId = parseInt(params.exerciseId, 10);
+      // exercises 배열에 해당 ID가 있는지 확인
+      const exerciseExists = exercises.some((ex) => ex.id === exerciseId);
+      if (exerciseExists && !isNaN(exerciseId)) {
+        setSelectedExerciseId(exerciseId);
+      }
+    }
+  }, [params.exerciseId, exercises]);
   const {
     entries,
     loading: entriesLoading,

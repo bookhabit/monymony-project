@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Pressable, TextInput, Alert } from 'react-native';
 
+import { useRouter } from 'expo-router';
+
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { useTheme } from '@/context/ThemeProvider';
@@ -36,6 +38,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
   refetch,
 }) => {
   const { theme } = useTheme();
+  const router = useRouter();
   const [expanded, setExpanded] = useState(false);
   const [setInputs, setSetInputs] = useState<SetInput[]>([]);
   const [saving, setSaving] = useState(false);
@@ -75,6 +78,13 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
 
   const toggleExercise = () => {
     setExpanded(!expanded);
+  };
+
+  const handleViewHistory = () => {
+    router.push({
+      pathname: '/(app)/workout/exercises',
+      params: { exerciseId: exercise.id.toString() },
+    } as any);
   };
 
   const handleSetInputChange = (
@@ -204,13 +214,24 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
                   최고개수: {exercise.maxReps ? `${exercise.maxReps}개` : '-'}
                 </TextBox>
               ) : (
-                <>
-                  <TextBox variant="caption2" color={theme.textSecondary}>
-                    최근 중량:{' '}
-                    {exercise.lastWeight ? `${exercise.lastWeight}kg` : '-'}
-                  </TextBox>
-                </>
+                <TextBox variant="caption2" color={theme.textSecondary}>
+                  최근 중량:{' '}
+                  {exercise.lastWeight ? `${exercise.lastWeight}kg` : '-'}
+                </TextBox>
               )}
+
+              <Pressable
+                onPress={handleViewHistory}
+                style={({ pressed }) => [
+                  styles.historyButton,
+                  { opacity: pressed ? 0.7 : 1 },
+                ]}
+              >
+                <MaterialIcons name="history" size={16} color={routineColor} />
+                <TextBox variant="caption2" color={routineColor}>
+                  지난 운동기록보기
+                </TextBox>
+              </Pressable>
             </View>
           </View>
 
@@ -404,7 +425,16 @@ const styles = StyleSheet.create({
   },
   exerciseStatsRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
+  },
+
+  historyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
   setsContainer: {
     padding: 16,
