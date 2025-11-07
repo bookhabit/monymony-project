@@ -97,6 +97,23 @@ async function executeSchema(db: SQLite.SQLiteDatabase): Promise<void> {
       UNIQUE(exercise_id)
     );
 
+    -- 일자별 메모 테이블
+    CREATE TABLE IF NOT EXISTS workout_notes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      date TEXT NOT NULL UNIQUE,
+      note TEXT NOT NULL DEFAULT '',
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 메모 히스토리 테이블
+    CREATE TABLE IF NOT EXISTS memo_entries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      content TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
     -- 철봉 매달리기 기록 테이블
     CREATE TABLE IF NOT EXISTS hang_records (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -112,6 +129,8 @@ async function executeSchema(db: SQLite.SQLiteDatabase): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_workout_entries_session ON workout_entries(session_id);
     CREATE INDEX IF NOT EXISTS idx_workout_entries_exercise ON workout_entries(exercise_id);
     CREATE INDEX IF NOT EXISTS idx_workout_summaries_exercise ON workout_summaries(exercise_id);
+    CREATE INDEX IF NOT EXISTS idx_workout_notes_date ON workout_notes(date);
+    CREATE INDEX IF NOT EXISTS idx_memo_entries_created_at ON memo_entries(created_at);
     CREATE INDEX IF NOT EXISTS idx_hang_records_date ON hang_records(date);
   `;
 

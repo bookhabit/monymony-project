@@ -22,6 +22,8 @@ export default function WorkoutLayout() {
       <Stack.Screen name="hang" options={{ headerShown: false }} />
       <Stack.Screen name="month" options={{ headerShown: false }} />
       <Stack.Screen name="exercises" options={{ headerShown: false }} />
+      <Stack.Screen name="memo/index" options={{ headerShown: false }} />
+      <Stack.Screen name="support/index" options={{ headerShown: false }} />
     </Stack>
   );
 }
