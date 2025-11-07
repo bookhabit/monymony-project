@@ -5,7 +5,7 @@ export default {
     name: 'monymony',
     slug: 'monymony',
     platforms: ['ios', 'android'],
-    version: versionInfo.VERSION,
+    version: versionInfo.ANDROID_VERSION,
     runtimeVersion: versionInfo.RUNTIME_VERSION,
     appVersionSource: 'local',
     orientation: 'portrait',
@@ -16,7 +16,8 @@ export default {
     ios: {
       bundleIdentifier: 'com.hyunjin-l.monymony',
       supportsTablet: true,
-      buildNumber: String(versionInfo.BUILD_NUMBER),
+      buildNumber: String(versionInfo.IOS_BUILD_NUMBER),
+      version: versionInfo.IOS_VERSION,
     },
     android: {
       package: 'com.hyunjin_l.monymony',
@@ -26,7 +27,8 @@ export default {
       },
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
-      versionCode: versionInfo.BUILD_NUMBER,
+      versionCode: versionInfo.ANDROID_VERSION_CODE,
+      version: versionInfo.ANDROID_VERSION,
     },
     web: {
       output: 'static',
