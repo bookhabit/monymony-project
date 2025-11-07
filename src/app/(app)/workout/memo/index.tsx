@@ -87,21 +87,31 @@ const MemoScreen = () => {
   const renderItem = ({
     item,
   }: typeof sortedEntries extends (infer U)[] ? { item: U } : never) => (
-    <Pressable
-      onLongPress={() => handleDelete(item.id)}
-      style={[styles.memoCard, { backgroundColor: theme.surface }]}
-    >
-      <TextBox
-        variant="body3"
-        color={theme.textSecondary}
-        style={styles.memoDate}
-      >
-        {item.createdLabel}
-      </TextBox>
+    <View style={[styles.memoCard, { backgroundColor: theme.surface }]}>
+      <View style={styles.memoCardHeader}>
+        <TextBox
+          variant="body3"
+          color={theme.textSecondary}
+          style={styles.memoDate}
+        >
+          {item.createdLabel}
+        </TextBox>
+        <Pressable
+          onPress={() => handleDelete(item.id)}
+          style={({ pressed }) => [
+            styles.deleteButton,
+            { opacity: pressed ? 0.6 : 1 },
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel="메모 삭제"
+        >
+          <MaterialIcons name="delete" size={20} color={theme.error} />
+        </Pressable>
+      </View>
       <TextBox variant="body2" color={theme.text}>
         {item.content}
       </TextBox>
-    </Pressable>
+    </View>
   );
 
   return (
@@ -256,8 +266,18 @@ const styles = StyleSheet.create({
     elevation: 1,
     gap: 8,
   },
+  memoCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
   memoDate: {
     textAlign: 'right',
+  },
+  deleteButton: {
+    padding: 6,
+    borderRadius: 16,
   },
   modalOverlay: {
     flex: 1,
