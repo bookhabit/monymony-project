@@ -35,7 +35,7 @@ const TodayScreen = () => {
   );
   const { routineCode, exercises, loading, error, refetch } =
     useTodayRoutine(today);
-  const { saveWorkoutSession } = useSaveWorkout();
+  const { saveWorkoutSession, deleteWorkoutEntry } = useSaveWorkout();
 
   const isToday = useMemo(
     () => !params.date || formatDate(today) === formatDate(new Date()),
@@ -65,6 +65,19 @@ const TodayScreen = () => {
     return await saveWorkoutSession(routineCode, exerciseId, sets, today);
   };
 
+  // 삭제 핸들러
+  const handleDelete = async (
+    exerciseId: number,
+    resetRepsOnly: boolean
+  ): Promise<boolean> => {
+    return await deleteWorkoutEntry(
+      routineCode,
+      exerciseId,
+      today,
+      resetRepsOnly
+    );
+  };
+
   if (loading) {
     return <LoadingState message="운동 데이터 로딩 중..." />;
   }
@@ -75,9 +88,9 @@ const TodayScreen = () => {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: theme.workoutBg }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
       <CustomHeader
         title={isToday ? '오늘의 운동' : formatDate(today)}
@@ -85,7 +98,7 @@ const TodayScreen = () => {
       />
 
       <ScrollView
-        style={styles.scrollView}
+        style={[styles.scrollView, { backgroundColor: theme.workoutBg }]}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
@@ -99,6 +112,7 @@ const TodayScreen = () => {
             routineColor={routineColor}
             routineCode={routineCode}
             onSave={handleSave}
+            onDelete={handleDelete}
             refetch={refetch}
           />
         ))}

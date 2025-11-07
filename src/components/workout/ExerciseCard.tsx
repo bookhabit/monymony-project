@@ -27,6 +27,7 @@ interface ExerciseCardProps {
     sets: SetData[],
     isUpdate: boolean
   ) => Promise<boolean>;
+  onDelete?: (exerciseId: number, resetRepsOnly: boolean) => Promise<boolean>;
   refetch?: () => void;
 }
 
@@ -35,6 +36,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
   routineColor,
   routineCode,
   onSave,
+  onDelete,
   refetch,
 }) => {
   const { theme } = useTheme();
@@ -165,14 +167,43 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
     setSaving(false);
   };
 
-  const isComplete =
-    setInputs.length === 5 &&
-    setInputs.every((input) => {
-      if (exercise.slug === 'pullup') {
-        return parseInt(input.reps, 10) > 0;
-      }
-      return parseFloat(input.weight) > 0 && parseInt(input.reps, 10) > 0;
-    });
+  const handleDelete = async (resetRepsOnly: boolean) => {
+    if (!onDelete) return;
+
+    const action = resetRepsOnly ? '횟수만 초기화' : '전체 삭제';
+    Alert.alert(
+      '기록 초기화',
+      `정말로 이 날짜의 ${exercise.name} 기록을 ${action}하시겠습니까?`,
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '확인',
+          style: 'destructive',
+          onPress: async () => {
+            setSaving(true);
+            const success = await onDelete(exercise.id, resetRepsOnly);
+            if (success) {
+              Alert.alert('완료', `기록이 ${action}되었습니다.`);
+              refetch?.();
+            } else {
+              Alert.alert('실패', '기록 초기화에 실패했습니다.');
+            }
+            setSaving(false);
+          },
+        },
+      ]
+    );
+  };
+
+  // 3세트 이상 완료 체크
+  const completedSets = setInputs.filter((input) => {
+    if (exercise.slug === 'pullup') {
+      return parseInt(input.reps, 10) > 0;
+    }
+    return parseFloat(input.weight) > 0 && parseInt(input.reps, 10) > 0;
+  });
+
+  const isComplete = completedSets.length >= 3;
 
   const completedColor = theme.workoutCompleted;
 
@@ -199,7 +230,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
               >
                 {exercise.name}
               </TextBox>
-              {/* 5세트 완료 체크 */}
+              {/* 3세트 이상 완료 체크 */}
               {isComplete && (
                 <MaterialIcons
                   name="check-circle"
@@ -211,7 +242,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
             <View style={styles.exerciseStatsRow}>
               {exercise.slug === 'pullup' ? (
                 <TextBox variant="caption2" color={theme.textSecondary}>
-                  최고개수: {exercise.maxReps ? `${exercise.maxReps}개` : '-'}
+                  최고 개수: {exercise.maxReps ? `${exercise.maxReps}개` : '-'}
                 </TextBox>
               ) : (
                 <TextBox variant="caption2" color={theme.textSecondary}>
@@ -228,8 +259,8 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
                 ]}
               >
                 <MaterialIcons name="history" size={16} color={routineColor} />
-                <TextBox variant="caption2" color={routineColor}>
-                  지난 운동기록보기
+                <TextBox variant="caption2" color={theme.textSecondary}>
+                  지난 운동기록
                 </TextBox>
               </Pressable>
             </View>
@@ -392,6 +423,50 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
               }}
             />
           </View>
+
+          {/* 초기화 버튼 (저장된 데이터가 있을 때만 표시) */}
+          {exercise.hasSavedData && onDelete && (
+            <View style={styles.deleteButtonContainer}>
+              <Pressable
+                onPress={() => handleDelete(true)}
+                disabled={saving}
+                style={({ pressed }) => [
+                  styles.deleteButton,
+                  {
+                    opacity: pressed ? 0.7 : 1,
+                    backgroundColor: theme.error + '20',
+                    borderColor: theme.error,
+                  },
+                ]}
+              >
+                <MaterialIcons name="refresh" size={16} color={theme.error} />
+                <TextBox variant="caption2" color={theme.error}>
+                  횟수만 초기화
+                </TextBox>
+              </Pressable>
+              <Pressable
+                onPress={() => handleDelete(false)}
+                disabled={saving}
+                style={({ pressed }) => [
+                  styles.deleteButton,
+                  {
+                    opacity: pressed ? 0.7 : 1,
+                    backgroundColor: theme.error + '20',
+                    borderColor: theme.error,
+                  },
+                ]}
+              >
+                <MaterialIcons
+                  name="delete-outline"
+                  size={16}
+                  color={theme.error}
+                />
+                <TextBox variant="caption2" color={theme.error}>
+                  전체 삭제
+                </TextBox>
+              </Pressable>
+            </View>
+          )}
         </View>
       )}
     </View>
@@ -476,5 +551,21 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     width: '100%',
+  },
+  deleteButtonContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 12,
+  },
+  deleteButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
   },
 });

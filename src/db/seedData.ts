@@ -11,8 +11,8 @@ export const initialExercises = [
   { slug: 'military_press', name: '밀리터리 프레스', muscle_group: '어깨' },
   { slug: 'squat', name: '스쿼트', muscle_group: '하체' },
   {
-    slug: 'overhead_extension',
-    name: '오버헤드 익스텐션',
+    slug: 'cable_pushdown',
+    name: '케이블 푸쉬다운',
     muscle_group: '삼두',
   },
   { slug: 'barbell_row', name: '바벨로우', muscle_group: '등' },
@@ -25,10 +25,10 @@ export const initialExercises = [
  * 루틴 정의 (요일별)
  *
  * 월/A: 풀업, 벤치, 데드, 바벨컬
- * 화/B: 풀업, 밀프, 스쿼트, 오버헤드익스텐션
+ * 화/B: 풀업, 밀프, 스쿼트, 케이블 푸쉬다운
  * 수/C: 바벨로우, 덤벨로우, 후면델트, 레터럴레이즈
  * 목/A(vari): 풀업, 벤치, 데드, 바벨컬
- * 금/B: 풀업, 밀프, 스쿼트, 오버헤드익스텐션
+ * 금/B: 풀업, 밀프, 스쿼트, 케이블 푸쉬다운
  */
 export const initialRoutines = [
   {
@@ -39,7 +39,7 @@ export const initialRoutines = [
   {
     code: 'B',
     name: '전신 균형',
-    exercises: ['pullup', 'military_press', 'squat', 'overhead_extension'],
+    exercises: ['pullup', 'military_press', 'squat', 'cable_pushdown'],
   },
   {
     code: 'C',
