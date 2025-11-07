@@ -27,6 +27,7 @@ export function useSaveWorkout() {
     try {
       const db = await getDatabase();
       const targetDate = date ? formatDate(date) : formatDate(new Date());
+      console.log('📅 저장할 날짜:', targetDate, '원본 날짜:', date);
 
       // 1. 해당 날짜 세션이 있는지 확인
       let sessionId: number;
@@ -37,6 +38,11 @@ export function useSaveWorkout() {
 
       if (existingSession) {
         sessionId = existingSession.id;
+        console.log('📝 기존 세션 사용:', {
+          sessionId,
+          date: targetDate,
+          routineCode,
+        });
         // 기존 기록 삭제 (수정을 위해)
         await db.runAsync(
           `DELETE FROM workout_entries WHERE session_id = ? AND exercise_id = ?`,
@@ -49,6 +55,11 @@ export function useSaveWorkout() {
           [targetDate, routineCode]
         );
         sessionId = insertResult.lastInsertRowId;
+        console.log('✅ 새 세션 생성:', {
+          sessionId,
+          date: targetDate,
+          routineCode,
+        });
       }
 
       // 2. 세트 기록 삽입/수정

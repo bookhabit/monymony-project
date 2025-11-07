@@ -159,7 +159,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
 
     if (success) {
       Alert.alert('저장 완료', `${validSets.length}세트 저장되었습니다!`);
-      refetch?.();
+      // refetch는 handleSave에서 처리됨
     } else {
       Alert.alert('저장 실패', '운동 기록 저장에 실패했습니다.');
     }
@@ -184,7 +184,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
             const success = await onDelete(exercise.id, resetRepsOnly);
             if (success) {
               Alert.alert('완료', `기록이 ${action}되었습니다.`);
-              refetch?.();
+              // refetch는 handleDelete에서 처리됨
             } else {
               Alert.alert('실패', '기록 초기화에 실패했습니다.');
             }

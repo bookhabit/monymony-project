@@ -83,19 +83,56 @@ const MonthScreen = () => {
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
   const [loading, setLoading] = useState(true);
 
-  // 이번달 날짜 범위 계산
-  const monthDateRange = useMemo(() => {
+  // 현재 선택된 월의 날짜 범위 계산
+  const selectedMonthDateRange = useMemo(() => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
     const endDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
-    return { startDate, endDate };
+    return { startDate, endDate, year, month };
   }, [currentMonth]);
 
-  // 이번주 날짜 범위 계산
+  // 현재 선택된 월의 제목 (예: "10월 통계")
+  const selectedMonthTitle = useMemo(() => {
+    return `${selectedMonthDateRange.month + 1}월 통계`;
+  }, [selectedMonthDateRange]);
+
+  // 이번주 날짜 범위 계산 (오늘 기준)
   const weekDateRange = useMemo(() => {
     return getWeekRange(new Date());
+  }, []);
+
+  // 저번주 날짜 범위 계산 (오늘 기준)
+  const lastWeekDateRange = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // 오늘이 속한 주의 요일 계산
+    const currentDay = today.getDay(); // 0=일요일, 1=월요일, ... 6=토요일
+    const dayOfWeek = currentDay === 0 ? 7 : currentDay; // 일요일을 7로 변환
+
+    // 월요일까지의 일수 계산
+    const daysToMonday = dayOfWeek - 1;
+
+    // 이번주 월요일
+    const thisWeekMonday = new Date(today);
+    thisWeekMonday.setDate(today.getDate() - daysToMonday);
+    thisWeekMonday.setHours(0, 0, 0, 0);
+
+    // 저번주 월요일 (이번주 월요일에서 7일 빼기)
+    const lastWeekMonday = new Date(thisWeekMonday);
+    lastWeekMonday.setDate(thisWeekMonday.getDate() - 7);
+
+    // 저번주 일요일
+    const lastWeekSunday = new Date(lastWeekMonday);
+    lastWeekSunday.setDate(lastWeekMonday.getDate() + 6);
+    lastWeekSunday.setHours(23, 59, 59, 999);
+
+    return {
+      startDate: formatDate(lastWeekMonday),
+      endDate: formatDate(lastWeekSunday),
+    };
   }, []);
 
   // 현재 날짜 문자열 (YYYY-MM-DD) - 안전하게 계산
@@ -213,11 +250,12 @@ const MonthScreen = () => {
             />
           </View>
 
-          {/* 이번달 통계 */}
+          {/* 선택된 월 통계 */}
           <WorkoutStatistics
             type="month"
-            startDate={monthDateRange.startDate}
-            endDate={monthDateRange.endDate}
+            startDate={selectedMonthDateRange.startDate}
+            endDate={selectedMonthDateRange.endDate}
+            title={selectedMonthTitle}
           />
 
           {/* 이번주 통계 */}
@@ -225,6 +263,15 @@ const MonthScreen = () => {
             type="week"
             startDate={weekDateRange.startDate}
             endDate={weekDateRange.endDate}
+            title="이번주 통계"
+          />
+
+          {/* 저번주 통계 */}
+          <WorkoutStatistics
+            type="week"
+            startDate={lastWeekDateRange.startDate}
+            endDate={lastWeekDateRange.endDate}
+            title="저번주 통계"
           />
         </View>
       </ScrollView>

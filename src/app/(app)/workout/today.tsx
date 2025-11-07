@@ -62,7 +62,17 @@ const TodayScreen = () => {
     sets: SetData[],
     isUpdate: boolean
   ): Promise<boolean> => {
-    return await saveWorkoutSession(routineCode, exerciseId, sets, today);
+    const success = await saveWorkoutSession(
+      routineCode,
+      exerciseId,
+      sets,
+      today
+    );
+    if (success) {
+      // 저장 성공 후 데이터 리패칭
+      refetch();
+    }
+    return success;
   };
 
   // 삭제 핸들러
@@ -70,12 +80,17 @@ const TodayScreen = () => {
     exerciseId: number,
     resetRepsOnly: boolean
   ): Promise<boolean> => {
-    return await deleteWorkoutEntry(
+    const success = await deleteWorkoutEntry(
       routineCode,
       exerciseId,
       today,
       resetRepsOnly
     );
+    if (success) {
+      // 삭제 성공 후 데이터 리패칭
+      refetch();
+    }
+    return success;
   };
 
   if (loading) {

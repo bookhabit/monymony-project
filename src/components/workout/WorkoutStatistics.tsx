@@ -13,25 +13,28 @@ interface WorkoutStatisticsProps {
   type: 'month' | 'week';
   startDate: string;
   endDate: string;
+  title?: string; // 커스텀 제목 (선택적)
 }
 
 const WorkoutStatistics: React.FC<WorkoutStatisticsProps> = ({
   type,
   startDate,
   endDate,
+  title,
 }) => {
   const { theme } = useTheme();
   const [expanded, setExpanded] = useState(true);
   const { exercises, loading, error } = useAllExercises({ startDate, endDate });
 
-  const title = type === 'month' ? '이번달 통계' : '이번주 통계';
+  const displayTitle =
+    title || (type === 'month' ? '이번달 통계' : '이번주 통계');
 
   if (loading) {
     return (
       <View style={[styles.container, { backgroundColor: theme.surface }]}>
         <Pressable onPress={() => setExpanded(!expanded)} style={styles.header}>
           <TextBox variant="title3" color={theme.text} style={styles.heading}>
-            {title}
+            {displayTitle}
           </TextBox>
           <MaterialIcons
             name={expanded ? 'expand-less' : 'expand-more'}
@@ -53,7 +56,7 @@ const WorkoutStatistics: React.FC<WorkoutStatisticsProps> = ({
       <View style={[styles.container, { backgroundColor: theme.surface }]}>
         <Pressable onPress={() => setExpanded(!expanded)} style={styles.header}>
           <TextBox variant="title3" color={theme.text} style={styles.heading}>
-            {title}
+            {displayTitle}
           </TextBox>
           <MaterialIcons
             name={expanded ? 'expand-less' : 'expand-more'}
