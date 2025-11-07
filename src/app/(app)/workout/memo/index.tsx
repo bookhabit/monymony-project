@@ -188,7 +188,7 @@ const MemoScreen = () => {
                 { color: theme.text, borderColor: theme.border },
               ]}
             />
-            <View style={styles.modalButtonRow}>
+            <View style={styles.modalButton}>
               <CustomButton
                 title="취소"
                 variant="outline"
@@ -280,8 +280,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
   },
-  modalButtonRow: {
-    flexDirection: 'row',
+  modalButton: {
     gap: 12,
   },
 });

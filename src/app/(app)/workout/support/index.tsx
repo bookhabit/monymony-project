@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Linking,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -29,12 +31,19 @@ const REQUEST_EMAIL = 'support@monymony.app';
 
 const SupportScreen = () => {
   const { theme } = useTheme();
-  const { latestEntry } = useMemoEntries();
+  const {
+    entries: memoEntries,
+    latestEntry,
+    loading: memoLoading,
+    refresh: refreshMemo,
+  } = useMemoEntries();
 
   const [bugDescription, setBugDescription] = useState('');
   const [sendingBug, setSendingBug] = useState(false);
   const [requestItems, setRequestItems] = useState<string[]>(['']);
   const [sendingRequest, setSendingRequest] = useState(false);
+  const [memoPickerVisible, setMemoPickerVisible] = useState(false);
+  const [memoTargetIndex, setMemoTargetIndex] = useState<number | null>(null);
 
   const expoConfig = Constants.expoConfig;
 
@@ -149,6 +158,52 @@ ${trimmed}`;
       }
       return [...prev, memoContent];
     });
+  };
+
+  const findFirstEmptyRequest = (items: string[]) =>
+    items.findIndex((item) => !item.trim());
+
+  const openMemoPicker = (index?: number) => {
+    const targetIndex =
+      typeof index === 'number' && index >= 0
+        ? index
+        : (() => {
+            const firstEmpty = findFirstEmptyRequest(requestItems);
+            if (firstEmpty >= 0) {
+              return firstEmpty;
+            }
+            return requestItems.length;
+          })();
+    setMemoTargetIndex(targetIndex);
+    setMemoPickerVisible(true);
+  };
+
+  const closeMemoPicker = () => {
+    setMemoPickerVisible(false);
+    setMemoTargetIndex(null);
+  };
+
+  const applyMemoToRequest = (content: string) => {
+    const trimmed = content.trim();
+    if (!trimmed) {
+      closeMemoPicker();
+      return;
+    }
+
+    setRequestItems((prev) => {
+      const next = [...prev];
+      let target = memoTargetIndex ?? findFirstEmptyRequest(prev);
+      if (target == null || target < 0) {
+        target = prev.length > 0 ? prev.length - 1 : 0;
+      }
+      if (target >= next.length) {
+        next.push(trimmed);
+      } else {
+        next[target] = trimmed;
+      }
+      return next;
+    });
+    closeMemoPicker();
   };
 
   const handleSendRequestMail = async () => {
@@ -287,6 +342,12 @@ ${trimmed}`;
               size="small"
               variant="ghost"
             />
+            <CustomButton
+              title="메모 선택"
+              onPress={() => openMemoPicker()}
+              size="small"
+              variant="ghost"
+            />
           </View>
 
           <View style={styles.requestList}>
@@ -334,6 +395,14 @@ ${trimmed}`;
                     </Pressable>
                   )}
                 </View>
+                <View style={styles.requestActions}>
+                  <CustomButton
+                    title="메모 선택"
+                    size="small"
+                    variant="outline"
+                    onPress={() => openMemoPicker(index)}
+                  />
+                </View>
               </View>
             ))}
           </View>
@@ -348,6 +417,101 @@ ${trimmed}`;
           />
         </View>
       </ScrollView>
+
+      <Modal
+        visible={memoPickerVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={closeMemoPicker}
+      >
+        <View style={styles.modalOverlay}>
+          <View
+            style={[styles.modalContent, { backgroundColor: theme.surface }]}
+          >
+            <View style={styles.modalHeader}>
+              <TextBox variant="title3" color={theme.text}>
+                메모 선택
+              </TextBox>
+              <Pressable
+                onPress={closeMemoPicker}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <MaterialIcons
+                  name="close"
+                  size={22}
+                  color={theme.textSecondary}
+                />
+              </Pressable>
+            </View>
+
+            {memoLoading ? (
+              <View style={styles.modalLoader}>
+                <ActivityIndicator size="small" color={theme.primary} />
+                <TextBox variant="body3" color={theme.textSecondary}>
+                  메모를 불러오는 중...
+                </TextBox>
+              </View>
+            ) : memoEntries.length === 0 ? (
+              <View style={styles.modalEmpty}>
+                <MaterialIcons
+                  name="note-alt"
+                  size={32}
+                  color={theme.textSecondary}
+                />
+                <TextBox
+                  variant="body3"
+                  color={theme.textSecondary}
+                  style={styles.centerText}
+                >
+                  저장된 메모가 없습니다.
+                </TextBox>
+                <CustomButton
+                  title="새로고침"
+                  variant="outline"
+                  onPress={refreshMemo}
+                />
+              </View>
+            ) : (
+              <ScrollView
+                style={styles.memoList}
+                contentContainerStyle={styles.memoListContent}
+              >
+                {memoEntries.map((entry) => (
+                  <Pressable
+                    key={entry.id}
+                    onPress={() => applyMemoToRequest(entry.content)}
+                    style={[
+                      styles.memoItem,
+                      {
+                        borderColor: theme.border,
+                        backgroundColor: theme.background,
+                      },
+                    ]}
+                  >
+                    <TextBox
+                      variant="caption2"
+                      color={theme.textSecondary}
+                      style={styles.memoItemDate}
+                    >
+                      {new Date(entry.created_at).toLocaleString('ko-KR')}
+                    </TextBox>
+                    <TextBox variant="body2" color={theme.text}>
+                      {entry.content}
+                    </TextBox>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            )}
+
+            <CustomButton
+              title="닫기"
+              variant="outline"
+              onPress={closeMemoPicker}
+              fullWidth
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -399,6 +563,10 @@ const styles = StyleSheet.create({
   requestItemWrapper: {
     gap: 8,
   },
+  requestActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
   textAreaWrapper: {
     borderWidth: 1,
     borderRadius: 12,
@@ -416,5 +584,49 @@ const styles = StyleSheet.create({
     top: 8,
     right: 8,
     padding: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    borderRadius: 16,
+    padding: 20,
+    gap: 16,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  modalLoader: {
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 20,
+  },
+  modalEmpty: {
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 24,
+  },
+  memoList: {
+    maxHeight: 320,
+  },
+  memoListContent: {
+    gap: 12,
+  },
+  memoItem: {
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 14,
+    gap: 8,
+  },
+  memoItemDate: {
+    textAlign: 'right',
+  },
+  centerText: {
+    textAlign: 'center',
   },
 });
