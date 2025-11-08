@@ -63,7 +63,7 @@ export default function DesignScreen() {
       style={[styles.container, { backgroundColor: theme.background }]}
     >
       {/* OTA Updates Test */}
-      <UpdateChecker />
+      {/* <UpdateChecker /> */}
       <StatusBar
         backgroundColor={theme.background}
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
