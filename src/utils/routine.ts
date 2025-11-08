@@ -6,7 +6,7 @@
  * 수: C (등/어깨 집중)
  * 토/일: REST (휴식)
  */
-export type RoutineCode = 'A' | 'B' | 'C' | 'REST';
+export type RoutineCode = 'A' | 'B' | 'C' | 'WEEKEND' | 'REST';
 
 /**
  * 날짜로 루틴 코드 계산
@@ -18,7 +18,7 @@ export function getRoutineByDate(date: Date = new Date()): RoutineCode {
 
   // 주말: 휴식
   if (dayOfWeek === 0 || dayOfWeek === 6) {
-    return 'REST';
+    return 'WEEKEND';
   }
 
   // 월요일: 1, 목요일: 4 → A
@@ -69,6 +69,7 @@ export function getRoutineName(code: RoutineCode): string {
     A: '벤치/데드/이두',
     B: '밀프/스쿼트/삼두',
     C: '바벨로우/덤벨로우/후면/사레레',
+    WEEKEND: '주말 운동',
     REST: '휴식',
   };
   return names[code];

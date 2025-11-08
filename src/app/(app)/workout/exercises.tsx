@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 
 import { useLocalSearchParams } from 'expo-router';
@@ -9,17 +9,18 @@ import SelectBox from '@/components/common/SelectBox';
 import TextBox from '@/components/common/TextBox';
 import CustomHeader from '@/components/layout/CustomHeader';
 import ExerciseEntryCard from '@/components/workout/ExerciseEntryCard';
+import WeekendEntryCard from '@/components/workout/WeekendEntryCard';
 
 import { useExerciseEntries } from '@/hooks/workout/useExerciseEntries';
 import { useExercises } from '@/hooks/workout/useExercises';
+import { useWeekendExerciseEntries } from '@/hooks/workout/useWeekendExerciseEntries';
+import { WEEKEND_EXERCISES } from '@/hooks/workout/useWeekendWorkout';
 
 const ExercisesScreen = () => {
   const { theme } = useTheme();
   const params = useLocalSearchParams<{ exerciseId?: string }>();
   const { exercises, loading: exercisesLoading } = useExercises();
-  const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(
-    null
-  );
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   // 파라미터로 받은 exerciseId를 초기 선택값으로 설정
   useEffect(() => {
@@ -28,10 +29,42 @@ const ExercisesScreen = () => {
       // exercises 배열에 해당 ID가 있는지 확인
       const exerciseExists = exercises.some((ex) => ex.id === exerciseId);
       if (exerciseExists && !isNaN(exerciseId)) {
-        setSelectedExerciseId(exerciseId);
+        setSelectedOption(`standard:${exerciseId}`);
       }
     }
   }, [params.exerciseId, exercises]);
+  const selectOptions = useMemo(() => {
+    const standardOptions = exercises.map((exercise) => ({
+      label: exercise.name,
+      value: `standard:${exercise.id}`,
+    }));
+    const weekendOptions = WEEKEND_EXERCISES.map((exercise) => ({
+      label: `주말 - ${exercise.name}`,
+      value: `weekend:${exercise.type}`,
+    }));
+    return [...standardOptions, ...weekendOptions];
+  }, [exercises]);
+
+  const isStandardSelection = selectedOption?.startsWith('standard:') ?? false;
+  const selectedExerciseId = isStandardSelection
+    ? parseInt((selectedOption || '').split(':')[1], 10)
+    : null;
+
+  const selectedWeekendType = useMemo(() => {
+    if (selectedOption?.startsWith('weekend:')) {
+      const type = selectedOption.split(':')[1];
+      if (
+        type === 'hang' ||
+        type === 'pushup' ||
+        type === 'handstand_pushup' ||
+        type === 'stairs'
+      ) {
+        return type;
+      }
+    }
+    return null;
+  }, [selectedOption]);
+
   const {
     entries,
     loading: entriesLoading,
@@ -40,25 +73,41 @@ const ExercisesScreen = () => {
     loadMore,
   } = useExerciseEntries(selectedExerciseId);
 
-  const selectOptions = exercises.map((exercise) => ({
-    label: exercise.name,
-    value: exercise.id,
-  }));
+  const {
+    entries: weekendEntries,
+    loading: weekendEntriesLoading,
+    error: weekendError,
+    hasMore: weekendHasMore,
+    loadMore: weekendLoadMore,
+  } = useWeekendExerciseEntries(selectedWeekendType);
 
   const handleLoadMore = () => {
-    if (hasMore && !entriesLoading) {
+    if (selectedWeekendType) {
+      if (weekendHasMore && !weekendEntriesLoading) {
+        weekendLoadMore();
+      }
+    } else if (hasMore && !entriesLoading) {
       loadMore();
     }
   };
 
   const renderFooter = () => {
-    if (!entriesLoading) return null;
+    const loadingState = selectedWeekendType
+      ? weekendEntriesLoading
+      : entriesLoading;
+    if (!loadingState) return null;
     return (
       <View style={styles.footerLoader}>
         <ActivityIndicator size="small" color={theme.primary} />
       </View>
     );
   };
+
+  const currentEntries = selectedWeekendType ? weekendEntries : entries;
+  const currentLoading = selectedWeekendType
+    ? weekendEntriesLoading
+    : entriesLoading;
+  const currentError = selectedWeekendType ? weekendError : error;
 
   return (
     <View style={[styles.container, { backgroundColor: theme.workoutBg }]}>
@@ -76,16 +125,16 @@ const ExercisesScreen = () => {
           </TextBox>
           <SelectBox
             options={selectOptions}
-            selectedValue={selectedExerciseId}
-            onValueChange={(value) => setSelectedExerciseId(value as number)}
+            selectedValue={selectedOption}
+            onValueChange={(value) => setSelectedOption(value as string)}
             placeholder="운동종목을 선택하세요"
           />
         </View>
 
         {/* 운동 기록 리스트 */}
-        {selectedExerciseId && (
+        {selectedOption ? (
           <View style={styles.listContainer}>
-            {entriesLoading && entries.length === 0 ? (
+            {currentLoading && currentEntries.length === 0 ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={theme.primary} />
                 <TextBox
@@ -96,18 +145,28 @@ const ExercisesScreen = () => {
                   기록을 불러오는 중...
                 </TextBox>
               </View>
-            ) : error ? (
+            ) : currentError ? (
               <View style={styles.errorContainer}>
                 <TextBox variant="body2" color={theme.error}>
-                  {error}
+                  {currentError}
                 </TextBox>
               </View>
-            ) : entries.length === 0 ? (
+            ) : currentEntries.length === 0 ? (
               <View style={styles.emptyContainer}>
                 <TextBox variant="body2" color={theme.textSecondary}>
                   기록이 없습니다
                 </TextBox>
               </View>
+            ) : selectedWeekendType ? (
+              <FlatList
+                data={weekendEntries}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => <WeekendEntryCard entry={item} />}
+                onEndReached={handleLoadMore}
+                onEndReachedThreshold={0.5}
+                ListFooterComponent={renderFooter}
+                contentContainerStyle={styles.listContent}
+              />
             ) : (
               <FlatList
                 data={entries}
@@ -120,9 +179,7 @@ const ExercisesScreen = () => {
               />
             )}
           </View>
-        )}
-
-        {!selectedExerciseId && (
+        ) : (
           <View style={styles.emptyState}>
             <TextBox variant="body2" color={theme.textSecondary}>
               운동종목을 선택하면 기록을 확인할 수 있습니다

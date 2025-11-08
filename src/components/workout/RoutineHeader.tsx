@@ -25,6 +25,9 @@ const RoutineHeader: React.FC<RoutineHeaderProps> = ({ date, routineCode }) => {
     if (code === 'REST') {
       return theme.rest;
     }
+    if (code === 'WEEKEND') {
+      return theme.workoutActive;
+    }
     if (code === 'A') {
       return theme.routineA;
     }

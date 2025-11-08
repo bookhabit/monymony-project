@@ -25,7 +25,7 @@ const WorkoutMainScreen = () => {
   const router = useRouter();
 
   const navigationButtons: {
-    type: 'today' | 'month' | 'week' | 'hang' | 'memo' | 'support';
+    type: 'today' | 'month' | 'week' | 'memo' | 'support';
     title: string;
     icon: keyof typeof MaterialIcons.glyphMap;
     route: string;
@@ -65,15 +65,6 @@ const WorkoutMainScreen = () => {
       icon: 'email',
       route: 'workout/support',
     },
-    {
-      type: 'hang',
-      title: '철봉 매달리기',
-      icon: 'accessibility',
-      route: 'workout/hang',
-      handler: () => {
-        router.push('/(app)/workout/hang' as any);
-      },
-    },
   ];
 
   return (
@@ -106,7 +97,6 @@ const WorkoutMainScreen = () => {
                     {
                       width:
                         button.type === 'today' ||
-                        button.type === 'hang' ||
                         button.type === 'memo' ||
                         button.type === 'support'
                           ? '100%'

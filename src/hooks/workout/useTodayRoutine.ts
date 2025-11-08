@@ -52,7 +52,7 @@ export function useTodayRoutine(date?: Date) {
       setRoutineCode(code);
 
       // 휴식일이면 운동 목록 없음
-      if (code === 'REST') {
+      if (code === 'REST' || code === 'WEEKEND') {
         setExercises([]);
         setLoading(false);
         return;

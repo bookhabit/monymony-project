@@ -19,9 +19,11 @@ import RestDayMessage from '@/components/workout/RestDayMessage';
 import RestTimer from '@/components/workout/RestTimer';
 import RoutineHeader from '@/components/workout/RoutineHeader';
 import type { SetData } from '@/components/workout/SetInputTable';
+import WeekendExerciseCard from '@/components/workout/WeekendExerciseCard';
 
 import { useSaveWorkout } from '@/hooks/workout/useSaveWorkout';
 import { useTodayRoutine } from '@/hooks/workout/useTodayRoutine';
+import { useWeekendWorkout } from '@/hooks/workout/useWeekendWorkout';
 
 import { formatDate, type RoutineCode } from '@/utils/routine';
 
@@ -36,6 +38,14 @@ const TodayScreen = () => {
   const { routineCode, exercises, loading, error, refetch } =
     useTodayRoutine(today);
   const { saveWorkoutSession, deleteWorkoutEntry } = useSaveWorkout();
+  const {
+    exercises: weekendExercises,
+    loading: weekendLoading,
+    error: weekendError,
+    saveExercise: saveWeekendExercise,
+    deleteExercise: deleteWeekendExercise,
+    refresh: refreshWeekend,
+  } = useWeekendWorkout(today);
 
   const isToday = useMemo(
     () => !params.date || formatDate(today) === formatDate(new Date()),
@@ -99,6 +109,49 @@ const TodayScreen = () => {
 
   if (error) {
     return <ErrorState error={error} />;
+  }
+
+  if (routineCode === 'WEEKEND') {
+    if (weekendLoading) {
+      return <LoadingState message="주말 운동 데이터를 불러오는 중..." />;
+    }
+    if (weekendError) {
+      return <ErrorState error={weekendError} />;
+    }
+
+    return (
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      >
+        <CustomHeader
+          title={isToday ? '주말 운동' : `${formatDate(today)} 주말 운동`}
+          showBackButton
+        />
+
+        <ScrollView
+          style={[styles.scrollView, { backgroundColor: theme.workoutBg }]}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <RoutineHeader date={today} routineCode={routineCode} />
+          {weekendExercises.map((exercise) => (
+            <WeekendExerciseCard
+              key={exercise.type}
+              exercise={exercise}
+              onSave={async (type, sets) => {
+                await saveWeekendExercise(type, sets);
+                return true;
+              }}
+              onDelete={async (type) => {
+                await deleteWeekendExercise(type);
+                return true;
+              }}
+            />
+          ))}
+        </ScrollView>
+      </KeyboardAvoidingView>
+    );
   }
 
   return (
