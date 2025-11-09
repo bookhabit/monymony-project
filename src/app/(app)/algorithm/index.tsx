@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { useRouter } from 'expo-router';
@@ -6,6 +7,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 import { useTheme } from '@/context/ThemeProvider';
 
+import AlgorithmPrinciplesModal from '@/components/algorithm/modals/AlgorithmPrinciplesModal';
+import AlgorithmProblemSolvingModal from '@/components/algorithm/modals/AlgorithmProblemSolvingModal';
 import TextBox from '@/components/common/TextBox';
 import CustomHeader from '@/components/layout/CustomHeader';
 
@@ -166,9 +169,26 @@ const algorithmTopics: AlgorithmTopic[] = [
 export default function AlgorithmScreen() {
   const { theme } = useTheme();
   const router = useRouter();
+  const [principlesVisible, setPrinciplesVisible] = useState(true);
+  const [problemModalVisible, setProblemModalVisible] = useState(false);
 
   const handleCardPress = (route: string) => {
     router.push(route as any);
+  };
+
+  useEffect(() => {
+    setPrinciplesVisible(true);
+  }, []);
+
+  const handleFirstModalConfirm = () => {
+    setPrinciplesVisible(false);
+    setTimeout(() => {
+      setProblemModalVisible(true);
+    }, 250);
+  };
+
+  const handleSecondModalConfirm = () => {
+    setProblemModalVisible(false);
   };
 
   return (
@@ -231,6 +251,15 @@ export default function AlgorithmScreen() {
           </View>
         </View>
       </ScrollView>
+
+      <AlgorithmPrinciplesModal
+        visible={principlesVisible}
+        onConfirm={handleFirstModalConfirm}
+      />
+      <AlgorithmProblemSolvingModal
+        visible={problemModalVisible}
+        onConfirm={handleSecondModalConfirm}
+      />
     </View>
   );
 }

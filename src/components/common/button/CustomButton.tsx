@@ -3,6 +3,7 @@ import {
   Pressable,
   StyleSheet,
   ViewStyle,
+  StyleProp,
 } from 'react-native';
 
 import { useTheme } from '@/context/ThemeProvider';
@@ -17,7 +18,7 @@ export interface CustomButtonProps {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
   size?: 'small' | 'medium' | 'large';
   fullWidth?: boolean;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   testID?: string;
 }
 
