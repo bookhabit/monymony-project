@@ -128,15 +128,6 @@ async function executeSchema(db: SQLite.SQLiteDatabase): Promise<void> {
       UNIQUE(date, exercise_type, set_index)
     );
 
-    -- 철봉 매달리기 기록 테이블
-    CREATE TABLE IF NOT EXISTS hang_records (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      date TEXT NOT NULL,                -- "YYYY-MM-DD"
-      set_index INTEGER NOT NULL,        -- 1, 2, 3
-      duration_seconds INTEGER NOT NULL, -- 초 단위 기록
-      created_at TEXT DEFAULT (datetime('now')),
-      UNIQUE(date, set_index)
-    );
 
     -- 인덱스 생성 (조회 성능 향상)
     CREATE INDEX IF NOT EXISTS idx_workout_sessions_date ON workout_sessions(date);
@@ -147,7 +138,7 @@ async function executeSchema(db: SQLite.SQLiteDatabase): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_memo_entries_created_at ON memo_entries(created_at);
     CREATE INDEX IF NOT EXISTS idx_weekend_workout_entries_date ON weekend_workout_entries(date);
     CREATE INDEX IF NOT EXISTS idx_weekend_workout_entries_type ON weekend_workout_entries(exercise_type);
-    CREATE INDEX IF NOT EXISTS idx_hang_records_date ON hang_records(date);
+    
   `;
 
   await db.execAsync(schemaSQL);
