@@ -10,6 +10,8 @@ import CustomHeader from '@/components/layout/CustomHeader';
 import BodyweightExerciseCard from '@/components/workout/BodyweightExerciseCard';
 import ErrorState from '@/components/workout/ErrorState';
 import LoadingState from '@/components/workout/LoadingState';
+import RestTimer from '@/components/workout/RestTimer';
+import Stopwatch from '@/components/workout/Stopwatch';
 
 import { useBodyweightWorkout } from '@/hooks/workout/useBodyweightWorkout';
 
@@ -108,6 +110,8 @@ const BodyweightScreen = () => {
             }}
           />
         ))}
+        <RestTimer defaultSeconds={90} />
+        <Stopwatch />
       </ScrollView>
     </View>
   );
