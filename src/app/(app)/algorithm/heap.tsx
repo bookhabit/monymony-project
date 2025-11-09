@@ -5,16 +5,16 @@ import { useTheme } from '@/context/ThemeProvider';
 import TextBox from '@/components/common/TextBox';
 import CustomHeader from '@/components/layout/CustomHeader';
 
-export default function TreeScreen() {
+export default function HeapScreen() {
   const { theme } = useTheme();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <CustomHeader title="트리" showBackButton />
+      <CustomHeader title="힙" showBackButton />
 
       <View style={styles.content}>
         <TextBox variant="body2" color={theme.textSecondary}>
-          이 화면은 트리(Tree) 학습 내용을 정리할 수 있는 자리입니다.
+          이 화면은 힙(Heap) 자료구조를 정리할 수 있는 자리입니다.
         </TextBox>
       </View>
     </View>
@@ -33,3 +33,4 @@ const styles = StyleSheet.create({
     gap: 12,
   },
 });
+
