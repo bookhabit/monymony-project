@@ -208,6 +208,26 @@ export default function AlgorithmScreen() {
             학습하고 싶은 알고리즘 주제를 선택하세요
           </TextBox>
 
+          <Pressable
+            style={({ pressed }) => [
+              styles.highlightCard,
+              {
+                backgroundColor: theme.surface,
+                borderColor: theme.primary,
+                opacity: pressed ? 0.85 : 1,
+              },
+            ]}
+            onPress={() => handleCardPress('/(app)/algorithm/time-space')}
+          >
+            <TextBox variant="title3" color={theme.primary}>
+              시간 · 공간 복잡도 이해하기
+            </TextBox>
+            <TextBox variant="body3" color={theme.textSecondary}>
+              Big-O 표기법과 분석 법칙을 정리하고, 이진 탐색 예제로 함께
+              살펴보세요.
+            </TextBox>
+          </Pressable>
+
           <View style={styles.cardGrid}>
             {algorithmTopics.map((topic) => (
               <Pressable
@@ -279,6 +299,13 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     marginBottom: 24,
+  },
+  highlightCard: {
+    borderWidth: 1.5,
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 24,
+    gap: 8,
   },
   cardGrid: {
     flexDirection: 'row',
