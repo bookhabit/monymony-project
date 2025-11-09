@@ -5,11 +5,11 @@ import {
   type WeekendExerciseType,
 } from '@/db/weekendWorkoutRepository';
 
-import { WEEKEND_EXERCISES } from '@/hooks/workout/useWeekendWorkout';
+import { BODYWEIGHT_EXERCISES } from '@/hooks/workout/useBodyweightWorkout';
 
 const PAGE_SIZE = 30;
 
-export interface WeekendExerciseHistory {
+export interface BodyweightExerciseHistory {
   id: string;
   date: string;
   exerciseType: WeekendExerciseType;
@@ -23,16 +23,16 @@ export interface WeekendExerciseHistory {
   }[];
 }
 
-export function useWeekendExerciseEntries(
+export function useBodyweightExerciseEntries(
   exerciseType: WeekendExerciseType | null
 ) {
-  const [entries, setEntries] = useState<WeekendExerciseHistory[]>([]);
+  const [entries, setEntries] = useState<BodyweightExerciseHistory[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0);
 
-  const exerciseConfig = WEEKEND_EXERCISES.find(
+  const exerciseConfig = BODYWEIGHT_EXERCISES.find(
     (item) => item.type === exerciseType
   );
 
@@ -54,11 +54,11 @@ export function useWeekendExerciseEntries(
           pageNum * PAGE_SIZE
         );
 
-        const formatted: WeekendExerciseHistory[] = history.map((item) => ({
+        const formatted: BodyweightExerciseHistory[] = history.map((item) => ({
           id: `${exerciseType}-${item.date}`,
           date: item.date,
           exerciseType,
-          exerciseName: exerciseConfig?.name ?? '주말 운동',
+          exerciseName: exerciseConfig?.name ?? '맨몸 운동',
           unitLabel: exerciseConfig?.valueUnit ?? '',
           sets: item.sets.map((set) => ({
             setIndex: set.setIndex,
@@ -77,9 +77,9 @@ export function useWeekendExerciseEntries(
         setHasMore(formatted.length === PAGE_SIZE);
         setPage(pageNum);
       } catch (err) {
-        console.error('주말 운동 기록 조회 실패:', err);
+        console.error('맨몸 운동 기록 조회 실패:', err);
         setError(
-          err instanceof Error ? err.message : '주말 운동 기록 조회 실패'
+          err instanceof Error ? err.message : '맨몸 운동 기록 조회 실패'
         );
       } finally {
         setLoading(false);

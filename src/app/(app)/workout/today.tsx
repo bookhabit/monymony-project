@@ -19,33 +19,31 @@ import RestDayMessage from '@/components/workout/RestDayMessage';
 import RestTimer from '@/components/workout/RestTimer';
 import RoutineHeader from '@/components/workout/RoutineHeader';
 import type { SetData } from '@/components/workout/SetInputTable';
-import WeekendExerciseCard from '@/components/workout/WeekendExerciseCard';
 
 import { useSaveWorkout } from '@/hooks/workout/useSaveWorkout';
 import { useTodayRoutine } from '@/hooks/workout/useTodayRoutine';
-import { useWeekendWorkout } from '@/hooks/workout/useWeekendWorkout';
 
 import { formatDate, type RoutineCode } from '@/utils/routine';
 
 const TodayScreen = () => {
   const { theme } = useTheme();
-  const params = useLocalSearchParams<{ date?: string }>();
+  const params = useLocalSearchParams<{ date?: string; mode?: string }>();
   // 날짜 파라미터가 있으면 해당 날짜, 없으면 오늘 (useMemo로 최적화)
   const today = useMemo(
     () => (params.date ? new Date(params.date) : new Date()),
     [params.date]
   );
-  const { routineCode, exercises, loading, error, refetch } =
-    useTodayRoutine(today);
-  const { saveWorkoutSession, deleteWorkoutEntry } = useSaveWorkout();
   const {
-    exercises: weekendExercises,
-    loading: weekendLoading,
-    error: weekendError,
-    saveExercise: saveWeekendExercise,
-    deleteExercise: deleteWeekendExercise,
-    refresh: refreshWeekend,
-  } = useWeekendWorkout(today);
+    routineCode: baseRoutineCode,
+    exercises,
+    loading,
+    error,
+    refetch,
+  } = useTodayRoutine(today);
+  const { saveWorkoutSession, deleteWorkoutEntry } = useSaveWorkout();
+  const forceRest = params.mode === 'rest';
+  const effectiveRoutineCode: RoutineCode =
+    forceRest || baseRoutineCode === 'WEEKEND' ? 'REST' : baseRoutineCode;
 
   const isToday = useMemo(
     () => !params.date || formatDate(today) === formatDate(new Date()),
@@ -54,17 +52,17 @@ const TodayScreen = () => {
 
   // 루틴별 색상 가져오기 (useMemo로 최적화)
   const routineColor = useMemo(() => {
-    if (routineCode === 'REST') {
+    if (effectiveRoutineCode === 'REST') {
       return theme.rest;
     }
-    if (routineCode === 'A') {
+    if (effectiveRoutineCode === 'A') {
       return theme.routineA;
     }
-    if (routineCode === 'B') {
+    if (effectiveRoutineCode === 'B') {
       return theme.routineB;
     }
     return theme.routineC;
-  }, [routineCode, theme]);
+  }, [effectiveRoutineCode, theme]);
 
   // 저장 핸들러
   const handleSave = async (
@@ -73,7 +71,7 @@ const TodayScreen = () => {
     isUpdate: boolean
   ): Promise<boolean> => {
     const success = await saveWorkoutSession(
-      routineCode,
+      effectiveRoutineCode,
       exerciseId,
       sets,
       today
@@ -91,7 +89,7 @@ const TodayScreen = () => {
     resetRepsOnly: boolean
   ): Promise<boolean> => {
     const success = await deleteWorkoutEntry(
-      routineCode,
+      effectiveRoutineCode,
       exerciseId,
       today,
       resetRepsOnly
@@ -111,49 +109,6 @@ const TodayScreen = () => {
     return <ErrorState error={error} />;
   }
 
-  if (routineCode === 'WEEKEND') {
-    if (weekendLoading) {
-      return <LoadingState message="주말 운동 데이터를 불러오는 중..." />;
-    }
-    if (weekendError) {
-      return <ErrorState error={weekendError} />;
-    }
-
-    return (
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
-      >
-        <CustomHeader
-          title={isToday ? '주말 운동' : `${formatDate(today)} 주말 운동`}
-          showBackButton
-        />
-
-        <ScrollView
-          style={[styles.scrollView, { backgroundColor: theme.workoutBg }]}
-          contentContainerStyle={styles.scrollContent}
-        >
-          <RoutineHeader date={today} routineCode={routineCode} />
-          {weekendExercises.map((exercise) => (
-            <WeekendExerciseCard
-              key={exercise.type}
-              exercise={exercise}
-              onSave={async (type, sets) => {
-                await saveWeekendExercise(type, sets);
-                return true;
-              }}
-              onDelete={async (type) => {
-                await deleteWeekendExercise(type);
-                return true;
-              }}
-            />
-          ))}
-        </ScrollView>
-      </KeyboardAvoidingView>
-    );
-  }
-
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -171,14 +126,14 @@ const TodayScreen = () => {
         keyboardShouldPersistTaps="handled"
       >
         {/* 날짜 및 루틴 헤더 */}
-        <RoutineHeader date={today} routineCode={routineCode} />
+        <RoutineHeader date={today} routineCode={effectiveRoutineCode} />
         {/* 운동 리스트 */}
         {exercises.map((exercise) => (
           <ExerciseCard
             key={exercise.id}
             exercise={exercise}
             routineColor={routineColor}
-            routineCode={routineCode}
+            routineCode={effectiveRoutineCode as RoutineCode}
             onSave={handleSave}
             onDelete={handleDelete}
             refetch={refetch}
@@ -186,10 +141,10 @@ const TodayScreen = () => {
         ))}
 
         {/* 휴식일 메시지 */}
-        {routineCode === 'REST' && <RestDayMessage />}
+        {effectiveRoutineCode === 'REST' && <RestDayMessage />}
 
         {/* 휴식 타이머 */}
-        {routineCode !== 'REST' && <RestTimer defaultSeconds={90} />}
+        {effectiveRoutineCode !== 'REST' && <RestTimer defaultSeconds={90} />}
       </ScrollView>
     </KeyboardAvoidingView>
   );

@@ -10,12 +10,12 @@ import TextBox from '@/components/common/TextBox';
 import { CustomButton } from '@/components/common/button';
 
 import type {
-  WeekendExerciseState,
-  WeekendExerciseSet,
-} from '@/hooks/workout/useWeekendWorkout';
+  BodyweightExerciseState,
+  BodyweightExerciseSet,
+} from '@/hooks/workout/useBodyweightWorkout';
 
-interface WeekendExerciseCardProps {
-  exercise: WeekendExerciseState;
+interface BodyweightExerciseCardProps {
+  exercise: BodyweightExerciseState;
   onSave: (
     type: WeekendExerciseType,
     sets: {
@@ -52,7 +52,7 @@ const numericValidationMessage: Record<WeekendExerciseType, string> = {
   stairs: '층수는 숫자로 입력해주세요.',
 };
 
-const WeekendExerciseCard: React.FC<WeekendExerciseCardProps> = ({
+const BodyweightExerciseCard: React.FC<BodyweightExerciseCardProps> = ({
   exercise,
   onSave,
   onDelete,
@@ -120,7 +120,7 @@ const WeekendExerciseCard: React.FC<WeekendExerciseCardProps> = ({
           floors: valueKey === 'floors' ? parsed : null,
         };
       })
-      .filter(Boolean) as WeekendExerciseSet[];
+      .filter(Boolean) as BodyweightExerciseSet[];
 
     if (validSets.length === 0) {
       Alert.alert('입력 필요', numericValidationMessage[exercise.type]);
@@ -141,7 +141,7 @@ const WeekendExerciseCard: React.FC<WeekendExerciseCardProps> = ({
       Alert.alert('저장 완료', `${exercise.name} 기록이 저장되었습니다.`);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : '주말 운동 저장에 실패했습니다.';
+        err instanceof Error ? err.message : '맨몸 운동 저장에 실패했습니다.';
       Alert.alert('저장 실패', message);
     } finally {
       setSaving(false);
@@ -169,7 +169,7 @@ const WeekendExerciseCard: React.FC<WeekendExerciseCardProps> = ({
             const message =
               err instanceof Error
                 ? err.message
-                : '주말 운동 삭제에 실패했습니다.';
+                : '맨몸 운동 삭제에 실패했습니다.';
             Alert.alert('삭제 실패', message);
           } finally {
             setSaving(false);
@@ -198,55 +198,27 @@ const WeekendExerciseCard: React.FC<WeekendExerciseCardProps> = ({
             {exercise.description}
           </TextBox>
         </View>
-        <TextBox variant="caption1" color={theme.textSecondary}>
-          단위: {exercise.valueUnit}
-        </TextBox>
+        {exercise.helperText ? (
+          <View style={styles.helperChip}>
+            <MaterialIcons
+              name="info-outline"
+              size={16}
+              color={theme.textSecondary}
+            />
+            <TextBox variant="caption3" color={theme.textSecondary}>
+              {exercise.helperText}
+            </TextBox>
+          </View>
+        ) : null}
       </View>
 
-      <View style={styles.content}>
-        {exercise.latestHistory && (
-          <View
-            style={[
-              styles.latestWrapper,
-              {
-                borderColor: theme.border,
-                backgroundColor: theme.background,
-              },
-            ]}
-          >
-            <TextBox variant="caption1" color={theme.textSecondary}>
-              최근 기록 ({exercise.latestHistory.date})
-            </TextBox>
-            <View style={styles.latestList}>
-              {exercise.latestHistory.sets.map((set) => {
-                const value =
-                  set.durationSeconds ?? set.reps ?? set.floors ?? 0;
-                return (
-                  <TextBox key={set.set} variant="caption2" color={theme.text}>
-                    {set.set}세트: {value}
-                    {exercise.valueUnit}
-                  </TextBox>
-                );
-              })}
-            </View>
-          </View>
-        )}
-
-        {setInputs.map((set) => (
-          <View key={set.setIndex} style={styles.setRow}>
-            <TextBox
-              variant="body3"
-              color={theme.textSecondary}
-              style={styles.setLabel}
-            >
-              {set.setIndex}세트
+      <View style={styles.setContainer}>
+        {setInputs.map((setInput, index) => (
+          <View key={setInput.setIndex} style={styles.setRow}>
+            <TextBox variant="body3" color={theme.text}>
+              {setInput.setIndex}세트
             </TextBox>
             <TextInput
-              keyboardType="numeric"
-              value={set.value}
-              onChangeText={(value) => handleValueChange(set.setIndex, value)}
-              placeholder={`${exercise.valueUnit} 입력`}
-              placeholderTextColor={theme.textSecondary}
               style={[
                 styles.input,
                 {
@@ -255,57 +227,49 @@ const WeekendExerciseCard: React.FC<WeekendExerciseCardProps> = ({
                   backgroundColor: theme.background,
                 },
               ]}
+              keyboardType="number-pad"
+              value={setInput.value}
+              placeholder={`값 입력 (${exercise.valueUnit})`}
+              placeholderTextColor={theme.textSecondary}
+              onChangeText={(value) =>
+                handleValueChange(setInput.setIndex, value)
+              }
             />
             <Pressable
-              onPress={() => handleRemoveSet(set.setIndex)}
-              disabled={setInputs.length <= 1}
               style={({ pressed }) => [
-                styles.removeButton,
-                {
-                  opacity: pressed ? 0.6 : setInputs.length <= 1 ? 0.3 : 1,
-                },
+                styles.setAction,
+                pressed && { opacity: 0.7 },
               ]}
+              onPress={() => handleRemoveSet(setInput.setIndex)}
             >
               <MaterialIcons
-                name="remove-circle-outline"
+                name="close"
                 size={20}
-                color={theme.error}
+                color={theme.textSecondary}
               />
             </Pressable>
           </View>
         ))}
 
-        {setInputs.length < MAX_SETS && (
-          <Pressable
-            onPress={handleAddSet}
-            style={({ pressed }) => [
-              styles.addSetButton,
-              {
-                borderColor: theme.border,
-                backgroundColor: theme.background,
-                opacity: pressed ? 0.7 : 1,
-              },
-            ]}
-          >
-            <MaterialIcons name="add" size={18} color={theme.textSecondary} />
-            <TextBox variant="caption3" color={theme.textSecondary}>
-              세트 추가
-            </TextBox>
-          </Pressable>
-        )}
-
-        {exercise.helperText && (
-          <TextBox
-            variant="caption3"
-            color={theme.textSecondary}
-            style={styles.helperText}
-          >
-            {exercise.helperText}
+        <Pressable
+          style={({ pressed }) => [
+            styles.addSetButton,
+            pressed && { opacity: 0.7 },
+          ]}
+          onPress={handleAddSet}
+        >
+          <MaterialIcons
+            name="add-circle-outline"
+            size={20}
+            color={theme.primary}
+          />
+          <TextBox variant="body3" color={theme.primary}>
+            세트 추가
           </TextBox>
-        )}
+        </Pressable>
       </View>
 
-      <View style={styles.footer}>
+      <View style={styles.actions}>
         <CustomButton
           title="기록 삭제"
           variant="outline"
@@ -319,84 +283,103 @@ const WeekendExerciseCard: React.FC<WeekendExerciseCardProps> = ({
           disabled={saving}
         />
       </View>
+
+      {exercise.latestHistory ? (
+        <View style={styles.history}>
+          <TextBox variant="caption2" color={theme.textSecondary}>
+            마지막 기록: {exercise.latestHistory.date}
+          </TextBox>
+          <View style={styles.historySets}>
+            {exercise.latestHistory.sets.map((set) => (
+              <TextBox
+                key={set.set}
+                variant="caption3"
+                color={theme.textSecondary}
+              >
+                {set.set}세트:{' '}
+                {resolveValueString(exercise.type, {
+                  set: set.set,
+                  durationSeconds: set.durationSeconds ?? undefined,
+                  reps: set.reps ?? undefined,
+                  floors: set.floors ?? undefined,
+                })}
+                {exercise.valueUnit}
+              </TextBox>
+            ))}
+          </View>
+        </View>
+      ) : null}
     </View>
   );
 };
 
+export default BodyweightExerciseCard;
+
 function resolveValueString(
   type: WeekendExerciseType,
-  set: WeekendExerciseSet
-): string {
-  const key = valueKeyMap[type];
-  const value =
-    key === 'durationSeconds'
-      ? set.durationSeconds
-      : key === 'reps'
-        ? set.reps
-        : set.floors;
-  return value != null ? String(value) : '';
+  set: BodyweightExerciseSet
+) {
+  if (type === 'hang') {
+    return set.durationSeconds?.toString() ?? '';
+  }
+  if (type === 'stairs') {
+    return set.floors?.toString() ?? '';
+  }
+  return set.reps?.toString() ?? '';
 }
-
-export default WeekendExerciseCard;
 
 const styles = StyleSheet.create({
   card: {
+    padding: 20,
     borderRadius: 16,
     borderWidth: 1,
-    padding: 20,
     marginBottom: 16,
     gap: 16,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  content: {
     gap: 12,
   },
-  latestWrapper: {
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: 12,
-    gap: 6,
-  },
-  latestList: {
+  helperChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 4,
+  },
+  setContainer: {
+    gap: 12,
   },
   setRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
-  setLabel: {
-    width: 60,
-  },
   input: {
     flex: 1,
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 8,
+    paddingVertical: 8,
     paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 15,
   },
-  removeButton: {
-    padding: 6,
+  setAction: {
+    padding: 4,
   },
   addSetButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: 6,
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingVertical: 10,
   },
-  helperText: {
-    marginTop: 4,
-  },
-  footer: {
+  actions: {
     flexDirection: 'row',
     gap: 12,
+  },
+  history: {
+    borderTopWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
+    paddingTop: 12,
+    gap: 6,
+  },
+  historySets: {
+    gap: 4,
   },
 });

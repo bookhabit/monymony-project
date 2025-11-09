@@ -13,8 +13,8 @@ import WeekendEntryCard from '@/components/workout/WeekendEntryCard';
 
 import { useExerciseEntries } from '@/hooks/workout/useExerciseEntries';
 import { useExercises } from '@/hooks/workout/useExercises';
-import { useWeekendExerciseEntries } from '@/hooks/workout/useWeekendExerciseEntries';
-import { WEEKEND_EXERCISES } from '@/hooks/workout/useWeekendWorkout';
+import { useBodyweightExerciseEntries } from '@/hooks/workout/useBodyweightExerciseEntries';
+import { BODYWEIGHT_EXERCISES } from '@/hooks/workout/useBodyweightWorkout';
 
 const ExercisesScreen = () => {
   const { theme } = useTheme();
@@ -38,9 +38,9 @@ const ExercisesScreen = () => {
       label: exercise.name,
       value: `standard:${exercise.id}`,
     }));
-    const weekendOptions = WEEKEND_EXERCISES.map((exercise) => ({
-      label: `주말 - ${exercise.name}`,
-      value: `weekend:${exercise.type}`,
+    const weekendOptions = BODYWEIGHT_EXERCISES.map((exercise) => ({
+      label: `맨몸 - ${exercise.name}`,
+      value: `bodyweight:${exercise.type}`,
     }));
     return [...standardOptions, ...weekendOptions];
   }, [exercises]);
@@ -51,7 +51,7 @@ const ExercisesScreen = () => {
     : null;
 
   const selectedWeekendType = useMemo(() => {
-    if (selectedOption?.startsWith('weekend:')) {
+    if (selectedOption?.startsWith('bodyweight:')) {
       const type = selectedOption.split(':')[1];
       if (
         type === 'hang' ||
@@ -79,7 +79,7 @@ const ExercisesScreen = () => {
     error: weekendError,
     hasMore: weekendHasMore,
     loadMore: weekendLoadMore,
-  } = useWeekendExerciseEntries(selectedWeekendType);
+  } = useBodyweightExerciseEntries(selectedWeekendType);
 
   const handleLoadMore = () => {
     if (selectedWeekendType) {

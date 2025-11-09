@@ -25,21 +25,34 @@ const WorkoutMainScreen = () => {
   const router = useRouter();
 
   const navigationButtons: {
-    type: 'today' | 'month' | 'week' | 'memo' | 'support';
+    type: 'today' | 'bodyweight' | 'month' | 'week' | 'memo' | 'support';
     title: string;
     icon: keyof typeof MaterialIcons.glyphMap;
     route: string;
     handler?: () => void;
+    fullWidth?: boolean;
   }[] = [
     {
       type: 'today',
       title: '오늘의 운동',
       icon: 'today',
       route: 'workout/today',
+      fullWidth: true,
       handler: () => {
         const today = new Date();
-        router.push(`/(app)/workout/today?date=${formatDate(today)}` as any);
+        const isWeekend = today.getDay() === 0 || today.getDay() === 6;
+        const query = isWeekend
+          ? `/(app)/workout/today?date=${formatDate(today)}&mode=rest`
+          : `/(app)/workout/today?date=${formatDate(today)}`;
+        router.push(query as any);
       },
+    },
+    {
+      type: 'bodyweight',
+      title: '맨몸 운동 기록',
+      icon: 'self-improvement',
+      route: 'workout/bodyweight',
+      fullWidth: true,
     },
     {
       type: 'month',
@@ -58,12 +71,14 @@ const WorkoutMainScreen = () => {
       title: '운동 메모',
       icon: 'note-alt',
       route: 'workout/memo',
+      fullWidth: true,
     },
     {
       type: 'support',
       title: '문의 / 요청',
       icon: 'email',
       route: 'workout/support',
+      fullWidth: true,
     },
   ];
 
@@ -95,12 +110,7 @@ const WorkoutMainScreen = () => {
                   style={({ pressed }) => [
                     styles.navButton,
                     {
-                      width:
-                        button.type === 'today' ||
-                        button.type === 'memo' ||
-                        button.type === 'support'
-                          ? '100%'
-                          : '48%',
+                      width: button.fullWidth ? '100%' : '48%',
                       backgroundColor: theme.surface,
                       borderColor: theme.accentOrange,
                       borderWidth: 2,
