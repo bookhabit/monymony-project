@@ -54,6 +54,15 @@ export default function TabsLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="modal"
+        options={{
+          title: '모달',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="workspaces" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

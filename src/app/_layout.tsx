@@ -14,6 +14,9 @@ import UpdateProvider from '@/context/UpdateProvider';
 
 import { OfflineBanner } from '@/components/network/OfflineBanner';
 
+import { BottomSheetProvider } from '@/hooks/useBottomSheet';
+import { ModalProvider } from '@/hooks/useModal';
+
 // 스플래시 스크린이 자동으로 숨겨지지 않도록 방지
 SplashScreen.preventAutoHideAsync();
 
@@ -72,8 +75,12 @@ export default function RootLayout() {
         <ThemeProvider>
           <NetworkProvider>
             <UpdateProvider>
-              <Slot />
-              <OfflineBanner />
+              <BottomSheetProvider>
+                <ModalProvider>
+                  <Slot />
+                  <OfflineBanner />
+                </ModalProvider>
+              </BottomSheetProvider>
             </UpdateProvider>
           </NetworkProvider>
         </ThemeProvider>
