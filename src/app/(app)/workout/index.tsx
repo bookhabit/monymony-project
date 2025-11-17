@@ -47,13 +47,7 @@ const WorkoutMainScreen = () => {
         router.push(query as any);
       },
     },
-    {
-      type: 'bodyweight',
-      title: '맨몸 운동 기록',
-      icon: 'self-improvement',
-      route: 'workout/bodyweight',
-      fullWidth: true,
-    },
+
     {
       type: 'month',
       title: '월별 기록 보기',

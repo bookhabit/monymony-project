@@ -58,6 +58,7 @@ const BodyweightExerciseCard: React.FC<BodyweightExerciseCardProps> = ({
   onDelete,
 }) => {
   const { theme } = useTheme();
+  const [expanded, setExpanded] = useState(false);
   const [setInputs, setSetInputs] = useState<SetInputState[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -179,6 +180,10 @@ const BodyweightExerciseCard: React.FC<BodyweightExerciseCardProps> = ({
     ]);
   };
 
+  const toggleExercise = () => {
+    setExpanded(!expanded);
+  };
+
   return (
     <View
       style={[
@@ -189,126 +194,141 @@ const BodyweightExerciseCard: React.FC<BodyweightExerciseCardProps> = ({
         },
       ]}
     >
-      <View style={styles.header}>
-        <View>
-          <TextBox variant="title3" color={theme.text}>
-            {exercise.name}
-          </TextBox>
-          <TextBox variant="caption2" color={theme.textSecondary}>
-            {exercise.description}
-          </TextBox>
-        </View>
-        {exercise.helperText ? (
-          <View style={styles.helperChip}>
-            <MaterialIcons
-              name="info-outline"
-              size={16}
-              color={theme.textSecondary}
-            />
-            <TextBox variant="caption3" color={theme.textSecondary}>
-              {exercise.helperText}
+      {/* 운동 헤더 (클릭 가능) */}
+      <Pressable onPress={toggleExercise}>
+        <View style={styles.header}>
+          <View style={styles.headerContent}>
+            <TextBox variant="title3" color={theme.text}>
+              {exercise.name}
+            </TextBox>
+            <TextBox variant="caption2" color={theme.textSecondary}>
+              {exercise.description}
             </TextBox>
           </View>
-        ) : null}
-      </View>
-
-      <View style={styles.setContainer}>
-        {setInputs.map((setInput, index) => (
-          <View key={setInput.setIndex} style={styles.setRow}>
-            <TextBox variant="body3" color={theme.text}>
-              {setInput.setIndex}세트
-            </TextBox>
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  borderColor: theme.border,
-                  color: theme.text,
-                  backgroundColor: theme.background,
-                },
-              ]}
-              keyboardType="number-pad"
-              value={setInput.value}
-              placeholder={`값 입력 (${exercise.valueUnit})`}
-              placeholderTextColor={theme.textSecondary}
-              onChangeText={(value) =>
-                handleValueChange(setInput.setIndex, value)
-              }
+          <View style={styles.headerRight}>
+            {exercise.helperText ? (
+              <View style={styles.helperChip}>
+                <MaterialIcons
+                  name="info-outline"
+                  size={16}
+                  color={theme.textSecondary}
+                />
+                <TextBox variant="caption3" color={theme.textSecondary}>
+                  {exercise.helperText}
+                </TextBox>
+              </View>
+            ) : null}
+            <MaterialIcons
+              name={expanded ? 'expand-less' : 'expand-more'}
+              size={24}
+              color={theme.text}
             />
+          </View>
+        </View>
+      </Pressable>
+
+      {/* 세트 입력 (드롭다운 콘텐츠) */}
+      {expanded && (
+        <>
+          <View style={styles.setContainer}>
+            {setInputs.map((setInput, index) => (
+              <View key={setInput.setIndex} style={styles.setRow}>
+                <TextBox variant="body3" color={theme.text}>
+                  {setInput.setIndex}세트
+                </TextBox>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      borderColor: theme.border,
+                      color: theme.text,
+                      backgroundColor: theme.background,
+                    },
+                  ]}
+                  keyboardType="number-pad"
+                  value={setInput.value}
+                  placeholder={`값 입력 (${exercise.valueUnit})`}
+                  placeholderTextColor={theme.textSecondary}
+                  onChangeText={(value) =>
+                    handleValueChange(setInput.setIndex, value)
+                  }
+                />
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.setAction,
+                    pressed && { opacity: 0.7 },
+                  ]}
+                  onPress={() => handleRemoveSet(setInput.setIndex)}
+                >
+                  <MaterialIcons
+                    name="close"
+                    size={20}
+                    color={theme.textSecondary}
+                  />
+                </Pressable>
+              </View>
+            ))}
+
             <Pressable
               style={({ pressed }) => [
-                styles.setAction,
+                styles.addSetButton,
                 pressed && { opacity: 0.7 },
               ]}
-              onPress={() => handleRemoveSet(setInput.setIndex)}
+              onPress={handleAddSet}
             >
               <MaterialIcons
-                name="close"
+                name="add-circle-outline"
                 size={20}
-                color={theme.textSecondary}
+                color={theme.primary}
               />
+              <TextBox variant="body3" color={theme.primary}>
+                세트 추가
+              </TextBox>
             </Pressable>
           </View>
-        ))}
 
-        <Pressable
-          style={({ pressed }) => [
-            styles.addSetButton,
-            pressed && { opacity: 0.7 },
-          ]}
-          onPress={handleAddSet}
-        >
-          <MaterialIcons
-            name="add-circle-outline"
-            size={20}
-            color={theme.primary}
-          />
-          <TextBox variant="body3" color={theme.primary}>
-            세트 추가
-          </TextBox>
-        </Pressable>
-      </View>
-
-      <View style={styles.actions}>
-        <CustomButton
-          title="기록 삭제"
-          variant="outline"
-          onPress={handleDelete}
-          disabled={saving}
-        />
-        <CustomButton
-          title="기록 저장"
-          onPress={handleSave}
-          loading={saving}
-          disabled={saving}
-        />
-      </View>
-
-      {exercise.latestHistory ? (
-        <View style={styles.history}>
-          <TextBox variant="caption2" color={theme.textSecondary}>
-            마지막 기록: {exercise.latestHistory.date}
-          </TextBox>
-          <View style={styles.historySets}>
-            {exercise.latestHistory.sets.map((set) => (
-              <TextBox
-                key={set.set}
-                variant="caption3"
-                color={theme.textSecondary}
-              >
-                {set.set}세트:{' '}
-                {resolveValueString(exercise.type, {
-                  set: set.set,
-                  durationSeconds: set.durationSeconds ?? undefined,
-                  reps: set.reps ?? undefined,
-                  floors: set.floors ?? undefined,
-                })}
-                {exercise.valueUnit}
-              </TextBox>
-            ))}
+          <View style={styles.actions}>
+            <CustomButton
+              title="기록 삭제"
+              variant="outline"
+              onPress={handleDelete}
+              disabled={saving}
+            />
+            <CustomButton
+              title="기록 저장"
+              onPress={handleSave}
+              loading={saving}
+              disabled={saving}
+            />
           </View>
-        </View>
-      ) : null}
+
+          {exercise.latestHistory ? (
+            <View style={styles.history}>
+              <TextBox variant="caption2" color={theme.textSecondary}>
+                마지막 기록: {exercise.latestHistory.date}
+              </TextBox>
+              <View style={styles.historySets}>
+                {exercise.latestHistory.sets.map((set) => (
+                  <TextBox
+                    key={set.set}
+                    variant="caption3"
+                    color={theme.textSecondary}
+                  >
+                    {set.set}세트:{' '}
+                    {resolveValueString(exercise.type, {
+                      set: set.set,
+                      durationSeconds: set.durationSeconds ?? undefined,
+                      reps: set.reps ?? undefined,
+                      floors: set.floors ?? undefined,
+                    })}
+                    {exercise.valueUnit}
+                  </TextBox>
+                ))}
+              </View>
+            </View>
+          ) : null}
+        </>
+      )}
     </View>
   );
 };
@@ -330,16 +350,25 @@ function resolveValueString(
 
 const styles = StyleSheet.create({
   card: {
-    padding: 20,
     borderRadius: 16,
     borderWidth: 1,
     marginBottom: 16,
-    gap: 16,
+    overflow: 'hidden',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
     gap: 12,
+  },
+  headerContent: {
+    flex: 1,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   helperChip: {
     flexDirection: 'row',
@@ -347,6 +376,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   setContainer: {
+    padding: 16,
+    paddingTop: 0,
     gap: 12,
   },
   setRow: {
@@ -372,11 +403,13 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     gap: 12,
+    padding: 16,
+    paddingTop: 0,
   },
   history: {
     borderTopWidth: 1,
     borderColor: 'rgba(0,0,0,0.05)',
-    paddingTop: 12,
+    padding: 12,
     gap: 6,
   },
   historySets: {

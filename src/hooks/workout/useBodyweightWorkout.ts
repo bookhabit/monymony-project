@@ -59,10 +59,10 @@ const BODYWEIGHT_EXERCISES_CONFIG: Record<
 };
 
 const ORDER: WeekendExerciseType[] = [
-  'hang',
+  'stairs',
   'pushup',
   'handstand_pushup',
-  'stairs',
+  'hang',
 ];
 
 export function useBodyweightWorkout(targetDate: Date = new Date()) {

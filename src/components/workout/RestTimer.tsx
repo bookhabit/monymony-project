@@ -302,7 +302,6 @@ const RestTimer: React.FC<RestTimerProps> = ({ defaultSeconds = 90 }) => {
             onPress={confirmFinished}
             style={{
               ...styles.button,
-              backgroundColor: theme.workoutCompleted,
             }}
           />
         ) : !isRunning ? (
@@ -311,7 +310,6 @@ const RestTimer: React.FC<RestTimerProps> = ({ defaultSeconds = 90 }) => {
             onPress={startTimer}
             style={{
               ...styles.button,
-              backgroundColor: theme.workoutCompleted,
             }}
           />
         ) : (

@@ -33,7 +33,15 @@ export async function getWeekendEntriesByDate(
     `SELECT id, date, exercise_type, set_index, duration_seconds, reps, floors, created_at, updated_at
      FROM weekend_workout_entries
      WHERE date = ?
-     ORDER BY exercise_type ASC, set_index ASC`,
+     ORDER BY 
+       CASE exercise_type
+         WHEN 'stairs' THEN 1
+         WHEN 'pushup' THEN 2
+         WHEN 'handstand_pushup' THEN 3
+         WHEN 'hang' THEN 4
+         ELSE 5
+       END,
+       set_index ASC`,
     [date]
   );
 }
