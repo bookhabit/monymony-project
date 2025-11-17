@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, TextInput, Pressable, Alert } from 'react-native';
 
+import { useRouter } from 'expo-router';
+
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { useTheme } from '@/context/ThemeProvider';
@@ -58,6 +60,7 @@ const BodyweightExerciseCard: React.FC<BodyweightExerciseCardProps> = ({
   onDelete,
 }) => {
   const { theme } = useTheme();
+  const router = useRouter();
   const [expanded, setExpanded] = useState(false);
   const [setInputs, setSetInputs] = useState<SetInputState[]>([]);
   const [saving, setSaving] = useState(false);
@@ -184,6 +187,13 @@ const BodyweightExerciseCard: React.FC<BodyweightExerciseCardProps> = ({
     setExpanded(!expanded);
   };
 
+  const handleViewHistory = () => {
+    router.push({
+      pathname: '/(app)/workout/exercises',
+      params: { bodyweightType: exercise.type },
+    } as any);
+  };
+
   return (
     <View
       style={[
@@ -201,23 +211,35 @@ const BodyweightExerciseCard: React.FC<BodyweightExerciseCardProps> = ({
             <TextBox variant="title3" color={theme.text}>
               {exercise.name}
             </TextBox>
-            <TextBox variant="caption2" color={theme.textSecondary}>
-              {exercise.description}
-            </TextBox>
+            <View style={styles.statsRow}>
+              <TextBox variant="caption2" color={theme.textSecondary}>
+                최고 기록:{' '}
+                {exercise.maxValue !== null
+                  ? `${exercise.maxValue}${exercise.valueUnit}`
+                  : '-'}
+              </TextBox>
+              <Pressable
+                onPress={(e) => {
+                  e.stopPropagation();
+                  handleViewHistory();
+                }}
+                style={({ pressed }) => [
+                  styles.historyButton,
+                  { opacity: pressed ? 0.7 : 1 },
+                ]}
+              >
+                <MaterialIcons
+                  name="history"
+                  size={16}
+                  color={theme.accentOrange}
+                />
+                <TextBox variant="caption2" color={theme.textSecondary}>
+                  지난 운동기록
+                </TextBox>
+              </Pressable>
+            </View>
           </View>
           <View style={styles.headerRight}>
-            {exercise.helperText ? (
-              <View style={styles.helperChip}>
-                <MaterialIcons
-                  name="info-outline"
-                  size={16}
-                  color={theme.textSecondary}
-                />
-                <TextBox variant="caption3" color={theme.textSecondary}>
-                  {exercise.helperText}
-                </TextBox>
-              </View>
-            ) : null}
             <MaterialIcons
               name={expanded ? 'expand-less' : 'expand-more'}
               size={24}
@@ -364,6 +386,20 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     flex: 1,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 4,
+    gap: 8,
+  },
+  historyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
   headerRight: {
     flexDirection: 'row',

@@ -4,6 +4,7 @@ import {
   deleteWeekendExerciseEntries,
   getWeekendEntriesByDate,
   getLatestWeekendHistory,
+  getMaxWeekendValue,
   replaceWeekendExerciseEntries,
   type WeekendExerciseType,
   type WeekendSetInput,
@@ -26,6 +27,7 @@ export interface BodyweightExerciseState {
   helperText?: string;
   sets: BodyweightExerciseSet[];
   hasSavedData: boolean;
+  maxValue: number | null;
   latestHistory?: {
     date: string;
     sets: BodyweightExerciseSet[];
@@ -34,7 +36,7 @@ export interface BodyweightExerciseState {
 
 const BODYWEIGHT_EXERCISES_CONFIG: Record<
   WeekendExerciseType,
-  Omit<BodyweightExerciseState, 'type' | 'sets' | 'hasSavedData'>
+  Omit<BodyweightExerciseState, 'type' | 'sets' | 'hasSavedData' | 'maxValue'>
 > = {
   hang: {
     name: '철봉 매달리기',
@@ -97,13 +99,17 @@ export function useBodyweightWorkout(targetDate: Date = new Date()) {
           const config = BODYWEIGHT_EXERCISES_CONFIG[type];
           const sets = grouped.get(type)?.sort((a, b) => a.set - b.set) ?? [];
 
-          const latestHistory = await getLatestWeekendHistory(type);
+          const [latestHistory, maxValue] = await Promise.all([
+            getLatestWeekendHistory(type),
+            getMaxWeekendValue(type),
+          ]);
 
           return {
             type,
             ...config,
             sets,
             hasSavedData: sets.length > 0,
+            maxValue,
             latestHistory: latestHistory
               ? {
                   date: latestHistory.date,

@@ -11,18 +11,21 @@ import CustomHeader from '@/components/layout/CustomHeader';
 import ExerciseEntryCard from '@/components/workout/ExerciseEntryCard';
 import WeekendEntryCard from '@/components/workout/WeekendEntryCard';
 
-import { useExerciseEntries } from '@/hooks/workout/useExerciseEntries';
-import { useExercises } from '@/hooks/workout/useExercises';
 import { useBodyweightExerciseEntries } from '@/hooks/workout/useBodyweightExerciseEntries';
 import { BODYWEIGHT_EXERCISES } from '@/hooks/workout/useBodyweightWorkout';
+import { useExerciseEntries } from '@/hooks/workout/useExerciseEntries';
+import { useExercises } from '@/hooks/workout/useExercises';
 
 const ExercisesScreen = () => {
   const { theme } = useTheme();
-  const params = useLocalSearchParams<{ exerciseId?: string }>();
+  const params = useLocalSearchParams<{
+    exerciseId?: string;
+    bodyweightType?: string;
+  }>();
   const { exercises, loading: exercisesLoading } = useExercises();
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
-  // 파라미터로 받은 exerciseId를 초기 선택값으로 설정
+  // 파라미터로 받은 exerciseId 또는 bodyweightType을 초기 선택값으로 설정
   useEffect(() => {
     if (params.exerciseId && exercises.length > 0) {
       const exerciseId = parseInt(params.exerciseId, 10);
@@ -31,8 +34,18 @@ const ExercisesScreen = () => {
       if (exerciseExists && !isNaN(exerciseId)) {
         setSelectedOption(`standard:${exerciseId}`);
       }
+    } else if (params.bodyweightType) {
+      const type = params.bodyweightType;
+      if (
+        type === 'hang' ||
+        type === 'pushup' ||
+        type === 'handstand_pushup' ||
+        type === 'stairs'
+      ) {
+        setSelectedOption(`bodyweight:${type}`);
+      }
     }
-  }, [params.exerciseId, exercises]);
+  }, [params.exerciseId, params.bodyweightType, exercises]);
   const selectOptions = useMemo(() => {
     const standardOptions = exercises.map((exercise) => ({
       label: exercise.name,

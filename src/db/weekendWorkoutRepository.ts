@@ -140,3 +140,36 @@ export async function getLatestWeekendHistory(
   const histories = await getWeekendHistory(exerciseType, 1, 0);
   return histories.length > 0 ? histories[0] : null;
 }
+
+export async function getMaxWeekendValue(
+  exerciseType: WeekendExerciseType
+): Promise<number | null> {
+  const db = await getDatabase();
+
+  if (exerciseType === 'hang') {
+    const result = await db.getFirstAsync<{ max_value: number | null }>(
+      `SELECT MAX(duration_seconds) as max_value
+       FROM weekend_workout_entries
+       WHERE exercise_type = ? AND duration_seconds IS NOT NULL`,
+      [exerciseType]
+    );
+    return result?.max_value ?? null;
+  } else if (exerciseType === 'stairs') {
+    const result = await db.getFirstAsync<{ max_value: number | null }>(
+      `SELECT MAX(floors) as max_value
+       FROM weekend_workout_entries
+       WHERE exercise_type = ? AND floors IS NOT NULL`,
+      [exerciseType]
+    );
+    return result?.max_value ?? null;
+  } else {
+    // pushup, handstand_pushup
+    const result = await db.getFirstAsync<{ max_value: number | null }>(
+      `SELECT MAX(reps) as max_value
+       FROM weekend_workout_entries
+       WHERE exercise_type = ? AND reps IS NOT NULL`,
+      [exerciseType]
+    );
+    return result?.max_value ?? null;
+  }
+}
