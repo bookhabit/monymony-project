@@ -95,7 +95,16 @@ export default function DesignScreen() {
               운동 페이지
             </TextBox>
           </Pressable>
+          <Pressable
+            style={[styles.navButton, { backgroundColor: theme.success }]}
+            onPress={() => router.push('/(app)/checklist')}
+          >
+            <TextBox variant="button2" color="#fff">
+              2026 학습 목표 체크리스트
+            </TextBox>
+          </Pressable>
         </View>
+
         <TextBox variant="title1" style={styles.header} color={theme.text}>
           🎨 Design System
         </TextBox>
