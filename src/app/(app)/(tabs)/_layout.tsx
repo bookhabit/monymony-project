@@ -23,6 +23,15 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen
+        name="index"
+        options={{
+          title: '홈',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="home" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="design"
         options={{
           title: '디자인',

@@ -14,26 +14,15 @@ interface NavButton {
 }
 
 interface NavigationBarProps {
-  title?: string;
   buttons: NavButton[];
 }
 
-export const NavigationBar: React.FC<NavigationBarProps> = ({
-  title = '페이지 이동',
-  buttons,
-}) => {
+export const NavigationBar: React.FC<NavigationBarProps> = ({ buttons }) => {
   const { theme } = useTheme();
   const router = useRouter();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.surface }]}>
-      <TextBox
-        variant="body2"
-        style={[styles.title, { borderBottomColor: theme.border }]}
-        color={theme.text}
-      >
-        {title}
-      </TextBox>
       {buttons.map((button, index) => (
         <Pressable
           key={index}

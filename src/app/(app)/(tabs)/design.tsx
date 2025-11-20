@@ -14,7 +14,6 @@ import { useTheme } from '@/context/ThemeProvider';
 import Input from '@/components/common/Input';
 import TextBox from '@/components/common/TextBox';
 import { CustomButton } from '@/components/common/button';
-import NavigationBar from '@/components/layout/NavigationBar';
 import { UpdateChecker } from '@/components/updates/UpdateChecker';
 
 export default function DesignScreen() {
@@ -70,33 +69,6 @@ export default function DesignScreen() {
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
       />
       <View style={styles.content}>
-        {/* Navigation */}
-        <NavigationBar
-          title="페이지 이동"
-          buttons={[
-            {
-              title: '공부 목표 설정',
-              route: '/(app)/checklist',
-              color: theme.success,
-            },
-            {
-              title: '운동 기록',
-              route: '/(app)/workout',
-              color: theme.primary,
-            },
-            {
-              title: '독서 기록',
-              route: '/(app)/reading',
-              color: '#06B6D4',
-            },
-            {
-              title: '앱 스터디',
-              route: '/(app)/detail',
-              color: theme.secondary,
-            },
-          ]}
-        />
-
         <TextBox variant="title1" style={styles.header} color={theme.text}>
           🎨 Design System
         </TextBox>
