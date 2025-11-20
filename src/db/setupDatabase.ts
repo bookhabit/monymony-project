@@ -128,6 +128,25 @@ async function executeSchema(db: SQLite.SQLiteDatabase): Promise<void> {
       UNIQUE(date, exercise_type, set_index)
     );
 
+    -- 독서 기록 테이블
+    CREATE TABLE IF NOT EXISTS reading_books (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      memorable_quote TEXT DEFAULT '',
+      review TEXT DEFAULT '',
+      action_item TEXT DEFAULT '',
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 독서 배운점 테이블
+    CREATE TABLE IF NOT EXISTS reading_learned_points (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      book_id INTEGER NOT NULL,
+      text TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (book_id) REFERENCES reading_books(id) ON DELETE CASCADE
+    );
 
     -- 인덱스 생성 (조회 성능 향상)
     CREATE INDEX IF NOT EXISTS idx_workout_sessions_date ON workout_sessions(date);
@@ -138,6 +157,8 @@ async function executeSchema(db: SQLite.SQLiteDatabase): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_memo_entries_created_at ON memo_entries(created_at);
     CREATE INDEX IF NOT EXISTS idx_weekend_workout_entries_date ON weekend_workout_entries(date);
     CREATE INDEX IF NOT EXISTS idx_weekend_workout_entries_type ON weekend_workout_entries(exercise_type);
+    CREATE INDEX IF NOT EXISTS idx_reading_books_title ON reading_books(title);
+    CREATE INDEX IF NOT EXISTS idx_reading_learned_points_book ON reading_learned_points(book_id);
     
   `;
 

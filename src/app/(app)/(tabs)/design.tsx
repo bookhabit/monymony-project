@@ -14,6 +14,7 @@ import { useTheme } from '@/context/ThemeProvider';
 import Input from '@/components/common/Input';
 import TextBox from '@/components/common/TextBox';
 import { CustomButton } from '@/components/common/button';
+import NavigationBar from '@/components/layout/NavigationBar';
 import { UpdateChecker } from '@/components/updates/UpdateChecker';
 
 export default function DesignScreen() {
@@ -70,40 +71,31 @@ export default function DesignScreen() {
       />
       <View style={styles.content}>
         {/* Navigation */}
-        <View style={[styles.section, { backgroundColor: theme.surface }]}>
-          <TextBox
-            variant="body2"
-            style={[styles.sectionTitle, { borderBottomColor: theme.border }]}
-            color={theme.text}
-          >
-            페이지 이동
-          </TextBox>
-
-          <Pressable
-            style={[styles.navButton, { backgroundColor: theme.secondary }]}
-            onPress={() => router.push('/(app)/detail')}
-          >
-            <TextBox variant="button2" color="#fff">
-              앱 스터디 페이지
-            </TextBox>
-          </Pressable>
-          <Pressable
-            style={[styles.navButton, { backgroundColor: theme.primary }]}
-            onPress={() => router.push('/(app)/workout')}
-          >
-            <TextBox variant="button2" color="#fff">
-              운동 페이지
-            </TextBox>
-          </Pressable>
-          <Pressable
-            style={[styles.navButton, { backgroundColor: theme.success }]}
-            onPress={() => router.push('/(app)/checklist')}
-          >
-            <TextBox variant="button2" color="#fff">
-              2026 학습 목표 체크리스트
-            </TextBox>
-          </Pressable>
-        </View>
+        <NavigationBar
+          title="페이지 이동"
+          buttons={[
+            {
+              title: '공부 목표 설정',
+              route: '/(app)/checklist',
+              color: theme.success,
+            },
+            {
+              title: '운동 기록',
+              route: '/(app)/workout',
+              color: theme.primary,
+            },
+            {
+              title: '독서 기록',
+              route: '/(app)/reading',
+              color: '#06B6D4',
+            },
+            {
+              title: '앱 스터디',
+              route: '/(app)/detail',
+              color: theme.secondary,
+            },
+          ]}
+        />
 
         <TextBox variant="title1" style={styles.header} color={theme.text}>
           🎨 Design System
