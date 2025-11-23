@@ -12,7 +12,10 @@ import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { useTheme } from '@/context/ThemeProvider';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  getCheckedGoals,
+  saveAllCheckedGoals,
+} from '@/db/studyGoalsRepository';
 
 import TextBox from '@/components/common/TextBox';
 import { CustomHeader } from '@/components/layout/CustomHeader';
@@ -125,8 +128,6 @@ export const STUDY_GOALS: MonthData[] = [
   },
 ];
 
-const STORAGE_KEY = '@study_goals_2026';
-
 export default function ChecklistScreen() {
   const { theme, isDarkMode } = useTheme();
   const router = useRouter();
@@ -142,29 +143,10 @@ export default function ChecklistScreen() {
 
   const loadCheckedGoals = async () => {
     try {
-      const stored = await AsyncStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        // JSON 파싱을 안전하게 처리
-        const parsed = JSON.parse(stored);
-        // 파싱된 데이터가 유효한 객체인지 확인
-        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-          setCheckedGoals(parsed);
-        } else {
-          console.warn('저장된 데이터 형식이 올바르지 않습니다. 초기화합니다.');
-          // 잘못된 데이터는 삭제하고 빈 객체로 초기화
-          await AsyncStorage.removeItem(STORAGE_KEY);
-          setCheckedGoals({});
-        }
-      }
+      const checked = await getCheckedGoals();
+      setCheckedGoals(checked);
     } catch (error) {
       console.error('체크 상태 로드 실패:', error);
-      // JSON 파싱 실패 시 저장된 데이터 삭제
-      try {
-        await AsyncStorage.removeItem(STORAGE_KEY);
-      } catch (removeError) {
-        console.error('저장된 데이터 삭제 실패:', removeError);
-      }
-      // 빈 객체로 초기화
       setCheckedGoals({});
     }
   };
@@ -172,7 +154,7 @@ export default function ChecklistScreen() {
   // 체크 상태 저장
   const saveCheckedGoals = async (newCheckedGoals: Record<string, boolean>) => {
     try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newCheckedGoals));
+      await saveAllCheckedGoals(newCheckedGoals);
     } catch (error) {
       console.error('체크 상태 저장 실패:', error);
     }

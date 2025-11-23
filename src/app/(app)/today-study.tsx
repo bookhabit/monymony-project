@@ -13,7 +13,11 @@ import { useFocusEffect } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { useTheme } from '@/context/ThemeProvider';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  getAllTodoDates,
+  toggleTodo,
+  isTodoChecked,
+} from '@/db/todayTodoRepository';
 
 import TextBox from '@/components/common/TextBox';
 import { CustomHeader } from '@/components/layout/CustomHeader';
@@ -61,13 +65,6 @@ LocaleConfig.locales['ko'] = {
   today: '오늘',
 };
 LocaleConfig.defaultLocale = 'ko';
-
-const STORAGE_KEY_STUDY_DATES = '@study_dates_2026';
-const STORAGE_KEY_ALGORITHM_DATES = '@algorithm_dates_2026';
-const STORAGE_KEY_BODYWEIGHT_DATES = '@bodyweight_dates_2026';
-const STORAGE_KEY_READING_DATES = '@reading_dates_2026';
-const STORAGE_KEY_RUNNING_DATES = '@running_dates_2026';
-const STORAGE_KEY_HEALTH_DATES = '@health_dates_2026';
 
 // 날짜를 YYYY-MM-DD 형식으로 변환
 const formatDate = (date: Date): string => {
@@ -118,63 +115,38 @@ export default function TodayStudyScreen() {
   // 데이터 로드
   const loadData = useCallback(async () => {
     try {
-      // 공부한 날짜 로드
-      const storedDates = await AsyncStorage.getItem(STORAGE_KEY_STUDY_DATES);
-      if (storedDates) {
-        const dates = JSON.parse(storedDates);
-        setStudyDates(new Set(dates));
-        setIsTodayStudied(dates.includes(todayString));
-      }
+      // 모든 TODO 날짜 로드
+      const allDates = await getAllTodoDates();
+      setStudyDates(allDates.study);
+      setAlgorithmDates(allDates.algorithm);
+      setBodyweightDates(allDates.bodyweight);
+      setReadingDates(allDates.reading);
+      setRunningDates(allDates.running);
+      setHealthDates(allDates.health);
 
-      // 알고리즘 문제풀이 날짜 로드
-      const storedAlgorithmDates = await AsyncStorage.getItem(
-        STORAGE_KEY_ALGORITHM_DATES
-      );
-      if (storedAlgorithmDates) {
-        const dates = JSON.parse(storedAlgorithmDates);
-        setAlgorithmDates(new Set(dates));
-        setIsTodayAlgorithmSolved(dates.includes(todayString));
-      }
+      // 오늘 날짜 체크 상태 확인
+      const [
+        isStudied,
+        isAlgorithmSolved,
+        isBodyweightDone,
+        isReadingDone,
+        isRunningDone,
+        isHealthDone,
+      ] = await Promise.all([
+        isTodoChecked(todayString, 'study'),
+        isTodoChecked(todayString, 'algorithm'),
+        isTodoChecked(todayString, 'bodyweight'),
+        isTodoChecked(todayString, 'reading'),
+        isTodoChecked(todayString, 'running'),
+        isTodoChecked(todayString, 'health'),
+      ]);
 
-      // 맨몸운동 날짜 로드
-      const storedBodyweightDates = await AsyncStorage.getItem(
-        STORAGE_KEY_BODYWEIGHT_DATES
-      );
-      if (storedBodyweightDates) {
-        const dates = JSON.parse(storedBodyweightDates);
-        setBodyweightDates(new Set(dates));
-        setIsTodayBodyweightDone(dates.includes(todayString));
-      }
-
-      // 독서 날짜 로드
-      const storedReadingDates = await AsyncStorage.getItem(
-        STORAGE_KEY_READING_DATES
-      );
-      if (storedReadingDates) {
-        const dates = JSON.parse(storedReadingDates);
-        setReadingDates(new Set(dates));
-        setIsTodayReadingDone(dates.includes(todayString));
-      }
-
-      // 런닝 날짜 로드
-      const storedRunningDates = await AsyncStorage.getItem(
-        STORAGE_KEY_RUNNING_DATES
-      );
-      if (storedRunningDates) {
-        const dates = JSON.parse(storedRunningDates);
-        setRunningDates(new Set(dates));
-        setIsTodayRunningDone(dates.includes(todayString));
-      }
-
-      // 헬스 날짜 로드
-      const storedHealthDates = await AsyncStorage.getItem(
-        STORAGE_KEY_HEALTH_DATES
-      );
-      if (storedHealthDates) {
-        const dates = JSON.parse(storedHealthDates);
-        setHealthDates(new Set(dates));
-        setIsTodayHealthDone(dates.includes(todayString));
-      }
+      setIsTodayStudied(isStudied);
+      setIsTodayAlgorithmSolved(isAlgorithmSolved);
+      setIsTodayBodyweightDone(isBodyweightDone);
+      setIsTodayReadingDone(isReadingDone);
+      setIsTodayRunningDone(isRunningDone);
+      setIsTodayHealthDone(isHealthDone);
     } catch (error) {
       console.error('데이터 로드 실패:', error);
     }
@@ -192,21 +164,18 @@ export default function TodayStudyScreen() {
     const newIsStudied = !isTodayStudied;
     setIsTodayStudied(newIsStudied);
 
-    const newStudyDates = new Set(studyDates);
-    if (newIsStudied) {
-      newStudyDates.add(todayString);
-    } else {
-      newStudyDates.delete(todayString);
-    }
-    setStudyDates(newStudyDates);
-
     try {
-      await AsyncStorage.setItem(
-        STORAGE_KEY_STUDY_DATES,
-        JSON.stringify(Array.from(newStudyDates))
-      );
+      await toggleTodo(todayString, 'study', newIsStudied);
+      const newStudyDates = new Set(studyDates);
+      if (newIsStudied) {
+        newStudyDates.add(todayString);
+      } else {
+        newStudyDates.delete(todayString);
+      }
+      setStudyDates(newStudyDates);
     } catch (error) {
       console.error('공부 날짜 저장 실패:', error);
+      setIsTodayStudied(!newIsStudied); // 롤백
     }
   };
 
@@ -215,21 +184,18 @@ export default function TodayStudyScreen() {
     const newIsSolved = !isTodayAlgorithmSolved;
     setIsTodayAlgorithmSolved(newIsSolved);
 
-    const newAlgorithmDates = new Set(algorithmDates);
-    if (newIsSolved) {
-      newAlgorithmDates.add(todayString);
-    } else {
-      newAlgorithmDates.delete(todayString);
-    }
-    setAlgorithmDates(newAlgorithmDates);
-
     try {
-      await AsyncStorage.setItem(
-        STORAGE_KEY_ALGORITHM_DATES,
-        JSON.stringify(Array.from(newAlgorithmDates))
-      );
+      await toggleTodo(todayString, 'algorithm', newIsSolved);
+      const newAlgorithmDates = new Set(algorithmDates);
+      if (newIsSolved) {
+        newAlgorithmDates.add(todayString);
+      } else {
+        newAlgorithmDates.delete(todayString);
+      }
+      setAlgorithmDates(newAlgorithmDates);
     } catch (error) {
       console.error('알고리즘 날짜 저장 실패:', error);
+      setIsTodayAlgorithmSolved(!newIsSolved); // 롤백
     }
   };
 
@@ -238,21 +204,18 @@ export default function TodayStudyScreen() {
     const newIsDone = !isTodayBodyweightDone;
     setIsTodayBodyweightDone(newIsDone);
 
-    const newBodyweightDates = new Set(bodyweightDates);
-    if (newIsDone) {
-      newBodyweightDates.add(todayString);
-    } else {
-      newBodyweightDates.delete(todayString);
-    }
-    setBodyweightDates(newBodyweightDates);
-
     try {
-      await AsyncStorage.setItem(
-        STORAGE_KEY_BODYWEIGHT_DATES,
-        JSON.stringify(Array.from(newBodyweightDates))
-      );
+      await toggleTodo(todayString, 'bodyweight', newIsDone);
+      const newBodyweightDates = new Set(bodyweightDates);
+      if (newIsDone) {
+        newBodyweightDates.add(todayString);
+      } else {
+        newBodyweightDates.delete(todayString);
+      }
+      setBodyweightDates(newBodyweightDates);
     } catch (error) {
       console.error('맨몸운동 날짜 저장 실패:', error);
+      setIsTodayBodyweightDone(!newIsDone); // 롤백
     }
   };
 
@@ -261,21 +224,18 @@ export default function TodayStudyScreen() {
     const newIsDone = !isTodayReadingDone;
     setIsTodayReadingDone(newIsDone);
 
-    const newReadingDates = new Set(readingDates);
-    if (newIsDone) {
-      newReadingDates.add(todayString);
-    } else {
-      newReadingDates.delete(todayString);
-    }
-    setReadingDates(newReadingDates);
-
     try {
-      await AsyncStorage.setItem(
-        STORAGE_KEY_READING_DATES,
-        JSON.stringify(Array.from(newReadingDates))
-      );
+      await toggleTodo(todayString, 'reading', newIsDone);
+      const newReadingDates = new Set(readingDates);
+      if (newIsDone) {
+        newReadingDates.add(todayString);
+      } else {
+        newReadingDates.delete(todayString);
+      }
+      setReadingDates(newReadingDates);
     } catch (error) {
       console.error('독서 날짜 저장 실패:', error);
+      setIsTodayReadingDone(!newIsDone); // 롤백
     }
   };
 
@@ -284,21 +244,18 @@ export default function TodayStudyScreen() {
     const newIsDone = !isTodayRunningDone;
     setIsTodayRunningDone(newIsDone);
 
-    const newRunningDates = new Set(runningDates);
-    if (newIsDone) {
-      newRunningDates.add(todayString);
-    } else {
-      newRunningDates.delete(todayString);
-    }
-    setRunningDates(newRunningDates);
-
     try {
-      await AsyncStorage.setItem(
-        STORAGE_KEY_RUNNING_DATES,
-        JSON.stringify(Array.from(newRunningDates))
-      );
+      await toggleTodo(todayString, 'running', newIsDone);
+      const newRunningDates = new Set(runningDates);
+      if (newIsDone) {
+        newRunningDates.add(todayString);
+      } else {
+        newRunningDates.delete(todayString);
+      }
+      setRunningDates(newRunningDates);
     } catch (error) {
       console.error('런닝 날짜 저장 실패:', error);
+      setIsTodayRunningDone(!newIsDone); // 롤백
     }
   };
 
@@ -307,21 +264,18 @@ export default function TodayStudyScreen() {
     const newIsDone = !isTodayHealthDone;
     setIsTodayHealthDone(newIsDone);
 
-    const newHealthDates = new Set(healthDates);
-    if (newIsDone) {
-      newHealthDates.add(todayString);
-    } else {
-      newHealthDates.delete(todayString);
-    }
-    setHealthDates(newHealthDates);
-
     try {
-      await AsyncStorage.setItem(
-        STORAGE_KEY_HEALTH_DATES,
-        JSON.stringify(Array.from(newHealthDates))
-      );
+      await toggleTodo(todayString, 'health', newIsDone);
+      const newHealthDates = new Set(healthDates);
+      if (newIsDone) {
+        newHealthDates.add(todayString);
+      } else {
+        newHealthDates.delete(todayString);
+      }
+      setHealthDates(newHealthDates);
     } catch (error) {
       console.error('헬스 날짜 저장 실패:', error);
+      setIsTodayHealthDone(!newIsDone); // 롤백
     }
   };
 

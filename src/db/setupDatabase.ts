@@ -148,6 +148,22 @@ async function executeSchema(db: SQLite.SQLiteDatabase): Promise<void> {
       FOREIGN KEY (book_id) REFERENCES reading_books(id) ON DELETE CASCADE
     );
 
+    -- 학습 목표 체크 테이블
+    CREATE TABLE IF NOT EXISTS study_goals (
+      goal_id TEXT PRIMARY KEY,
+      checked INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 오늘의 TODO 체크 테이블
+    CREATE TABLE IF NOT EXISTS today_todo_dates (
+      date TEXT NOT NULL,
+      todo_type TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      PRIMARY KEY (date, todo_type)
+    );
+
     -- 인덱스 생성 (조회 성능 향상)
     CREATE INDEX IF NOT EXISTS idx_workout_sessions_date ON workout_sessions(date);
     CREATE INDEX IF NOT EXISTS idx_workout_entries_session ON workout_entries(session_id);
@@ -159,6 +175,9 @@ async function executeSchema(db: SQLite.SQLiteDatabase): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_weekend_workout_entries_type ON weekend_workout_entries(exercise_type);
     CREATE INDEX IF NOT EXISTS idx_reading_books_title ON reading_books(title);
     CREATE INDEX IF NOT EXISTS idx_reading_learned_points_book ON reading_learned_points(book_id);
+    CREATE INDEX IF NOT EXISTS idx_study_goals_goal_id ON study_goals(goal_id);
+    CREATE INDEX IF NOT EXISTS idx_today_todo_dates_date ON today_todo_dates(date);
+    CREATE INDEX IF NOT EXISTS idx_today_todo_dates_type ON today_todo_dates(todo_type);
     
   `;
 
