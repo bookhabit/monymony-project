@@ -18,8 +18,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import TextBox from '@/components/common/TextBox';
 import { CustomHeader } from '@/components/layout/CustomHeader';
 
-import { STUDY_GOALS } from './checklist';
-
 // 한글 로케일 설정
 LocaleConfig.locales['ko'] = {
   monthNames: [
@@ -64,10 +62,12 @@ LocaleConfig.locales['ko'] = {
 };
 LocaleConfig.defaultLocale = 'ko';
 
-const STORAGE_KEY_GOALS = '@study_goals_2026';
-const STORAGE_KEY_TODAY_STUDY = '@today_study_goal';
 const STORAGE_KEY_STUDY_DATES = '@study_dates_2026';
 const STORAGE_KEY_ALGORITHM_DATES = '@algorithm_dates_2026';
+const STORAGE_KEY_BODYWEIGHT_DATES = '@bodyweight_dates_2026';
+const STORAGE_KEY_READING_DATES = '@reading_dates_2026';
+const STORAGE_KEY_RUNNING_DATES = '@running_dates_2026';
+const STORAGE_KEY_HEALTH_DATES = '@health_dates_2026';
 
 // 날짜를 YYYY-MM-DD 형식으로 변환
 const formatDate = (date: Date): string => {
@@ -75,28 +75,6 @@ const formatDate = (date: Date): string => {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
-};
-
-// 모든 목표를 평탄화하여 순서대로 배열로 만듦
-const getAllGoalsFlat = () => {
-  const allGoals: Array<{ id: string; text: string }> = [];
-  STUDY_GOALS.forEach((monthData) => {
-    monthData.goals.forEach((goal) => {
-      allGoals.push(goal);
-    });
-  });
-  return allGoals;
-};
-
-// 다음 목표 찾기
-const getNextGoal = (checkedGoals: Record<string, boolean>) => {
-  const allGoals = getAllGoalsFlat();
-  for (const goal of allGoals) {
-    if (!checkedGoals[goal.id]) {
-      return goal;
-    }
-  }
-  return null;
 };
 
 interface MarkedDates {
@@ -119,15 +97,20 @@ interface MarkedDates {
 
 export default function TodayStudyScreen() {
   const { theme, isDarkMode } = useTheme();
-  const [todayGoal, setTodayGoal] = useState<{
-    id: string;
-    text: string;
-  } | null>(null);
-  const [checkedGoals, setCheckedGoals] = useState<Record<string, boolean>>({});
   const [studyDates, setStudyDates] = useState<Set<string>>(new Set());
   const [algorithmDates, setAlgorithmDates] = useState<Set<string>>(new Set());
+  const [bodyweightDates, setBodyweightDates] = useState<Set<string>>(
+    new Set()
+  );
+  const [readingDates, setReadingDates] = useState<Set<string>>(new Set());
+  const [runningDates, setRunningDates] = useState<Set<string>>(new Set());
+  const [healthDates, setHealthDates] = useState<Set<string>>(new Set());
   const [isTodayStudied, setIsTodayStudied] = useState(false);
   const [isTodayAlgorithmSolved, setIsTodayAlgorithmSolved] = useState(false);
+  const [isTodayBodyweightDone, setIsTodayBodyweightDone] = useState(false);
+  const [isTodayReadingDone, setIsTodayReadingDone] = useState(false);
+  const [isTodayRunningDone, setIsTodayRunningDone] = useState(false);
+  const [isTodayHealthDone, setIsTodayHealthDone] = useState(false);
 
   const today = useMemo(() => new Date(), []);
   const todayString = formatDate(today);
@@ -135,22 +118,6 @@ export default function TodayStudyScreen() {
   // 데이터 로드
   const loadData = useCallback(async () => {
     try {
-      // 체크된 목표 로드
-      const storedGoals = await AsyncStorage.getItem(STORAGE_KEY_GOALS);
-      if (storedGoals) {
-        const goals = JSON.parse(storedGoals);
-        setCheckedGoals(goals);
-        // 다음 목표 찾기
-        const nextGoal = getNextGoal(goals);
-        setTodayGoal(nextGoal);
-      } else {
-        // 처음 시작할 때는 첫 번째 목표
-        const allGoals = getAllGoalsFlat();
-        if (allGoals.length > 0) {
-          setTodayGoal(allGoals[0]);
-        }
-      }
-
       // 공부한 날짜 로드
       const storedDates = await AsyncStorage.getItem(STORAGE_KEY_STUDY_DATES);
       if (storedDates) {
@@ -167,6 +134,46 @@ export default function TodayStudyScreen() {
         const dates = JSON.parse(storedAlgorithmDates);
         setAlgorithmDates(new Set(dates));
         setIsTodayAlgorithmSolved(dates.includes(todayString));
+      }
+
+      // 맨몸운동 날짜 로드
+      const storedBodyweightDates = await AsyncStorage.getItem(
+        STORAGE_KEY_BODYWEIGHT_DATES
+      );
+      if (storedBodyweightDates) {
+        const dates = JSON.parse(storedBodyweightDates);
+        setBodyweightDates(new Set(dates));
+        setIsTodayBodyweightDone(dates.includes(todayString));
+      }
+
+      // 독서 날짜 로드
+      const storedReadingDates = await AsyncStorage.getItem(
+        STORAGE_KEY_READING_DATES
+      );
+      if (storedReadingDates) {
+        const dates = JSON.parse(storedReadingDates);
+        setReadingDates(new Set(dates));
+        setIsTodayReadingDone(dates.includes(todayString));
+      }
+
+      // 런닝 날짜 로드
+      const storedRunningDates = await AsyncStorage.getItem(
+        STORAGE_KEY_RUNNING_DATES
+      );
+      if (storedRunningDates) {
+        const dates = JSON.parse(storedRunningDates);
+        setRunningDates(new Set(dates));
+        setIsTodayRunningDone(dates.includes(todayString));
+      }
+
+      // 헬스 날짜 로드
+      const storedHealthDates = await AsyncStorage.getItem(
+        STORAGE_KEY_HEALTH_DATES
+      );
+      if (storedHealthDates) {
+        const dates = JSON.parse(storedHealthDates);
+        setHealthDates(new Set(dates));
+        setIsTodayHealthDone(dates.includes(todayString));
       }
     } catch (error) {
       console.error('데이터 로드 실패:', error);
@@ -226,41 +233,141 @@ export default function TodayStudyScreen() {
     }
   };
 
-  // 목표 체크 시 다음 목표로 업데이트
-  useEffect(() => {
-    const updateTodayGoal = async () => {
-      const nextGoal = getNextGoal(checkedGoals);
-      setTodayGoal(nextGoal);
-      try {
-        if (nextGoal) {
-          await AsyncStorage.setItem(
-            STORAGE_KEY_TODAY_STUDY,
-            JSON.stringify(nextGoal)
-          );
-        }
-      } catch (error) {
-        console.error('오늘의 공부 목표 저장 실패:', error);
-      }
-    };
+  // 맨몸운동 체크/해제
+  const toggleBodyweight = async () => {
+    const newIsDone = !isTodayBodyweightDone;
+    setIsTodayBodyweightDone(newIsDone);
 
-    updateTodayGoal();
-  }, [checkedGoals]);
+    const newBodyweightDates = new Set(bodyweightDates);
+    if (newIsDone) {
+      newBodyweightDates.add(todayString);
+    } else {
+      newBodyweightDates.delete(todayString);
+    }
+    setBodyweightDates(newBodyweightDates);
 
-  // 캘린더 마킹 데이터 생성 (공부한 날짜와 알고리즘 문제풀이 날짜 모두 표시)
+    try {
+      await AsyncStorage.setItem(
+        STORAGE_KEY_BODYWEIGHT_DATES,
+        JSON.stringify(Array.from(newBodyweightDates))
+      );
+    } catch (error) {
+      console.error('맨몸운동 날짜 저장 실패:', error);
+    }
+  };
+
+  // 독서 체크/해제
+  const toggleReading = async () => {
+    const newIsDone = !isTodayReadingDone;
+    setIsTodayReadingDone(newIsDone);
+
+    const newReadingDates = new Set(readingDates);
+    if (newIsDone) {
+      newReadingDates.add(todayString);
+    } else {
+      newReadingDates.delete(todayString);
+    }
+    setReadingDates(newReadingDates);
+
+    try {
+      await AsyncStorage.setItem(
+        STORAGE_KEY_READING_DATES,
+        JSON.stringify(Array.from(newReadingDates))
+      );
+    } catch (error) {
+      console.error('독서 날짜 저장 실패:', error);
+    }
+  };
+
+  // 런닝 체크/해제
+  const toggleRunning = async () => {
+    const newIsDone = !isTodayRunningDone;
+    setIsTodayRunningDone(newIsDone);
+
+    const newRunningDates = new Set(runningDates);
+    if (newIsDone) {
+      newRunningDates.add(todayString);
+    } else {
+      newRunningDates.delete(todayString);
+    }
+    setRunningDates(newRunningDates);
+
+    try {
+      await AsyncStorage.setItem(
+        STORAGE_KEY_RUNNING_DATES,
+        JSON.stringify(Array.from(newRunningDates))
+      );
+    } catch (error) {
+      console.error('런닝 날짜 저장 실패:', error);
+    }
+  };
+
+  // 헬스 체크/해제
+  const toggleHealth = async () => {
+    const newIsDone = !isTodayHealthDone;
+    setIsTodayHealthDone(newIsDone);
+
+    const newHealthDates = new Set(healthDates);
+    if (newIsDone) {
+      newHealthDates.add(todayString);
+    } else {
+      newHealthDates.delete(todayString);
+    }
+    setHealthDates(newHealthDates);
+
+    try {
+      await AsyncStorage.setItem(
+        STORAGE_KEY_HEALTH_DATES,
+        JSON.stringify(Array.from(newHealthDates))
+      );
+    } catch (error) {
+      console.error('헬스 날짜 저장 실패:', error);
+    }
+  };
+
+  // 캘린더 마킹 데이터 생성 (모든 체크 항목 날짜 표시)
   const markedDates: MarkedDates = useMemo(() => {
     const marked: MarkedDates = {};
-    const allDates = new Set([...studyDates, ...algorithmDates]);
+    const allDates = new Set([
+      ...studyDates,
+      ...algorithmDates,
+      ...bodyweightDates,
+      ...readingDates,
+      ...runningDates,
+      ...healthDates,
+    ]);
+
     allDates.forEach((date) => {
       const hasStudy = studyDates.has(date);
       const hasAlgorithm = algorithmDates.has(date);
+      const hasBodyweight = bodyweightDates.has(date);
+      const hasReading = readingDates.has(date);
+      const hasRunning = runningDates.has(date);
+      const hasHealth = healthDates.has(date);
 
-      // 둘 다 있으면 primary 색상, 하나만 있으면 secondary 색상
-      const dotColor =
-        hasStudy && hasAlgorithm ? theme.primary : theme.secondary;
-      const bgColor =
-        hasStudy && hasAlgorithm
-          ? theme.primary + '20'
-          : theme.secondary + '20';
+      // 체크된 항목 개수에 따라 색상 결정
+      const checkedCount =
+        (hasStudy ? 1 : 0) +
+        (hasAlgorithm ? 1 : 0) +
+        (hasBodyweight ? 1 : 0) +
+        (hasReading ? 1 : 0) +
+        (hasRunning ? 1 : 0) +
+        (hasHealth ? 1 : 0);
+
+      // 6개 모두 체크: primary, 4-5개: secondary, 1-3개: accent
+      let dotColor: string;
+      let bgColor: string;
+
+      if (checkedCount === 6) {
+        dotColor = theme.primary;
+        bgColor = theme.primary + '30';
+      } else if (checkedCount >= 4) {
+        dotColor = theme.secondary;
+        bgColor = theme.secondary + '20';
+      } else {
+        dotColor = theme.textSecondary;
+        bgColor = theme.textSecondary + '10';
+      }
 
       marked[date] = {
         marked: true,
@@ -277,7 +384,17 @@ export default function TodayStudyScreen() {
       };
     });
     return marked;
-  }, [studyDates, algorithmDates, theme.primary, theme.secondary]);
+  }, [
+    studyDates,
+    algorithmDates,
+    bodyweightDates,
+    readingDates,
+    runningDates,
+    healthDates,
+    theme.primary,
+    theme.secondary,
+    theme.textSecondary,
+  ]);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -285,53 +402,20 @@ export default function TodayStudyScreen() {
         backgroundColor={theme.background}
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
       />
-      <CustomHeader title="오늘의 공부" />
+      <CustomHeader title="TODAY-TODO-LIST" />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.content}
       >
-        {/* 오늘의 공부 목표 */}
-        <View style={[styles.goalSection, { backgroundColor: theme.surface }]}>
-          <TextBox
-            variant="body2"
-            color={theme.text}
-            style={styles.sectionTitle}
-          >
-            오늘의 공부 목표
-          </TextBox>
-          {todayGoal ? (
-            <View style={styles.goalContent}>
-              <TextBox
-                variant="body3"
-                color={theme.text}
-                style={styles.goalText}
-              >
-                {todayGoal.text}
-              </TextBox>
-            </View>
-          ) : (
-            <View style={styles.goalContent}>
-              <TextBox
-                variant="body4"
-                color={theme.textSecondary}
-                style={styles.goalText}
-              >
-                모든 목표를 완료했습니다! 🎉
-              </TextBox>
-            </View>
-          )}
-        </View>
-
-        {/* 오늘 공부 체크 */}
-        <View style={[styles.checkSection, { backgroundColor: theme.surface }]}>
-          <TextBox
-            variant="body2"
-            color={theme.text}
-            style={styles.sectionTitle}
-          >
-            오늘 공부했나요?
-          </TextBox>
-          <Pressable style={styles.checkButton} onPress={toggleTodayStudy}>
+        {/* 체크리스트 컨테이너 */}
+        <View
+          style={[
+            styles.checklistContainer,
+            { backgroundColor: theme.surface },
+          ]}
+        >
+          {/* 공부 완료 체크 */}
+          <Pressable style={styles.checkItem} onPress={toggleTodayStudy}>
             <View
               style={[
                 styles.checkCircle,
@@ -352,21 +436,12 @@ export default function TodayStudyScreen() {
               color={isTodayStudied ? theme.primary : theme.text}
               style={styles.checkText}
             >
-              {isTodayStudied ? '오늘 공부 완료!' : '공부 완료 체크'}
+              공부 완료
             </TextBox>
           </Pressable>
-        </View>
 
-        {/* 알고리즘 문제풀이 체크 */}
-        <View style={[styles.checkSection, { backgroundColor: theme.surface }]}>
-          <TextBox
-            variant="body2"
-            color={theme.text}
-            style={styles.sectionTitle}
-          >
-            알고리즘 문제풀이
-          </TextBox>
-          <Pressable style={styles.checkButton} onPress={toggleAlgorithmStudy}>
+          {/* 알고리즘 문제풀이 체크 */}
+          <Pressable style={styles.checkItem} onPress={toggleAlgorithmStudy}>
             <View
               style={[
                 styles.checkCircle,
@@ -385,13 +460,115 @@ export default function TodayStudyScreen() {
               )}
             </View>
             <TextBox
-              variant="body4"
+              variant="body3"
               color={isTodayAlgorithmSolved ? theme.secondary : theme.text}
               style={styles.checkText}
             >
-              {isTodayAlgorithmSolved
-                ? '오늘 알고리즘 문제풀이 완료!'
-                : '알고리즘 문제풀이 체크'}
+              알고리즘 문제풀이
+            </TextBox>
+          </Pressable>
+
+          {/* 맨몸운동 체크 */}
+          <Pressable style={styles.checkItem} onPress={toggleBodyweight}>
+            <View
+              style={[
+                styles.checkCircle,
+                {
+                  backgroundColor: isTodayBodyweightDone
+                    ? '#FF6B6B'
+                    : 'transparent',
+                  borderColor: isTodayBodyweightDone ? '#FF6B6B' : theme.border,
+                },
+              ]}
+            >
+              {isTodayBodyweightDone && (
+                <MaterialIcons name="check" size={18} color="#fff" />
+              )}
+            </View>
+            <TextBox
+              variant="body3"
+              color={isTodayBodyweightDone ? '#FF6B6B' : theme.text}
+              style={styles.checkText}
+            >
+              맨몸운동 (계단, 푸쉬업, 물구나무, 매달리기)
+            </TextBox>
+          </Pressable>
+
+          {/* 독서 체크 */}
+          <Pressable style={styles.checkItem} onPress={toggleReading}>
+            <View
+              style={[
+                styles.checkCircle,
+                {
+                  backgroundColor: isTodayReadingDone
+                    ? '#06B6D4'
+                    : 'transparent',
+                  borderColor: isTodayReadingDone ? '#06B6D4' : theme.border,
+                },
+              ]}
+            >
+              {isTodayReadingDone && (
+                <MaterialIcons name="check" size={18} color="#fff" />
+              )}
+            </View>
+            <TextBox
+              variant="body3"
+              color={isTodayReadingDone ? '#06B6D4' : theme.text}
+              style={styles.checkText}
+            >
+              독서
+            </TextBox>
+          </Pressable>
+
+          {/* 런닝 체크 */}
+          <Pressable style={styles.checkItem} onPress={toggleRunning}>
+            <View
+              style={[
+                styles.checkCircle,
+                {
+                  backgroundColor: isTodayRunningDone
+                    ? '#10B981'
+                    : 'transparent',
+                  borderColor: isTodayRunningDone ? '#10B981' : theme.border,
+                },
+              ]}
+            >
+              {isTodayRunningDone && (
+                <MaterialIcons name="check" size={18} color="#fff" />
+              )}
+            </View>
+            <TextBox
+              variant="body3"
+              color={isTodayRunningDone ? '#10B981' : theme.text}
+              style={styles.checkText}
+            >
+              런닝
+            </TextBox>
+          </Pressable>
+
+          {/* 헬스 체크 */}
+          <Pressable style={styles.checkItem} onPress={toggleHealth}>
+            <View
+              style={[
+                styles.checkCircle,
+                {
+                  backgroundColor: isTodayHealthDone
+                    ? '#8B5CF6'
+                    : 'transparent',
+                  borderColor: isTodayHealthDone ? '#8B5CF6' : theme.border,
+                },
+              ]}
+            >
+              {isTodayHealthDone && (
+                <MaterialIcons name="check" size={18} color="#fff" />
+              )}
+            </View>
+            <TextBox
+              variant="body3"
+              color={isTodayHealthDone ? '#8B5CF6' : theme.text}
+              style={styles.checkText}
+            >
+              헬스
             </TextBox>
           </Pressable>
         </View>
@@ -441,11 +618,11 @@ export default function TodayStudyScreen() {
               <View
                 style={[
                   styles.legendDot,
-                  { backgroundColor: theme.primary + '20' },
+                  { backgroundColor: theme.primary + '30' },
                 ]}
               />
               <TextBox variant="caption2" color={theme.textSecondary}>
-                공부 + 알고리즘
+                6개 모두 완료
               </TextBox>
             </View>
             <View style={styles.legendItem}>
@@ -456,7 +633,18 @@ export default function TodayStudyScreen() {
                 ]}
               />
               <TextBox variant="caption2" color={theme.textSecondary}>
-                공부 또는 알고리즘
+                4-5개 완료
+              </TextBox>
+            </View>
+            <View style={styles.legendItem}>
+              <View
+                style={[
+                  styles.legendDot,
+                  { backgroundColor: theme.textSecondary + '10' },
+                ]}
+              />
+              <TextBox variant="caption2" color={theme.textSecondary}>
+                1-3개 완료
               </TextBox>
             </View>
           </View>
@@ -477,15 +665,17 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 40,
   },
-  goalSection: {
+  checklistContainer: {
     padding: 20,
     borderRadius: 15,
     marginBottom: 16,
+    gap: 16,
   },
-  checkSection: {
-    padding: 20,
-    borderRadius: 15,
-    marginBottom: 16,
+  checkItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    paddingVertical: 12,
   },
   calendarSection: {
     padding: 20,
@@ -494,18 +684,6 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     marginBottom: 16,
-  },
-  goalContent: {
-    paddingVertical: 12,
-  },
-  goalText: {
-    lineHeight: 24,
-  },
-  checkButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    paddingVertical: 12,
   },
   checkCircle: {
     width: 24,

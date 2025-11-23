@@ -39,6 +39,11 @@ export default function HomeScreen() {
               route: '/(app)/detail',
               color: theme.secondary,
             },
+            {
+              title: 'TODAY-TODO-LIST',
+              route: '/(app)/today-study',
+              color: '#FF6B6B',
+            },
           ]}
         />
       </ScrollView>

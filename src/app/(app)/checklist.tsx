@@ -144,10 +144,28 @@ export default function ChecklistScreen() {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
       if (stored) {
-        setCheckedGoals(JSON.parse(stored));
+        // JSON 파싱을 안전하게 처리
+        const parsed = JSON.parse(stored);
+        // 파싱된 데이터가 유효한 객체인지 확인
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          setCheckedGoals(parsed);
+        } else {
+          console.warn('저장된 데이터 형식이 올바르지 않습니다. 초기화합니다.');
+          // 잘못된 데이터는 삭제하고 빈 객체로 초기화
+          await AsyncStorage.removeItem(STORAGE_KEY);
+          setCheckedGoals({});
+        }
       }
     } catch (error) {
       console.error('체크 상태 로드 실패:', error);
+      // JSON 파싱 실패 시 저장된 데이터 삭제
+      try {
+        await AsyncStorage.removeItem(STORAGE_KEY);
+      } catch (removeError) {
+        console.error('저장된 데이터 삭제 실패:', removeError);
+      }
+      // 빈 객체로 초기화
+      setCheckedGoals({});
     }
   };
 
@@ -162,9 +180,17 @@ export default function ChecklistScreen() {
 
   // 체크박스 토글
   const toggleGoal = (goalId: string) => {
+    // checkedGoals가 유효한 객체인지 확인
+    const currentGoals =
+      checkedGoals &&
+      typeof checkedGoals === 'object' &&
+      !Array.isArray(checkedGoals)
+        ? checkedGoals
+        : {};
+
     const newCheckedGoals = {
-      ...checkedGoals,
-      [goalId]: !checkedGoals[goalId],
+      ...currentGoals,
+      [goalId]: !currentGoals[goalId],
     };
     setCheckedGoals(newCheckedGoals);
     saveCheckedGoals(newCheckedGoals);
@@ -183,7 +209,13 @@ export default function ChecklistScreen() {
     (sum, month) => sum + month.goals.length,
     0
   );
-  const completedGoals = Object.values(checkedGoals).filter(Boolean).length;
+  // checkedGoals가 유효한 객체인지 확인 후 진행률 계산
+  const completedGoals =
+    checkedGoals &&
+    typeof checkedGoals === 'object' &&
+    !Array.isArray(checkedGoals)
+      ? Object.values(checkedGoals).filter(Boolean).length
+      : 0;
   const progressPercentage =
     totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
 
@@ -230,17 +262,6 @@ export default function ChecklistScreen() {
           </TextBox>
         </View>
 
-        {/* 오늘의 공부 버튼 */}
-        <Pressable
-          style={[styles.todayStudyButton, { backgroundColor: theme.success }]}
-          onPress={() => router.push('/(app)/today-study')}
-        >
-          <MaterialIcons name="school" size={24} color="#fff" />
-          <TextBox variant="button2" color="#fff" style={styles.todayStudyText}>
-            오늘의 공부
-          </TextBox>
-        </Pressable>
-
         {/* 월별 체크리스트 */}
         {STUDY_GOALS.map((monthData) => (
           <View
@@ -277,16 +298,18 @@ export default function ChecklistScreen() {
                       style={[
                         styles.checkbox,
                         {
-                          backgroundColor: checkedGoals[goal.id]
-                            ? theme.primary
-                            : 'transparent',
-                          borderColor: checkedGoals[goal.id]
-                            ? theme.primary
-                            : theme.border,
+                          backgroundColor:
+                            checkedGoals && checkedGoals[goal.id]
+                              ? theme.primary
+                              : 'transparent',
+                          borderColor:
+                            checkedGoals && checkedGoals[goal.id]
+                              ? theme.primary
+                              : theme.border,
                         },
                       ]}
                     >
-                      {checkedGoals[goal.id] && (
+                      {checkedGoals && checkedGoals[goal.id] && (
                         <MaterialIcons name="check" size={16} color="#fff" />
                       )}
                     </View>
@@ -294,13 +317,16 @@ export default function ChecklistScreen() {
                       variant="body4"
                       style={[
                         styles.goalText,
-                        checkedGoals[goal.id] && {
-                          textDecorationLine: 'line-through',
-                          opacity: 0.6,
-                        },
+                        checkedGoals &&
+                          checkedGoals[goal.id] && {
+                            textDecorationLine: 'line-through',
+                            opacity: 0.6,
+                          },
                       ]}
                       color={
-                        checkedGoals[goal.id] ? theme.textSecondary : theme.text
+                        checkedGoals && checkedGoals[goal.id]
+                          ? theme.textSecondary
+                          : theme.text
                       }
                     >
                       {goal.text}
