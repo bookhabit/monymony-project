@@ -1,49 +1,16 @@
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import { MaterialIcons } from '@expo/vector-icons';
 
 import { useTheme } from '@/context/ThemeProvider';
 
-import TextBox from '@/components/common/TextBox';
-
-interface AccordionItem {
-  id: string;
-  title: string;
-  content: {
-    concept?: string;
-    description?: string;
-    examples?: { code: string; explanation?: string }[];
-    list?: string[];
-    isSection?: boolean; // 섹션 제목인지 여부
-  };
-}
-
-interface FunctionItem {
-  id: string;
-  name: string;
-  category: string;
-  definition: string;
-  description: string;
-  code: string;
-}
-
-interface BasicOperationItem {
-  id: string;
-  name: string;
-  definition: string;
-  description: string;
-  code: string;
-}
-
-interface LoopItem {
-  id: string;
-  name: string;
-  definition: string;
-  description: string;
-  code: string;
-}
+import {
+  AccordionItem,
+  CodeExampleItem,
+  useCodeExecution,
+  FunctionAccordion,
+  TopicAccordion,
+  SectionTitle,
+} from '@/components/algorithm';
 
 const topics: AccordionItem[] = [
   {
@@ -95,21 +62,21 @@ arr2[100] = 2; // 느림, Map/Object에 가까움`,
   },
   {
     id: '3',
-    title: '원본 배열을 변경하는 함수 (Mutating)',
+    title: '원본 배열을 변경하는 함수',
     content: {
       isSection: true,
     },
   },
   {
     id: '4',
-    title: '원본 배열을 변경하지 않는 함수 (Non-Mutating)',
+    title: '원본 배열을 변경하지 않는 함수',
     content: {
       isSection: true, // 섹션 제목임을 표시
     },
   },
 ];
 
-const basicOperations: BasicOperationItem[] = [
+const basicOperations: CodeExampleItem[] = [
   {
     id: 'insert',
     name: '삽입',
@@ -186,7 +153,7 @@ const value = arr[index]; // 30`,
   },
 ];
 
-const loopMethods: LoopItem[] = [
+const loopMethods: CodeExampleItem[] = [
   {
     id: 'for',
     name: 'for문',
@@ -364,7 +331,7 @@ arr.forEach(value => console.log(value * 2)); // 2, 4, 6, 8, 10`,
   },
 ];
 
-const mutatingFunctions: FunctionItem[] = [
+const mutatingFunctions: CodeExampleItem[] = [
   {
     id: 'push',
     name: 'push()',
@@ -618,7 +585,7 @@ console.log(arr3); // [4, 5, 3, 4, 5]`,
   },
 ];
 
-const nonMutatingFunctions: FunctionItem[] = [
+const nonMutatingFunctions: CodeExampleItem[] = [
   {
     id: 'map',
     name: 'map()',
@@ -1208,16 +1175,7 @@ const keys = Array.from(map.keys());
 export default function ArraysScreen() {
   const { theme } = useTheme();
   const { bottom } = useSafeAreaInsets();
-  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
-    {}
-  );
-
-  const toggleItem = (id: string) => {
-    setExpandedItems((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
+  const { executionResults, executeCode } = useCodeExecution();
 
   return (
     <ScrollView
@@ -1228,182 +1186,25 @@ export default function ArraysScreen() {
         {topics.map((topic) => (
           <View key={topic.id}>
             {topic.content.isSection ? (
-              // 섹션 제목
-              <View style={styles.sectionTitle}>
-                <TextBox variant="title3" color={theme.text}>
-                  {topic.title}
-                </TextBox>
-              </View>
+              <SectionTitle title={topic.title} />
             ) : (
-              // 일반 토픽
-              <View
-                style={[styles.topicCard, { backgroundColor: theme.surface }]}
-              >
-                <Pressable
-                  onPress={() => toggleItem(topic.id)}
-                  style={({ pressed }) => [
-                    styles.topicHeader,
-                    { opacity: pressed ? 0.7 : 1 },
-                  ]}
-                >
-                  <TextBox variant="title4" color={theme.text}>
-                    {topic.title}
-                  </TextBox>
-                  <MaterialIcons
-                    name={
-                      expandedItems[topic.id]
-                        ? 'keyboard-arrow-up'
-                        : 'keyboard-arrow-down'
-                    }
-                    size={24}
-                    color={theme.text}
-                  />
-                </Pressable>
-
-                {expandedItems[topic.id] && (
-                  <View style={styles.topicContent}>
-                    {topic.content.concept && (
-                      <View style={styles.section}>
-                        <TextBox variant="body2" color={theme.primary}>
-                          {topic.content.concept}
-                        </TextBox>
-                      </View>
-                    )}
-
-                    {topic.content.description && (
-                      <View style={styles.section}>
-                        <TextBox variant="body3" color={theme.textSecondary}>
-                          {topic.content.description}
-                        </TextBox>
-                      </View>
-                    )}
-
-                    {topic.content.list && (
-                      <View style={styles.section}>
-                        {topic.content.list.map((item, index) => (
-                          <View key={index} style={styles.listItem}>
-                            <TextBox variant="body3" color={theme.text}>
-                              • {item}
-                            </TextBox>
-                          </View>
-                        ))}
-                      </View>
-                    )}
-
-                    {topic.content.examples && (
-                      <View style={styles.section}>
-                        {topic.content.examples.map((example, index) => (
-                          <View
-                            key={index}
-                            style={[
-                              styles.codeBlock,
-                              {
-                                backgroundColor: theme.background,
-                                borderColor: theme.border,
-                              },
-                            ]}
-                          >
-                            <TextBox
-                              variant="caption1"
-                              color={theme.text}
-                              style={styles.codeText}
-                            >
-                              {example.code}
-                            </TextBox>
-                            {example.explanation && (
-                              <View
-                                style={[
-                                  styles.explanation,
-                                  { borderTopColor: theme.border },
-                                ]}
-                              >
-                                <TextBox
-                                  variant="body4"
-                                  color={theme.textSecondary}
-                                >
-                                  {example.explanation}
-                                </TextBox>
-                              </View>
-                            )}
-                          </View>
-                        ))}
-                      </View>
-                    )}
-                  </View>
-                )}
-              </View>
+              <TopicAccordion
+                topic={topic}
+                executionResults={executionResults}
+                onExecute={executeCode}
+              />
             )}
 
             {/* 섹션 제목인 경우 그 아래에 항목들 표시 */}
             {topic.content.isSection && topic.id === '2' && (
               <>
                 {basicOperations.map((operation) => (
-                  <View
+                  <FunctionAccordion
                     key={operation.id}
-                    style={[
-                      styles.functionCard,
-                      { backgroundColor: theme.surface },
-                    ]}
-                  >
-                    <Pressable
-                      onPress={() => toggleItem(operation.id)}
-                      style={({ pressed }) => [
-                        styles.functionHeader,
-                        { opacity: pressed ? 0.7 : 1 },
-                      ]}
-                    >
-                      <View style={styles.functionHeaderLeft}>
-                        <TextBox variant="title5" color={theme.text}>
-                          {operation.name}
-                        </TextBox>
-                      </View>
-                      <MaterialIcons
-                        name={
-                          expandedItems[operation.id]
-                            ? 'keyboard-arrow-up'
-                            : 'keyboard-arrow-down'
-                        }
-                        size={24}
-                        color={theme.text}
-                      />
-                    </Pressable>
-
-                    {expandedItems[operation.id] && (
-                      <View style={styles.functionContent}>
-                        <View style={styles.section}>
-                          <TextBox variant="body2" color={theme.primary}>
-                            {operation.definition}
-                          </TextBox>
-                        </View>
-
-                        <View style={styles.section}>
-                          <TextBox variant="body3" color={theme.textSecondary}>
-                            {operation.description}
-                          </TextBox>
-                        </View>
-
-                        <View style={styles.section}>
-                          <View
-                            style={[
-                              styles.codeBlock,
-                              {
-                                backgroundColor: theme.background,
-                                borderColor: theme.border,
-                              },
-                            ]}
-                          >
-                            <TextBox
-                              variant="caption1"
-                              color={theme.text}
-                              style={styles.codeText}
-                            >
-                              {operation.code}
-                            </TextBox>
-                          </View>
-                        </View>
-                      </View>
-                    )}
-                  </View>
+                    item={operation}
+                    executionResults={executionResults}
+                    onExecute={executeCode}
+                  />
                 ))}
               </>
             )}
@@ -1411,72 +1212,12 @@ export default function ArraysScreen() {
             {topic.content.isSection && topic.id === '2-1' && (
               <>
                 {loopMethods.map((loop) => (
-                  <View
+                  <FunctionAccordion
                     key={loop.id}
-                    style={[
-                      styles.functionCard,
-                      { backgroundColor: theme.surface },
-                    ]}
-                  >
-                    <Pressable
-                      onPress={() => toggleItem(loop.id)}
-                      style={({ pressed }) => [
-                        styles.functionHeader,
-                        { opacity: pressed ? 0.7 : 1 },
-                      ]}
-                    >
-                      <View style={styles.functionHeaderLeft}>
-                        <TextBox variant="title5" color={theme.text}>
-                          {loop.name}
-                        </TextBox>
-                      </View>
-                      <MaterialIcons
-                        name={
-                          expandedItems[loop.id]
-                            ? 'keyboard-arrow-up'
-                            : 'keyboard-arrow-down'
-                        }
-                        size={24}
-                        color={theme.text}
-                      />
-                    </Pressable>
-
-                    {expandedItems[loop.id] && (
-                      <View style={styles.functionContent}>
-                        <View style={styles.section}>
-                          <TextBox variant="body2" color={theme.primary}>
-                            {loop.definition}
-                          </TextBox>
-                        </View>
-
-                        <View style={styles.section}>
-                          <TextBox variant="body3" color={theme.textSecondary}>
-                            {loop.description}
-                          </TextBox>
-                        </View>
-
-                        <View style={styles.section}>
-                          <View
-                            style={[
-                              styles.codeBlock,
-                              {
-                                backgroundColor: theme.background,
-                                borderColor: theme.border,
-                              },
-                            ]}
-                          >
-                            <TextBox
-                              variant="caption1"
-                              color={theme.text}
-                              style={styles.codeText}
-                            >
-                              {loop.code}
-                            </TextBox>
-                          </View>
-                        </View>
-                      </View>
-                    )}
-                  </View>
+                    item={loop}
+                    executionResults={executionResults}
+                    onExecute={executeCode}
+                  />
                 ))}
               </>
             )}
@@ -1484,160 +1225,28 @@ export default function ArraysScreen() {
             {topic.content.isSection && topic.id === '3' && (
               <>
                 {mutatingFunctions.map((func) => (
-                  <View
+                  <FunctionAccordion
                     key={func.id}
-                    style={[
-                      styles.functionCard,
-                      { backgroundColor: theme.surface },
-                    ]}
-                  >
-                    <Pressable
-                      onPress={() => toggleItem(func.id)}
-                      style={({ pressed }) => [
-                        styles.functionHeader,
-                        { opacity: pressed ? 0.7 : 1 },
-                      ]}
-                    >
-                      <View style={styles.functionHeaderLeft}>
-                        <TextBox variant="title5" color={theme.text}>
-                          {func.name}
-                        </TextBox>
-                        <TextBox
-                          variant="caption2"
-                          color={theme.textSecondary}
-                          style={styles.category}
-                        >
-                          {func.category}
-                        </TextBox>
-                      </View>
-                      <MaterialIcons
-                        name={
-                          expandedItems[func.id]
-                            ? 'keyboard-arrow-up'
-                            : 'keyboard-arrow-down'
-                        }
-                        size={24}
-                        color={theme.text}
-                      />
-                    </Pressable>
-
-                    {expandedItems[func.id] && (
-                      <View style={styles.functionContent}>
-                        <View style={styles.section}>
-                          <TextBox variant="body2" color={theme.primary}>
-                            {func.definition}
-                          </TextBox>
-                        </View>
-
-                        <View style={styles.section}>
-                          <TextBox variant="body3" color={theme.textSecondary}>
-                            {func.description}
-                          </TextBox>
-                        </View>
-
-                        <View style={styles.section}>
-                          <View
-                            style={[
-                              styles.codeBlock,
-                              {
-                                backgroundColor: theme.background,
-                                borderColor: theme.border,
-                              },
-                            ]}
-                          >
-                            <TextBox
-                              variant="caption1"
-                              color={theme.text}
-                              style={styles.codeText}
-                            >
-                              {func.code}
-                            </TextBox>
-                          </View>
-                        </View>
-                      </View>
-                    )}
-                  </View>
+                    item={func}
+                    executionResults={executionResults}
+                    onExecute={executeCode}
+                  />
                 ))}
               </>
             )}
 
-            {topic.content.isSection &&
-              topic.id === '4' &&
-              nonMutatingFunctions.map((func) => (
-                <View
-                  key={func.id}
-                  style={[
-                    styles.functionCard,
-                    { backgroundColor: theme.surface },
-                  ]}
-                >
-                  <Pressable
-                    onPress={() => toggleItem(func.id)}
-                    style={({ pressed }) => [
-                      styles.functionHeader,
-                      { opacity: pressed ? 0.7 : 1 },
-                    ]}
-                  >
-                    <View style={styles.functionHeaderLeft}>
-                      <TextBox variant="title5" color={theme.text}>
-                        {func.name}
-                      </TextBox>
-                      <TextBox
-                        variant="caption2"
-                        color={theme.textSecondary}
-                        style={styles.category}
-                      >
-                        {func.category}
-                      </TextBox>
-                    </View>
-                    <MaterialIcons
-                      name={
-                        expandedItems[func.id]
-                          ? 'keyboard-arrow-up'
-                          : 'keyboard-arrow-down'
-                      }
-                      size={24}
-                      color={theme.text}
-                    />
-                  </Pressable>
-
-                  {expandedItems[func.id] && (
-                    <View style={styles.functionContent}>
-                      <View style={styles.section}>
-                        <TextBox variant="body2" color={theme.primary}>
-                          {func.definition}
-                        </TextBox>
-                      </View>
-
-                      <View style={styles.section}>
-                        <TextBox variant="body3" color={theme.textSecondary}>
-                          {func.description}
-                        </TextBox>
-                      </View>
-
-                      <View style={styles.section}>
-                        <View
-                          style={[
-                            styles.codeBlock,
-                            {
-                              backgroundColor: theme.background,
-                              borderColor: theme.border,
-                            },
-                          ]}
-                        >
-                          <TextBox
-                            variant="caption1"
-                            color={theme.text}
-                            style={styles.codeText}
-                          >
-                            {func.code}
-                          </TextBox>
-                        </View>
-                      </View>
-                    </View>
-                  )}
-                </View>
-              ))}
+            {topic.content.isSection && topic.id === '4' && (
+              <>
+                {nonMutatingFunctions.map((func) => (
+                  <FunctionAccordion
+                    key={func.id}
+                    item={func}
+                    executionResults={executionResults}
+                    onExecute={executeCode}
+                  />
+                ))}
+              </>
+            )}
           </View>
         ))}
       </View>
@@ -1652,69 +1261,5 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     gap: 16,
-  },
-  sectionTitle: {
-    marginTop: 8,
-    marginBottom: 12,
-  },
-  topicCard: {
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  topicHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-  },
-  topicContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    gap: 16,
-  },
-  functionCard: {
-    borderRadius: 12,
-    overflow: 'hidden',
-    marginLeft: 12,
-    marginBottom: 8,
-  },
-  functionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-  },
-  functionHeaderLeft: {
-    flex: 1,
-    gap: 4,
-  },
-  category: {
-    marginTop: 2,
-  },
-  functionContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    gap: 12,
-  },
-  section: {
-    gap: 8,
-  },
-  listItem: {
-    marginBottom: 4,
-  },
-  codeBlock: {
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 8,
-  },
-  codeText: {
-    fontFamily: 'monospace',
-    lineHeight: 20,
-  },
-  explanation: {
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
   },
 });
