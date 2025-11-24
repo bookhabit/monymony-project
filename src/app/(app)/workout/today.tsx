@@ -170,6 +170,8 @@ const TodayScreen = () => {
     return <ErrorState error={error} />;
   }
 
+  console.log('gymExercises', gymExercises);
+
   return (
     <KeyboardAvoidingView
       style={styles.container}

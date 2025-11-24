@@ -1,9 +1,9 @@
 /**
  * 날짜별 루틴 계산 유틸리티
  *
- * 월/목: A (상체 중심)
- * 화/금: B (전신 균형)
- * 수: C (등/어깨 집중)
+ * 월/목: A (등/이두)
+ * 화/금: B (가슴/어깨/삼두)
+ * 수: C (하체/등/어깨)
  * 토/일: REST (휴식)
  */
 export type RoutineCode = 'A' | 'B' | 'C' | 'WEEKEND' | 'REST';
@@ -66,9 +66,9 @@ export function getDayName(date: Date): string {
  */
 export function getRoutineName(code: RoutineCode): string {
   const names: Record<RoutineCode, string> = {
-    A: '벤치/데드/이두',
-    B: '밀프/스쿼트/삼두',
-    C: '바벨로우/덤벨로우/후면/사레레',
+    A: '등/이두',
+    B: '가슴/어깨/삼두',
+    C: '하체/등/어깨',
     WEEKEND: '주말 운동',
     REST: '휴식',
   };
