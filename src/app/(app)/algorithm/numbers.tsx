@@ -1,13 +1,14 @@
 import { useEffect } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/context/ThemeProvider';
 
 import TextBox from '@/components/common/TextBox';
-import CustomHeader from '@/components/layout/CustomHeader';
 
 export default function NumbersScreen() {
   const { theme } = useTheme();
+  const { bottom } = useSafeAreaInsets();
 
   useEffect(() => {
     console.group('숫자 함수 예제');
@@ -41,10 +42,11 @@ export default function NumbersScreen() {
   return (
     <ScrollView
       style={[styles.container]}
-      contentContainerStyle={{ backgroundColor: theme.background }}
+      contentContainerStyle={{
+        backgroundColor: theme.background,
+        paddingBottom: bottom,
+      }}
     >
-      <CustomHeader title="숫자" showBackButton />
-
       <View style={styles.content}>
         <TextBox variant="title2" color={theme.text}>
           자바스크립트 숫자 객체

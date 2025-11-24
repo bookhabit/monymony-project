@@ -1,9 +1,9 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/context/ThemeProvider';
 
 import TextBox from '@/components/common/TextBox';
-import CustomHeader from '@/components/layout/CustomHeader';
 
 const complexityExamples = [
   {
@@ -43,8 +43,7 @@ const complexityExamples = [
   return -1;
 }
 // 탐색 범위를 절반씩 줄임 → O(log n)`,
-    explanation:
-      '문제 크기를 매 단계 절반으로 줄이면 로그 복잡도가 됩니다.',
+    explanation: '문제 크기를 매 단계 절반으로 줄이면 로그 복잡도가 됩니다.',
   },
   {
     label: 'O(n log n)',
@@ -92,18 +91,24 @@ function merge(left, right) {
 
 export default function TimeSpaceScreen() {
   const { theme } = useTheme();
+  const { bottom } = useSafeAreaInsets();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <CustomHeader title="시간 · 공간 복잡도" showBackButton />
-
-      <ScrollView style={styles.scrollView}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={{ paddingBottom: bottom }}
+      >
         <View style={styles.content}>
           <View style={[styles.section, { backgroundColor: theme.surface }]}>
             <TextBox variant="title3" color={theme.text}>
               시간 복잡도
             </TextBox>
-            <TextBox variant="body3" color={theme.textSecondary} style={styles.body}>
+            <TextBox
+              variant="body3"
+              color={theme.textSecondary}
+              style={styles.body}
+            >
               알고리즘이 입력 크기 n에 따라 얼마나 많은 연산을 수행하는지를 실행
               시간 관점에서 분석합니다.
             </TextBox>
@@ -113,7 +118,11 @@ export default function TimeSpaceScreen() {
             <TextBox variant="title3" color={theme.text}>
               공간 복잡도
             </TextBox>
-            <TextBox variant="body3" color={theme.textSecondary} style={styles.body}>
+            <TextBox
+              variant="body3"
+              color={theme.textSecondary}
+              style={styles.body}
+            >
               알고리즘이 입력 크기 n에 따라 얼마나 많은 메모리를 사용하는지를
               측정합니다.
             </TextBox>
@@ -123,19 +132,35 @@ export default function TimeSpaceScreen() {
             <TextBox variant="title3" color={theme.text}>
               Big-O 표기법
             </TextBox>
-            <TextBox variant="body3" color={theme.textSecondary} style={styles.body}>
-              알고리즘의 입력이 충분히 커질 때 최악의 경우 성능을 간단하게 표현한
-              표기 방법입니다.
+            <TextBox
+              variant="body3"
+              color={theme.textSecondary}
+              style={styles.body}
+            >
+              알고리즘의 입력이 충분히 커질 때 최악의 경우 성능을 간단하게
+              표현한 표기 방법입니다.
             </TextBox>
             {[
-              { label: 'O(1)', desc: '상수 시간 · 입력 크기와 무관하게 일정한 성능.' },
-              { label: 'O(n)', desc: '선형 시간 · 입력 크기에 비례하여 늘어나는 연산.' },
-              { label: 'O(log n)', desc: '로그 시간 · 매 반복마다 문제 크기를 절반으로 줄임.' },
+              {
+                label: 'O(1)',
+                desc: '상수 시간 · 입력 크기와 무관하게 일정한 성능.',
+              },
+              {
+                label: 'O(n)',
+                desc: '선형 시간 · 입력 크기에 비례하여 늘어나는 연산.',
+              },
+              {
+                label: 'O(log n)',
+                desc: '로그 시간 · 매 반복마다 문제 크기를 절반으로 줄임.',
+              },
               {
                 label: 'O(n log n)',
                 desc: '로그 팩터가 곱해진 선형 시간 · 대부분의 효율적 정렬 알고리즘.',
               },
-              { label: 'O(n²)', desc: '2차 시간 · 중첩 반복문이 있을 때 흔히 등장.' },
+              {
+                label: 'O(n²)',
+                desc: '2차 시간 · 중첩 반복문이 있을 때 흔히 등장.',
+              },
             ].map((item) => (
               <TextBox
                 key={item.label}
@@ -174,8 +199,13 @@ export default function TimeSpaceScreen() {
             <TextBox variant="title3" color={theme.text}>
               복잡도별 예시 코드
             </TextBox>
-            <TextBox variant="body3" color={theme.textSecondary} style={styles.body}>
-              각 복잡도에 해당하는 간단한 함수와 주석을 참고해 차이를 체감해 보세요.
+            <TextBox
+              variant="body3"
+              color={theme.textSecondary}
+              style={styles.body}
+            >
+              각 복잡도에 해당하는 간단한 함수와 주석을 참고해 차이를 체감해
+              보세요.
             </TextBox>
             {complexityExamples.map((sample) => (
               <View key={sample.label} style={styles.exampleCard}>
@@ -199,7 +229,11 @@ export default function TimeSpaceScreen() {
                     {sample.code}
                   </TextBox>
                 </View>
-                <TextBox variant="body3" color={theme.textSecondary} style={styles.body}>
+                <TextBox
+                  variant="body3"
+                  color={theme.textSecondary}
+                  style={styles.body}
+                >
                   {sample.explanation}
                 </TextBox>
               </View>
@@ -247,4 +281,3 @@ const styles = StyleSheet.create({
     gap: 12,
   },
 });
-

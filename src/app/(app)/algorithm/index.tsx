@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useRouter } from 'expo-router';
 
@@ -10,7 +11,6 @@ import { useTheme } from '@/context/ThemeProvider';
 import AlgorithmPrinciplesModal from '@/components/algorithm/modals/AlgorithmPrinciplesModal';
 import AlgorithmProblemSolvingModal from '@/components/algorithm/modals/AlgorithmProblemSolvingModal';
 import TextBox from '@/components/common/TextBox';
-import CustomHeader from '@/components/layout/CustomHeader';
 
 interface AlgorithmTopic {
   id: string;
@@ -172,6 +172,8 @@ export default function AlgorithmScreen() {
   const [principlesVisible, setPrinciplesVisible] = useState(true);
   const [problemModalVisible, setProblemModalVisible] = useState(false);
 
+  const { bottom } = useSafeAreaInsets();
+
   const handleCardPress = (route: string) => {
     router.push(route as any);
   };
@@ -192,10 +194,16 @@ export default function AlgorithmScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <CustomHeader title="알고리즘" showBackButton />
-
-      <ScrollView style={styles.scrollView}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.background, bottom: bottom },
+      ]}
+    >
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={{ paddingBottom: bottom }}
+      >
         <View style={styles.content}>
           <TextBox variant="title2" color={theme.text} style={styles.heading}>
             알고리즘 주제 선택

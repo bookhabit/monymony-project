@@ -1,17 +1,21 @@
 import { StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/context/ThemeProvider';
 
 import TextBox from '@/components/common/TextBox';
-import CustomHeader from '@/components/layout/CustomHeader';
 
 export default function ArraysScreen() {
   const { theme } = useTheme();
+  const { bottom } = useSafeAreaInsets();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <CustomHeader title="배열" showBackButton />
-
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.background, paddingBottom: bottom },
+      ]}
+    >
       <View style={styles.content}>
         <TextBox variant="body2" color={theme.textSecondary}>
           이 화면은 배열 알고리즘 학습 내용을 정리할 수 있는 자리입니다.
@@ -33,4 +37,3 @@ const styles = StyleSheet.create({
     gap: 12,
   },
 });
-
