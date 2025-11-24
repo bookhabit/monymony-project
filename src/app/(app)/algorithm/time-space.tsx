@@ -1,8 +1,11 @@
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/context/ThemeProvider';
 
+import AlgorithmPrinciplesModal from '@/components/algorithm/modals/AlgorithmPrinciplesModal';
+import AlgorithmProblemSolvingModal from '@/components/algorithm/modals/AlgorithmProblemSolvingModal';
 import TextBox from '@/components/common/TextBox';
 
 const complexityExamples = [
@@ -92,6 +95,24 @@ function merge(left, right) {
 export default function TimeSpaceScreen() {
   const { theme } = useTheme();
   const { bottom } = useSafeAreaInsets();
+  const [principlesVisible, setPrinciplesVisible] = useState(false);
+  const [problemModalVisible, setProblemModalVisible] = useState(false);
+
+  useEffect(() => {
+    // 스크린 진입 시 첫 번째 모달 표시
+    setPrinciplesVisible(true);
+  }, []);
+
+  const handleFirstModalConfirm = () => {
+    setPrinciplesVisible(false);
+    setTimeout(() => {
+      setProblemModalVisible(true);
+    }, 250);
+  };
+
+  const handleSecondModalConfirm = () => {
+    setProblemModalVisible(false);
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -241,6 +262,15 @@ export default function TimeSpaceScreen() {
           </View>
         </View>
       </ScrollView>
+
+      <AlgorithmPrinciplesModal
+        visible={principlesVisible}
+        onConfirm={handleFirstModalConfirm}
+      />
+      <AlgorithmProblemSolvingModal
+        visible={problemModalVisible}
+        onConfirm={handleSecondModalConfirm}
+      />
     </View>
   );
 }
