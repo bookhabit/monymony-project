@@ -65,12 +65,6 @@ const basicComponents: ComponentItem[] = [
 
 const uiComponents: ComponentItem[] = [
   {
-    id: 'button',
-    title: 'Button',
-    category: 'User Interface',
-    icon: 'radio-button-checked',
-  },
-  {
     id: 'switch',
     title: 'Switch',
     category: 'User Interface',
@@ -91,41 +85,17 @@ const listViews: ComponentItem[] = [
     category: 'List Views',
     icon: 'view-list',
   },
-];
-
-const androidComponents: ComponentItem[] = [
   {
-    id: 'back-handler',
-    title: 'BackHandler',
-    category: 'Android Components and APIs',
-    icon: 'arrow-back',
+    id: 'virtualized-list',
+    title: 'VirtualizedList',
+    category: 'List Views',
+    icon: 'view-list',
   },
   {
-    id: 'drawer-layout-android',
-    title: 'DrawerLayoutAndroid',
-    category: 'Android Components and APIs',
-    icon: 'menu',
-  },
-  {
-    id: 'permissions-android',
-    title: 'PermissionsAndroid',
-    category: 'Android Components and APIs',
-    icon: 'security',
-  },
-  {
-    id: 'toast-android',
-    title: 'ToastAndroid',
-    category: 'Android Components and APIs',
-    icon: 'notifications',
-  },
-];
-
-const iosComponents: ComponentItem[] = [
-  {
-    id: 'action-sheet-ios',
-    title: 'ActionSheetIOS',
-    category: 'IOS Components and APIs',
-    icon: 'more-vert',
+    id: 'scroll-flat-section',
+    title: 'ScrollView & FlatList & SectionList',
+    category: 'List Views',
+    icon: 'view-list',
   },
 ];
 
@@ -196,8 +166,6 @@ const allComponents = [
   ...basicComponents,
   ...uiComponents,
   ...listViews,
-  ...androidComponents,
-  ...iosComponents,
   ...otherComponents,
 ];
 
@@ -287,12 +255,6 @@ export default function ReactNativeComponentsScreen() {
         {renderSection('Basic Components', basicComponents, 'basic')}
         {renderSection('User Interface', uiComponents, 'ui')}
         {renderSection('List Views', listViews, 'list')}
-        {renderSection(
-          'Android Components and APIs',
-          androidComponents,
-          'android'
-        )}
-        {renderSection('IOS Components and APIs', iosComponents, 'ios')}
         {renderSection('Others', otherComponents, 'others')}
       </View>
     </ScrollView>
