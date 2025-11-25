@@ -53,6 +53,13 @@ const reactNativeTopics: ReactNativeTopic[] = [
     icon: 'yard',
     emoji: '🧵',
   },
+  {
+    id: 'react-native-components',
+    title: 'React Native 컴포넌트',
+    route: '/(app)/react-native-and-expo/react-native-components',
+    icon: 'code',
+    emoji: '💻',
+  },
 ];
 
 export default function ReactNativeAndExpoScreen() {

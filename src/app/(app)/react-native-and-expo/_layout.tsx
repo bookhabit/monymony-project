@@ -23,6 +23,11 @@ export default function ReactNativeLayout() {
       <Stack.Screen name="build-deploy" options={{ headerShown: false }} />
       <Stack.Screen name="platform-specific" options={{ headerShown: false }} />
       <Stack.Screen name="thread" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="react-native-components"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen name="components" options={{ headerShown: false }} />
     </Stack>
   );
 }
