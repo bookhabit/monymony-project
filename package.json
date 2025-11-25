@@ -44,6 +44,14 @@
     "production:release:android": "npm run version-up:android && npm run publish-android && npm run review:production:android",
     "production:release:ios": "npm run version-up:ios && npm run publish-ios && npm run review:production:ios"
   },
+  "codegenConfig": {
+    "name": "NativeLocalStorageSpec",
+    "type": "modules",
+    "jsSrcsDir": "specs",
+    "android": {
+      "javaPackageName": "com.nativelocalstorage"
+    }
+  },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
     "@gorhom/bottom-sheet": "^5.2.6",

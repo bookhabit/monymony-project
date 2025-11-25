@@ -160,6 +160,21 @@ const otherComponents: ComponentItem[] = [
     category: 'Others',
     icon: 'signal-cellular-alt',
   },
+  {
+    id: 'new-architecture-native-module',
+    title: 'New Architecture Native Module',
+    category: 'Others',
+    icon: 'code',
+  },
+];
+
+const NativeModulesComponents: ComponentItem[] = [
+  {
+    id: 'new-architecture-native-module',
+    title: 'New Architecture Native Module',
+    category: 'Native Modules',
+    icon: 'code',
+  },
 ];
 
 const allComponents = [
@@ -167,6 +182,7 @@ const allComponents = [
   ...uiComponents,
   ...listViews,
   ...otherComponents,
+  ...NativeModulesComponents,
 ];
 
 export default function ReactNativeComponentsScreen() {
@@ -256,6 +272,11 @@ export default function ReactNativeComponentsScreen() {
         {renderSection('User Interface', uiComponents, 'ui')}
         {renderSection('List Views', listViews, 'list')}
         {renderSection('Others', otherComponents, 'others')}
+        {renderSection(
+          'Native Modules',
+          NativeModulesComponents,
+          'native-modules'
+        )}
       </View>
     </ScrollView>
   );

@@ -23,6 +23,7 @@ const screenTitles: Record<string, string> = {
   'keyboard-avoiding-view': 'KeyboardAvoidingView',
   linking: 'Linking',
   modal: 'Modal',
+  'new-architecture-native-module': 'New Architecture Native Module',
   'pixel-ratio': 'PixelRatio',
   'refresh-control': 'RefreshControl',
   'status-bar': 'StatusBar',
