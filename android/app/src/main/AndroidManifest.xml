@@ -32,10 +32,6 @@
         <data android:scheme="exp+monymony"/>
       </intent-filter>
     </activity>
-    <service
-      android:name=".timer.TimerService"
-      android:enabled="true"
-      android:exported="false"
-      android:foregroundServiceType="shortService" />
+    <service android:name=".timer.TimerService" android:enabled="true" android:exported="false" android:foregroundServiceType="shortService"/>
   </application>
 </manifest>
