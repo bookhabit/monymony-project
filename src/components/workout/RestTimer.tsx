@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
-  AppState,
-  AppStateStatus,
   TextInput,
+  NativeEventEmitter,
+  NativeModules,
   Vibration,
 } from 'react-native';
 
@@ -12,6 +12,9 @@ import { useTheme } from '@/context/ThemeProvider';
 
 import TextBox from '@/components/common/TextBox';
 import { CustomButton } from '@/components/common/button';
+
+// @ts-ignore - TurboModule은 런타임에 로드됨
+import NativeTimerModule from '../../../specs/NativeTimerModule';
 
 interface RestTimerProps {
   defaultSeconds?: number; // 기본 휴식 시간 (초 단위), 기본값 90초 (1:30)
@@ -27,10 +30,6 @@ const RestTimer: React.FC<RestTimerProps> = ({ defaultSeconds = 90 }) => {
   const [isPaused, setIsPaused] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const appStateRef = useRef<AppStateStatus>(AppState.currentState);
-  const startTimeRef = useRef<number | null>(null);
-  const pausedTimeRef = useRef<number>(0);
 
   // 총 시간 계산 (분 + 초)
   useEffect(() => {
@@ -41,140 +40,103 @@ const RestTimer: React.FC<RestTimerProps> = ({ defaultSeconds = 90 }) => {
     }
   }, [selectedMinutes, selectedSeconds, isRunning]);
 
-  // 앱 상태 변경 감지 (백그라운드/포그라운드)
+  // 네이티브 모듈 이벤트 리스너
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextAppState) => {
-      if (
-        appStateRef.current.match(/inactive|background/) &&
-        nextAppState === 'active'
-      ) {
-        // 백그라운드에서 포그라운드로 복귀 시 남은 시간 계산
-        if (isRunning && !isPaused && startTimeRef.current) {
-          const elapsed = Math.floor(
-            (Date.now() - startTimeRef.current - pausedTimeRef.current) / 1000
-          );
-          const remaining = Math.max(0, totalSeconds - elapsed);
-          setSeconds(remaining);
-          if (remaining === 0) {
-            setIsRunning(false);
-            setIsPaused(false);
-            setIsFinished(true);
-            startTimeRef.current = null;
-            pausedTimeRef.current = 0;
-          }
+    const eventEmitter = new NativeEventEmitter(
+      NativeModules.NativeTimerModule
+    );
+
+    const updateSubscription = eventEmitter.addListener(
+      'onTimerUpdate',
+      (data: {
+        remainingSeconds: number;
+        isRunning: boolean;
+        isPaused: boolean;
+      }) => {
+        setSeconds(data.remainingSeconds);
+        setIsRunning(data.isRunning);
+        setIsPaused(data.isPaused);
+
+        if (data.remainingSeconds === 0 && !data.isRunning) {
+          setIsFinished(true);
+          // 네이티브에서 진동과 소리를 계속 반복하므로 여기서는 상태만 업데이트
         }
       }
-      appStateRef.current = nextAppState;
+    );
+
+    const finishedSubscription = eventEmitter.addListener(
+      'onTimerFinished',
+      () => {
+        setIsFinished(true);
+        setIsRunning(false);
+        setIsPaused(false);
+        setSeconds(0);
+        // 네이티브에서 진동과 소리를 계속 반복하므로 여기서는 상태만 업데이트
+      }
+    );
+
+    // 초기 상태 동기화
+    NativeTimerModule?.isRunning?.().then((running: boolean) => {
+      setIsRunning(running);
+    });
+    NativeTimerModule?.isPaused?.().then((paused: boolean) => {
+      setIsPaused(paused);
+    });
+    NativeTimerModule?.getRemainingSeconds?.().then((remaining: number) => {
+      if (remaining > 0) {
+        setSeconds(remaining);
+      } else {
+        setSeconds(0);
+      }
+    });
+    // 알람 상태 확인 (딥링크로 들어올 때 상태 동기화)
+    NativeTimerModule?.isAlarming?.().then((alarming: boolean) => {
+      if (alarming) {
+        setIsFinished(true);
+        setSeconds(0);
+        setIsRunning(false);
+        setIsPaused(false);
+      }
     });
 
-    return () => subscription.remove();
-  }, [isRunning, isPaused, totalSeconds]);
-
-  // 타이머 로직
-  useEffect(() => {
-    if (isRunning && !isPaused && seconds > 0 && !isFinished) {
-      if (startTimeRef.current === null) {
-        startTimeRef.current = Date.now();
-        pausedTimeRef.current = 0;
-      }
-      intervalRef.current = setInterval(() => {
-        setSeconds((prev) => {
-          if (prev <= 1) {
-            setIsRunning(false);
-            setIsPaused(false);
-            setIsFinished(true);
-            startTimeRef.current = null;
-            pausedTimeRef.current = 0;
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-      if (isPaused && startTimeRef.current) {
-        pausedTimeRef.current += Date.now() - startTimeRef.current;
-        startTimeRef.current = null;
-      }
-    }
-
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
+      updateSubscription.remove();
+      finishedSubscription.remove();
     };
-  }, [isRunning, isPaused, seconds, isFinished]);
-
-  // 진동 반복 처리 (3번만)
-  useEffect(() => {
-    let vibrationInterval: ReturnType<typeof setInterval> | null = null;
-    let vibrationCount = 0;
-
-    if (isFinished) {
-      // 즉시 한 번 진동
-      Vibration.vibrate([300, 500, 200, 500]);
-      vibrationCount = 1;
-
-      // 1초마다 진동 반복 (최대 3번)
-      vibrationInterval = setInterval(() => {
-        vibrationCount++;
-        if (vibrationCount <= 3) {
-          Vibration.vibrate([300, 500, 200, 500]);
-        } else {
-          // 3번 이후 interval 정리
-          if (vibrationInterval) {
-            clearInterval(vibrationInterval);
-            vibrationInterval = null;
-          }
-        }
-      }, 1000);
-    }
-
-    return () => {
-      if (vibrationInterval) {
-        clearInterval(vibrationInterval);
-      }
-      Vibration.cancel();
-    };
-  }, [isFinished]);
+  }, []);
 
   // 확인 버튼 클릭 (진동 중지, 타이머 초기화)
   const confirmFinished = () => {
-    // isFinished를 false로 설정하면 useEffect에서 진동이 자동으로 중지됨
+    Vibration.cancel();
     setIsFinished(false);
     setSeconds(totalSeconds);
     setIsRunning(false);
     setIsPaused(false);
-    startTimeRef.current = null;
-    pausedTimeRef.current = 0;
+    // 네이티브 모듈의 stopTimer 호출하여 알림 중지
+    NativeTimerModule?.stopTimer?.();
   };
 
   // 타이머 시작
   const startTimer = () => {
-    if (seconds === 0) {
-      setSeconds(totalSeconds);
-    }
+    const timeToStart = seconds === 0 ? totalSeconds : seconds;
+    setSeconds(timeToStart);
     setIsRunning(true);
     setIsPaused(false);
     setIsEditing(false);
-    startTimeRef.current = Date.now();
-    pausedTimeRef.current = 0;
+    setIsFinished(false);
+    NativeTimerModule?.startTimer?.(timeToStart);
   };
 
   // 타이머 일시정지
   const pauseTimer = () => {
     setIsPaused(true);
+    NativeTimerModule?.pauseTimer?.();
   };
 
   // 타이머 재개
   const resumeTimer = () => {
     setIsPaused(false);
-    if (startTimeRef.current === null) {
-      startTimeRef.current = Date.now();
-    }
+    NativeTimerModule?.resumeTimer?.();
   };
 
   // 타이머 중지
@@ -185,8 +147,7 @@ const RestTimer: React.FC<RestTimerProps> = ({ defaultSeconds = 90 }) => {
     setIsEditing(false);
     setIsFinished(false);
     setSeconds(totalSeconds);
-    startTimeRef.current = null;
-    pausedTimeRef.current = 0;
+    NativeTimerModule?.stopTimer?.();
   };
 
   // 시간 편집 모드 토글

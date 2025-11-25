@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
-import { LogBox } from 'react-native';
+import { LogBox, Platform } from 'react-native';
 import 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useFonts } from 'expo-font';
+import * as Notifications from 'expo-notifications';
 import { Slot } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 
@@ -25,6 +26,8 @@ SplashScreen.preventAutoHideAsync();
 LogBox.ignoreLogs([
   /.*shared value.*reanimated.*/i,
   'It looks like you might be using shared value',
+  /.*configured linking in multiple places.*/i,
+  /.*NavigationContainer.*linking.*/i,
 ]);
 
 // console.warn 필터링 (강력한 방법)
@@ -33,9 +36,13 @@ console.warn = (...args: any[]) => {
   const message = args[0];
   if (
     typeof message === 'string' &&
-    (message.includes('shared value') || message.includes('reanimated'))
+    (message.includes('shared value') ||
+      message.includes('reanimated') ||
+      message.includes('configured linking in multiple places') ||
+      message.includes('NavigationContainer') ||
+      message.includes('linking'))
   ) {
-    return; // reanimated 경고 무시
+    return; // reanimated 및 linking 경고 무시
   }
   originalWarn.apply(console, args);
 };
@@ -57,6 +64,28 @@ export default function RootLayout() {
     'Roboto-Light': require('@/assets/fonts/Roboto-Light.ttf'),
     BMJUA: require('@/assets/fonts/BMJUA_ttf.ttf'),
   });
+
+  // 알림 권한 요청 (Android 13+)
+  useEffect(() => {
+    const requestNotificationPermission = async () => {
+      if (Platform.OS === 'android') {
+        try {
+          const { status: existingStatus } =
+            await Notifications.getPermissionsAsync();
+          if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            if (status !== 'granted') {
+              console.log('알림 권한이 거부되었습니다.');
+            }
+          }
+        } catch (error) {
+          console.error('알림 권한 요청 중 오류:', error);
+        }
+      }
+    };
+
+    requestNotificationPermission();
+  }, []);
 
   useEffect(() => {
     if (loaded || error) {
