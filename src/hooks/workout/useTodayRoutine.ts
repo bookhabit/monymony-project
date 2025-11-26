@@ -59,6 +59,9 @@ export function useTodayRoutine(date?: Date) {
       }
 
       const db = await getDatabase();
+      if (!db) {
+        throw new Error('데이터베이스 연결 실패');
+      }
 
       // 1. 해당 루틴의 운동 목록 조회
       const routineExercises = await db.getAllAsync<{

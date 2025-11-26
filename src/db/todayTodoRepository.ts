@@ -18,6 +18,10 @@ export async function getTodoDatesByType(
 ): Promise<Set<string>> {
   try {
     const db = await getDatabase();
+    if (!db) {
+      console.error('데이터베이스 연결 실패');
+      return new Set();
+    }
     const result = await db.getAllAsync<{ date: string }>(
       'SELECT date FROM today_todo_dates WHERE todo_type = ?',
       [todoType]
@@ -39,6 +43,10 @@ export async function isTodoChecked(
 ): Promise<boolean> {
   try {
     const db = await getDatabase();
+    if (!db) {
+      console.error('데이터베이스 연결 실패');
+      return false;
+    }
     const result = await db.getFirstAsync<{ count: number }>(
       'SELECT COUNT(*) as count FROM today_todo_dates WHERE date = ? AND todo_type = ?',
       [date, todoType]
@@ -61,6 +69,9 @@ export async function toggleTodo(
 ): Promise<void> {
   try {
     const db = await getDatabase();
+    if (!db) {
+      throw new Error('데이터베이스 연결 실패');
+    }
 
     if (checked) {
       // 체크: INSERT
@@ -124,4 +135,3 @@ export async function getAllTodoDates(): Promise<{
     };
   }
 }
-

@@ -123,7 +123,7 @@ export async function seedDatabase(db: SQLite.SQLiteDatabase): Promise<void> {
 
         if (exerciseResult) {
           await db.runAsync(
-            `INSERT INTO routine_exercises (routine_id, exercise_id, position)
+            `INSERT OR IGNORE INTO routine_exercises (routine_id, exercise_id, position)
              VALUES (?, ?, ?)`,
             [routineId, exerciseResult.id, i]
           );

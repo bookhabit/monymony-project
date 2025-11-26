@@ -22,6 +22,9 @@ export function useExercises() {
       setLoading(true);
       setError(null);
       const db = await getDatabase();
+      if (!db) {
+        throw new Error('데이터베이스 연결 실패');
+      }
 
       const allExercises = await db.getAllAsync<Exercise>(
         `SELECT id, slug, name, muscle_group FROM exercises 

@@ -189,11 +189,16 @@ async function executeSchema(db: SQLite.SQLiteDatabase): Promise<void> {
  */
 let databaseInstance: SQLite.SQLiteDatabase | null = null;
 
-export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
-  if (!databaseInstance) {
-    databaseInstance = await setupDatabase();
+export async function getDatabase(): Promise<SQLite.SQLiteDatabase | null> {
+  try {
+    if (!databaseInstance) {
+      databaseInstance = await setupDatabase();
+    }
+    return databaseInstance;
+  } catch (error) {
+    console.error('❌ 데이터베이스 가져오기 실패:', error);
+    return null;
   }
-  return databaseInstance;
 }
 
 /**

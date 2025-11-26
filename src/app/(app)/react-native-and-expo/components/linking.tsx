@@ -9,6 +9,9 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import * as Linking from 'expo-linking';
+import * as WebBrowser from 'expo-web-browser';
+
 import { useTheme } from '@/context/ThemeProvider';
 
 import TextBox from '@/components/common/TextBox';
@@ -20,18 +23,25 @@ export default function LinkingScreen() {
   const [initialURL, setInitialURL] = useState<string | null>(null);
   const [currentURL, setCurrentURL] = useState<string | null>(null);
   const [canOpenResult, setCanOpenResult] = useState<string>('');
+  const [parsedURL, setParsedURL] = useState<string>('');
+  const [createdURL, setCreatedURL] = useState<string>('');
+  const [schemeURL, setSchemeURL] = useState<string>(
+    'monymony://workout/today'
+  );
 
   useEffect(() => {
     // 앱이 Deep Link로 실행되었는지 확인
-    RNLinking.getInitialURL().then((url) => {
+    Linking.getInitialURL().then((url) => {
       if (url) {
         setInitialURL(url);
+        parseURL(url);
       }
     });
 
     // 앱 실행 중 들어오는 Deep Link 처리
-    const subscription = RNLinking.addEventListener('url', ({ url }) => {
+    const subscription = Linking.addEventListener('url', ({ url }) => {
       setCurrentURL(url);
+      parseURL(url);
       Alert.alert('Deep Link', `받은 URL: ${url}`);
     });
 
@@ -39,6 +49,35 @@ export default function LinkingScreen() {
       subscription.remove();
     };
   }, []);
+
+  // URL 파싱 함수
+  const parseURL = (url: string) => {
+    try {
+      const parsed = Linking.parse(url);
+      setParsedURL(
+        JSON.stringify(
+          {
+            scheme: parsed.scheme,
+            hostname: parsed.hostname,
+            path: parsed.path,
+            queryParams: parsed.queryParams,
+          },
+          null,
+          2
+        )
+      );
+    } catch (error) {
+      setParsedURL(`파싱 오류: ${error}`);
+    }
+  };
+
+  // createURL 테스트
+  const handleCreateURL = () => {
+    const url = Linking.createURL('workout/today', {
+      queryParams: { date: new Date().toISOString().split('T')[0] },
+    });
+    setCreatedURL(url);
+  };
 
   const handleOpenURL = async (url: string) => {
     try {
@@ -538,6 +577,262 @@ export default function LinkingScreen() {
           </View>
         </View>
 
+        {/* Custom Scheme 테스트 */}
+        <View style={[styles.section, { backgroundColor: theme.surface }]}>
+          <TextBox
+            variant="title4"
+            color={theme.text}
+            style={styles.sectionTitle}
+          >
+            10. Custom Scheme 테스트
+          </TextBox>
+          <TextBox
+            variant="body4"
+            color={theme.textSecondary}
+            style={styles.description}
+          >
+            앱의 Custom Scheme으로 특정 화면 열기
+          </TextBox>
+          <View style={styles.inputContainer}>
+            <TextBox variant="body4" color={theme.text} style={styles.label}>
+              Scheme URL:
+            </TextBox>
+            <View
+              style={[
+                styles.inputBox,
+                {
+                  backgroundColor: theme.background,
+                  borderColor: theme.border,
+                },
+              ]}
+            >
+              <TextBox
+                variant="body4"
+                color={theme.text}
+                style={styles.codeText}
+              >
+                {schemeURL}
+              </TextBox>
+            </View>
+          </View>
+          <View style={styles.buttonRow}>
+            <CustomButton
+              title="workout/today 열기"
+              onPress={() => {
+                setSchemeURL('monymony://workout/today');
+                Linking.openURL('monymony://workout/today');
+              }}
+              variant="outline"
+              size="small"
+            />
+            <CustomButton
+              title="today-study 열기"
+              onPress={() => {
+                setSchemeURL('monymony://today-study');
+                Linking.openURL('monymony://today-study');
+              }}
+              variant="outline"
+              size="small"
+            />
+            <CustomButton
+              title="알고리즘 열기"
+              onPress={() => {
+                setSchemeURL('monymony://algorithm');
+                Linking.openURL('monymony://algorithm');
+              }}
+              variant="outline"
+              size="small"
+            />
+          </View>
+          <TextBox
+            variant="body4"
+            color={theme.textSecondary}
+            style={styles.warning}
+          >
+            💡 터미널에서 테스트: npx uri-scheme open monymony://workout/today
+            --android
+          </TextBox>
+        </View>
+
+        {/* URL 파싱 테스트 */}
+        <View style={[styles.section, { backgroundColor: theme.surface }]}>
+          <TextBox
+            variant="title4"
+            color={theme.text}
+            style={styles.sectionTitle}
+          >
+            11. URL 파싱 (Linking.parse)
+          </TextBox>
+          <TextBox
+            variant="body4"
+            color={theme.textSecondary}
+            style={styles.description}
+          >
+            URL을 scheme, hostname, path, queryParams로 분해
+          </TextBox>
+          <View style={styles.buttonRow}>
+            <CustomButton
+              title="예제 URL 파싱"
+              onPress={() => {
+                const testURL =
+                  'monymony://workout/today?date=2024-01-15&mode=rest';
+                parseURL(testURL);
+              }}
+              variant="outline"
+              size="small"
+            />
+            <CustomButton
+              title="현재 URL 파싱"
+              onPress={() => {
+                if (currentURL) {
+                  parseURL(currentURL);
+                } else if (initialURL) {
+                  parseURL(initialURL);
+                } else {
+                  Alert.alert('알림', '파싱할 URL이 없습니다.');
+                }
+              }}
+              variant="outline"
+              size="small"
+            />
+          </View>
+          {parsedURL ? (
+            <View
+              style={[
+                styles.resultBox,
+                {
+                  backgroundColor: theme.background,
+                  borderColor: theme.border,
+                },
+              ]}
+            >
+              <TextBox
+                variant="body4"
+                color={theme.text}
+                style={styles.codeText}
+              >
+                {parsedURL}
+              </TextBox>
+            </View>
+          ) : null}
+          <View style={styles.codeBox}>
+            <TextBox variant="body4" color={theme.text} style={styles.codeText}>
+              {`const parsed = Linking.parse('monymony://workout/today?date=2024-01-15');
+// 결과:
+// {
+//   scheme: 'monymony',
+//   hostname: null,
+//   path: 'workout/today',
+//   queryParams: { date: '2024-01-15' }
+// }`}
+            </TextBox>
+          </View>
+        </View>
+
+        {/* Linking.createURL 테스트 */}
+        <View style={[styles.section, { backgroundColor: theme.surface }]}>
+          <TextBox
+            variant="title4"
+            color={theme.text}
+            style={styles.sectionTitle}
+          >
+            12. Linking.createURL
+          </TextBox>
+          <TextBox
+            variant="body4"
+            color={theme.textSecondary}
+            style={styles.description}
+          >
+            내 앱으로 돌아오는 URL 생성 (환경에 따라 자동 변환)
+          </TextBox>
+          <CustomButton
+            title="URL 생성 테스트"
+            onPress={handleCreateURL}
+            variant="outline"
+            size="small"
+            style={styles.toggleButton}
+          />
+          {createdURL ? (
+            <View
+              style={[
+                styles.resultBox,
+                {
+                  backgroundColor: theme.background,
+                  borderColor: theme.border,
+                },
+              ]}
+            >
+              <TextBox
+                variant="body4"
+                color={theme.primary}
+                style={styles.codeText}
+              >
+                {createdURL}
+              </TextBox>
+            </View>
+          ) : null}
+          <View style={styles.codeBox}>
+            <TextBox variant="body4" color={theme.text} style={styles.codeText}>
+              {`const url = Linking.createURL('workout/today', {
+  queryParams: { date: '2024-01-15' }
+});
+// Production: monymony://workout/today?date=2024-01-15
+// Expo Go: exp://127.0.0.1:8081/--/workout/today?date=2024-01-15`}
+            </TextBox>
+          </View>
+        </View>
+
+        {/* In-app Browser 테스트 */}
+        <View style={[styles.section, { backgroundColor: theme.surface }]}>
+          <TextBox
+            variant="title4"
+            color={theme.text}
+            style={styles.sectionTitle}
+          >
+            13. In-app Browser (expo-web-browser)
+          </TextBox>
+          <TextBox
+            variant="body4"
+            color={theme.textSecondary}
+            style={styles.description}
+          >
+            앱 내에서 웹 페이지 열기 (인증, 보안 목적에 유용)
+          </TextBox>
+          <View style={styles.buttonRow}>
+            <CustomButton
+              title="Expo.dev 열기"
+              onPress={async () => {
+                try {
+                  await WebBrowser.openBrowserAsync('https://expo.dev');
+                } catch (error) {
+                  Alert.alert('오류', `브라우저 열기 실패: ${error}`);
+                }
+              }}
+              variant="outline"
+              size="small"
+            />
+            <CustomButton
+              title="React Native 열기"
+              onPress={async () => {
+                try {
+                  await WebBrowser.openBrowserAsync('https://reactnative.dev');
+                } catch (error) {
+                  Alert.alert('오류', `브라우저 열기 실패: ${error}`);
+                }
+              }}
+              variant="outline"
+              size="small"
+            />
+          </View>
+          <View style={styles.codeBox}>
+            <TextBox variant="body4" color={theme.text} style={styles.codeText}>
+              {`import * as WebBrowser from 'expo-web-browser';
+
+await WebBrowser.openBrowserAsync('https://expo.dev');`}
+            </TextBox>
+          </View>
+        </View>
+
         {/* 주요 메소드 요약 */}
         <View style={[styles.section, { backgroundColor: theme.surface }]}>
           <TextBox
@@ -778,5 +1073,17 @@ const styles = StyleSheet.create({
   warningItem: {
     marginBottom: 4,
     lineHeight: 20,
+  },
+  inputContainer: {
+    marginBottom: 12,
+    gap: 8,
+  },
+  label: {
+    fontWeight: '600',
+  },
+  inputBox: {
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
   },
 });

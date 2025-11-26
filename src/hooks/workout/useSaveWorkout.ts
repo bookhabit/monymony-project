@@ -26,6 +26,9 @@ export function useSaveWorkout() {
 
     try {
       const db = await getDatabase();
+      if (!db) {
+        throw new Error('데이터베이스 연결 실패');
+      }
       const targetDate = date ? formatDate(date) : formatDate(new Date());
       console.log('📅 저장할 날짜:', targetDate, '원본 날짜:', date);
 
@@ -111,6 +114,9 @@ export function useSaveWorkout() {
 
     try {
       const db = await getDatabase();
+      if (!db) {
+        throw new Error('데이터베이스 연결 실패');
+      }
       const targetDate = date ? formatDate(date) : formatDate(new Date());
 
       // 해당 날짜 세션 찾기

@@ -39,6 +39,9 @@ export function useExerciseEntries(exerciseId: number | null) {
         setLoading(true);
         setError(null);
         const db = await getDatabase();
+        if (!db) {
+          throw new Error('데이터베이스 연결 실패');
+        }
 
         // 페이지네이션 쿼리: 날짜별로 그룹화하여 세션 조회
         // 최신순 정렬 (날짜 DESC)
