@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
-import { LogBox, Platform } from 'react-native';
+import { LogBox, Platform, View, ActivityIndicator } from 'react-native';
 import 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useFonts } from 'expo-font';
 import * as Notifications from 'expo-notifications';
-import { Slot } from 'expo-router';
+import { Stack, Redirect } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 
 import { NetworkProvider } from '@/context/NetworkContext';
@@ -17,6 +17,8 @@ import { OfflineBanner } from '@/components/network/OfflineBanner';
 
 import { BottomSheetProvider } from '@/hooks/useBottomSheet';
 import { ModalProvider } from '@/hooks/useModal';
+
+import { useAuthState } from '@/utils/authState';
 
 // 스플래시 스크린이 자동으로 숨겨지지 않도록 방지
 SplashScreen.preventAutoHideAsync();
@@ -52,7 +54,8 @@ console.warn = (...args: any[]) => {
  *
  * - 폰트 로딩
  * - ThemeProvider로 전역 테마 제공
- * - Slot으로 하위 라우트 렌더링
+ * - Stack.Protected로 인증 기반 라우팅
+ * - 인증 상태 변경 시 레이아웃 자동 재렌더링
  */
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -64,6 +67,8 @@ export default function RootLayout() {
     'Roboto-Light': require('@/assets/fonts/Roboto-Light.ttf'),
     BMJUA: require('@/assets/fonts/BMJUA_ttf.ttf'),
   });
+
+  const { isLoggedIn, isLoading } = useAuthState();
 
   // 알림 권한 요청 (Android 13+)
   useEffect(() => {
@@ -98,6 +103,27 @@ export default function RootLayout() {
     return null;
   }
 
+  // 인증 상태 로딩 중
+  if (isLoading) {
+    return (
+      <SafeAreaProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <ThemeProvider>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <ActivityIndicator size="large" />
+            </View>
+          </ThemeProvider>
+        </GestureHandlerRootView>
+      </SafeAreaProvider>
+    );
+  }
+
   return (
     <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
@@ -106,7 +132,17 @@ export default function RootLayout() {
             <UpdateProvider>
               <BottomSheetProvider>
                 <ModalProvider>
-                  <Slot />
+                  <Stack screenOptions={{ headerShown: false }}>
+                    {/* 인증이 필요한 페이지 */}
+                    <Stack.Protected guard={isLoggedIn}>
+                      <Stack.Screen name="(app)" />
+                    </Stack.Protected>
+
+                    {/* 인증이 필요 없는 페이지 */}
+                    <Stack.Protected guard={!isLoggedIn}>
+                      <Stack.Screen name="(auth)" />
+                    </Stack.Protected>
+                  </Stack>
                   <OfflineBanner />
                 </ModalProvider>
               </BottomSheetProvider>

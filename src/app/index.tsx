@@ -1,18 +1,23 @@
 import { Redirect } from 'expo-router';
 
+import { useAuthState } from '@/utils/authState';
+
 /**
  * Index Route
  *
  * - 앱 진입점
- * - (app) 또는 (auth)로 자동 리다이렉트
+ * - 인증 상태에 따라 (app) 또는 (auth)로 자동 리다이렉트
  * - 최초 진입 라우팅 리다이렉트
  */
 export default function Index() {
-  // TODO: 실제 인증 상태 관리 시스템 연결 필요
-  // 현재는 하드코딩으로 true (항상 인증된 상태)
-  const isAuthenticated = true;
+  const { isLoggedIn, isLoading } = useAuthState();
 
-  if (isAuthenticated) {
+  // 인증 상태 로딩 중
+  if (isLoading) {
+    return null; // 스플래시 스크린 유지
+  }
+
+  if (isLoggedIn) {
     return <Redirect href="/(app)/(tabs)/design" />;
   }
 
