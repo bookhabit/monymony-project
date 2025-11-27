@@ -136,7 +136,10 @@ class TimerService : Service() {
       ACTION_PAUSE -> pauseTimer()
       ACTION_RESUME -> resumeTimer()
       ACTION_STOP -> stopTimer()
-      ACTION_STOP_ALARM -> stopAlarm()
+      ACTION_STOP_ALARM -> {
+        // 확인 버튼 클릭 시 모두 초기화
+        stopTimer()
+      }
     }
     return START_STICKY
   }
@@ -153,13 +156,17 @@ class TimerService : Service() {
   }
   
   private fun startTimer(totalSecs: Int) {
+    // 기존 알람이 있으면 먼저 중지
+    stopAlarm()
+    
     totalSeconds = totalSecs
     remainingSeconds = totalSecs
     isRunning = true
     isPaused = false
+    isAlarming = false
     
-    // AudioFocus 요청하여 다른 앱의 음악 일시정지
-    requestAudioFocus()
+    // 타이머 시작 시에는 AudioFocus 요청하지 않음 (타이머만 표시)
+    // 알람 시작 시에만 AudioFocus 요청
     
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
       startForeground(NOTIFICATION_ID, createNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE)
@@ -202,56 +209,72 @@ class TimerService : Service() {
   }
   
   private fun startAlarm() {
-    if (isAlarming) return
+    // 이미 알람이 실행 중이면 중복 실행 방지
+    if (isAlarming) {
+      // 기존 알람이 있으면 먼저 정리
+      vibrator?.cancel()
+      alarmRunnable?.let {
+        handler.removeCallbacks(it)
+      }
+    }
+    
     isAlarming = true
     
-    // 알람 시작 시 AudioFocus를 TRANSIENT로 다시 요청하여 음악 완전히 중지
+    // 알람 시작 시 AudioFocus를 TRANSIENT로 요청하여 음악 완전히 중지
     requestAudioFocusForAlarm()
     
-    // 진동만 시작 (반복) - 소리는 재생하지 않음
+    // 진동 패턴 정의
+    val vibrationPattern = longArrayOf(0, 300, 500, 200, 500)
+    
+    // 진동 시작
     vibrator?.let { v ->
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val vibrationPattern = longArrayOf(0, 300, 500, 200, 500)
         val vibrationEffect = VibrationEffect.createWaveform(vibrationPattern, 0)
         v.vibrate(vibrationEffect)
       } else {
         @Suppress("DEPRECATION")
-        v.vibrate(longArrayOf(0, 300, 500, 200, 500), 0)
+        v.vibrate(vibrationPattern, 0)
       }
     }
     
-    // 알림 반복 (진동 패턴 반복)
+    // 알림 반복 (진동 패턴 반복) - 확인 버튼을 누를 때까지 계속
     alarmRunnable = object : Runnable {
       override fun run() {
-        if (isAlarming) {
-          vibrator?.let { v ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-              val vibrationPattern = longArrayOf(0, 300, 500, 200, 500)
-              val vibrationEffect = VibrationEffect.createWaveform(vibrationPattern, 0)
-              v.vibrate(vibrationEffect)
-            } else {
-              @Suppress("DEPRECATION")
-              v.vibrate(longArrayOf(0, 300, 500, 200, 500), 0)
-            }
-          }
-          handler.postDelayed(this, 1500) // 1.5초마다 반복
+        // isAlarming이 false가 되면 중지
+        if (!isAlarming) {
+          alarmRunnable = null
+          return
         }
+        
+        vibrator?.let { v ->
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val vibrationEffect = VibrationEffect.createWaveform(vibrationPattern, 0)
+            v.vibrate(vibrationEffect)
+          } else {
+            @Suppress("DEPRECATION")
+            v.vibrate(vibrationPattern, 0)
+          }
+        }
+        
+        // 다음 반복 스케줄링
+        handler.postDelayed(this, 1500) // 1.5초마다 반복
       }
     }
     handler.postDelayed(alarmRunnable!!, 1500)
     
-    // Notification 업데이트 (중지 버튼 표시) - 알림은 계속 표시
+    // Notification 업데이트 (중지 버튼 표시)
     updateNotification()
   }
   
   private fun stopAlarm() {
-    if (!isAlarming) return
+    if (!isAlarming && alarmRunnable == null) return
+    
     isAlarming = false
     
     // 진동 중지
     vibrator?.cancel()
     
-    // 알림 반복 중지
+    // 알림 반복 중지 (더 확실하게)
     alarmRunnable?.let {
       handler.removeCallbacks(it)
       alarmRunnable = null

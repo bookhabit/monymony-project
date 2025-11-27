@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   StyleSheet,
-  TextInput,
+  ScrollView,
   NativeEventEmitter,
   NativeModules,
   Vibration,
@@ -76,26 +76,30 @@ const RestTimer: React.FC<RestTimerProps> = ({ defaultSeconds = 90 }) => {
     );
 
     // 초기 상태 동기화
-    NativeTimerModule?.isRunning?.().then((running: boolean) => {
+    Promise.all([
+      NativeTimerModule?.isRunning?.() || Promise.resolve(false),
+      NativeTimerModule?.isPaused?.() || Promise.resolve(false),
+      NativeTimerModule?.getRemainingSeconds?.() || Promise.resolve(0),
+      NativeTimerModule?.isAlarming?.() || Promise.resolve(false),
+    ]).then(([running, paused, remaining, alarming]) => {
       setIsRunning(running);
-    });
-    NativeTimerModule?.isPaused?.().then((paused: boolean) => {
       setIsPaused(paused);
-    });
-    NativeTimerModule?.getRemainingSeconds?.().then((remaining: number) => {
-      if (remaining > 0) {
-        setSeconds(remaining);
-      } else {
-        setSeconds(0);
-      }
-    });
-    // 알람 상태 확인 (딥링크로 들어올 때 상태 동기화)
-    NativeTimerModule?.isAlarming?.().then((alarming: boolean) => {
+
+      // 알람 상태 확인 (딥링크로 들어올 때 상태 동기화)
       if (alarming) {
         setIsFinished(true);
         setSeconds(0);
         setIsRunning(false);
         setIsPaused(false);
+      } else if (running && remaining > 0) {
+        // 타이머가 실행 중일 때만 네이티브 값 사용
+        setSeconds(remaining);
+      } else {
+        // 타이머가 실행 중이 아닐 때는 기본값 사용
+        // selectedMinutes와 selectedSeconds로 계산된 값을 사용
+        const defaultTotal = selectedMinutes * 60 + selectedSeconds;
+        setTotalSeconds(defaultTotal);
+        setSeconds(defaultTotal);
       }
     });
 
@@ -112,7 +116,8 @@ const RestTimer: React.FC<RestTimerProps> = ({ defaultSeconds = 90 }) => {
     setSeconds(totalSeconds);
     setIsRunning(false);
     setIsPaused(false);
-    // 네이티브 모듈의 stopTimer 호출하여 알림 중지
+    setIsEditing(false);
+    // 네이티브 모듈의 stopTimer 호출하여 모든 것을 초기화
     NativeTimerModule?.stopTimer?.();
   };
 
@@ -165,16 +170,66 @@ const RestTimer: React.FC<RestTimerProps> = ({ defaultSeconds = 90 }) => {
     return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
-  // 분/초 입력값 파싱
-  const handleMinutesChange = (value: string) => {
-    const num = parseInt(value, 10) || 0;
-    setSelectedMinutes(Math.max(0, Math.min(59, num)));
+  // 휠 피커 관련
+  const ITEM_HEIGHT = 50;
+  const VISIBLE_ITEMS = 3;
+  const minutesScrollRef = useRef<ScrollView>(null);
+  const secondsScrollRef = useRef<ScrollView>(null);
+
+  // 분 배열 생성 (0-59)
+  const minutesArray = Array.from({ length: 60 }, (_, i) => i);
+  // 초 배열 생성 (0-59)
+  const secondsArray = Array.from({ length: 60 }, (_, i) => i);
+
+  // 스크롤 위치 계산
+  const getScrollOffset = (value: number) => {
+    return value * ITEM_HEIGHT;
   };
 
-  const handleSecondsChange = (value: string) => {
-    const num = parseInt(value, 10) || 0;
-    setSelectedSeconds(Math.max(0, Math.min(59, num)));
+  // 스크롤 이벤트 핸들러
+  const handleMinutesScroll = (event: any) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const index = Math.round(offsetY / ITEM_HEIGHT);
+    const clampedIndex = Math.max(0, Math.min(59, index));
+    if (clampedIndex !== selectedMinutes) {
+      setSelectedMinutes(clampedIndex);
+      // 정확한 위치로 스냅
+      minutesScrollRef.current?.scrollTo({
+        y: getScrollOffset(clampedIndex),
+        animated: true,
+      });
+    }
   };
+
+  const handleSecondsScroll = (event: any) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const index = Math.round(offsetY / ITEM_HEIGHT);
+    const clampedIndex = Math.max(0, Math.min(59, index));
+    if (clampedIndex !== selectedSeconds) {
+      setSelectedSeconds(clampedIndex);
+      // 정확한 위치로 스냅
+      secondsScrollRef.current?.scrollTo({
+        y: getScrollOffset(clampedIndex),
+        animated: true,
+      });
+    }
+  };
+
+  // 편집 모드 진입 시 스크롤 위치 초기화
+  useEffect(() => {
+    if (isEditing) {
+      setTimeout(() => {
+        minutesScrollRef.current?.scrollTo({
+          y: getScrollOffset(selectedMinutes),
+          animated: false,
+        });
+        secondsScrollRef.current?.scrollTo({
+          y: getScrollOffset(selectedSeconds),
+          animated: false,
+        });
+      }, 100);
+    }
+  }, [isEditing]);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.surface }]}>
@@ -185,46 +240,133 @@ const RestTimer: React.FC<RestTimerProps> = ({ defaultSeconds = 90 }) => {
 
         {isEditing ? (
           <View style={styles.timeEditor}>
-            <View style={styles.timeInputContainer}>
-              <TextInput
-                style={[
-                  styles.timeInput,
-                  {
-                    backgroundColor: theme.background,
-                    color: theme.text,
-                    borderColor: theme.border,
-                  },
-                ]}
-                value={selectedMinutes.toString()}
-                onChangeText={handleMinutesChange}
-                keyboardType="number-pad"
-                maxLength={2}
-                placeholder="1"
-                placeholderTextColor={theme.placeholder}
-              />
+            <View style={styles.pickerContainer}>
+              {/* 분 피커 */}
+              <View style={styles.pickerWrapper}>
+                <View style={[styles.pickerOverlay]} />
+                <ScrollView
+                  ref={minutesScrollRef}
+                  style={styles.pickerScroll}
+                  contentContainerStyle={styles.pickerContent}
+                  showsVerticalScrollIndicator={false}
+                  snapToInterval={ITEM_HEIGHT}
+                  decelerationRate="fast"
+                  onMomentumScrollEnd={handleMinutesScroll}
+                  onScrollEndDrag={handleMinutesScroll}
+                  nestedScrollEnabled={true}
+                >
+                  {minutesArray.map((minute) => {
+                    const isSelected = minute === selectedMinutes;
+                    return (
+                      <View
+                        key={minute}
+                        style={[
+                          styles.pickerItem,
+                          {
+                            height: ITEM_HEIGHT,
+                            backgroundColor: isSelected
+                              ? theme.primary + '30'
+                              : 'transparent',
+                            borderRadius: isSelected ? 8 : 0,
+                            borderWidth: isSelected ? 2 : 0,
+                            borderColor: isSelected
+                              ? theme.primary
+                              : 'transparent',
+                          },
+                        ]}
+                      >
+                        <TextBox
+                          variant={isSelected ? 'title1' : 'title2'}
+                          color={
+                            isSelected ? theme.primary : theme.textSecondary
+                          }
+                          style={[
+                            styles.pickerItemText,
+                            isSelected && styles.pickerItemTextSelected,
+                          ]}
+                        >
+                          {String(minute).padStart(2, '0')}
+                        </TextBox>
+                      </View>
+                    );
+                  })}
+                </ScrollView>
+                <TextBox
+                  variant="body2"
+                  color={theme.textSecondary}
+                  style={styles.pickerLabel}
+                >
+                  분
+                </TextBox>
+              </View>
+
+              {/* 구분선 */}
               <TextBox
-                variant="title2"
+                variant="title1"
                 color={theme.text}
                 style={styles.timeSeparator}
               >
                 :
               </TextBox>
-              <TextInput
-                style={[
-                  styles.timeInput,
-                  {
-                    backgroundColor: theme.background,
-                    color: theme.text,
-                    borderColor: theme.border,
-                  },
-                ]}
-                value={selectedSeconds.toString()}
-                onChangeText={handleSecondsChange}
-                keyboardType="number-pad"
-                maxLength={2}
-                placeholder="30"
-                placeholderTextColor={theme.placeholder}
-              />
+
+              {/* 초 피커 */}
+              <View style={styles.pickerWrapper}>
+                <View style={[styles.pickerOverlay]} />
+                <ScrollView
+                  ref={secondsScrollRef}
+                  style={styles.pickerScroll}
+                  contentContainerStyle={styles.pickerContent}
+                  showsVerticalScrollIndicator={false}
+                  snapToInterval={ITEM_HEIGHT}
+                  decelerationRate="fast"
+                  onMomentumScrollEnd={handleSecondsScroll}
+                  onScrollEndDrag={handleSecondsScroll}
+                  nestedScrollEnabled={true}
+                >
+                  {secondsArray.map((second) => {
+                    const isSelected = second === selectedSeconds;
+                    return (
+                      <View
+                        key={second}
+                        style={[
+                          styles.pickerItem,
+                          {
+                            height: ITEM_HEIGHT,
+                            backgroundColor: isSelected
+                              ? theme.primary + '30'
+                              : 'transparent',
+                            borderRadius: isSelected ? 8 : 0,
+                            borderWidth: isSelected ? 2 : 0,
+                            borderColor: isSelected
+                              ? theme.primary
+                              : 'transparent',
+                          },
+                        ]}
+                      >
+                        <TextBox
+                          variant={isSelected ? 'title1' : 'title2'}
+                          color={
+                            isSelected ? theme.primary : theme.textSecondary
+                          }
+                          style={[
+                            styles.pickerItemText,
+                            isSelected && styles.pickerItemTextSelected,
+                          ]}
+                        >
+                          {String(second).padStart(2, '0')}
+                        </TextBox>
+                      </View>
+                    );
+                  })}
+                </ScrollView>
+                <TextBox
+                  variant="body2"
+                  color={theme.textSecondary}
+                  style={styles.pickerLabel}
+                >
+                  초
+                </TextBox>
+              </View>
             </View>
             <CustomButton
               title="확인"
@@ -326,27 +468,57 @@ const styles = StyleSheet.create({
   timeEditor: {
     width: '100%',
     alignItems: 'center',
-    gap: 12,
+    gap: 16,
     marginTop: 12,
   },
-  timeInputContainer: {
+  pickerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
+    width: '100%',
   },
-  timeInput: {
-    borderWidth: 1,
+  pickerWrapper: {
+    flex: 1,
+    height: 150, // ITEM_HEIGHT * VISIBLE_ITEMS (50 * 3)
+    position: 'relative',
+    maxWidth: 100,
+  },
+  pickerScroll: {
+    flex: 1,
+  },
+  pickerContent: {
+    paddingVertical: 50, // ITEM_HEIGHT
+  },
+  pickerItem: {
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 8,
-    padding: 12,
-    textAlign: 'center',
-    fontSize: 24,
-    minWidth: 60,
+  },
+  pickerItemText: {
     fontFamily: 'monospace',
   },
+  pickerOverlay: {
+    position: 'absolute',
+    top: 50, // ITEM_HEIGHT
+    left: 0,
+    right: 0,
+    height: 50, // ITEM_HEIGHT
+    pointerEvents: 'none',
+    zIndex: 1,
+  },
+  pickerItemTextSelected: {
+    fontWeight: 'bold',
+  },
+  pickerLabel: {
+    position: 'absolute',
+    bottom: -20,
+    alignSelf: 'center',
+  },
   timeSeparator: {
-    fontSize: 24,
-    marginHorizontal: 4,
+    fontSize: 32,
+    marginHorizontal: 8,
+    marginTop: 50, // ITEM_HEIGHT
   },
   editButton: {
     marginTop: 8,
