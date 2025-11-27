@@ -28,6 +28,7 @@ export default function ReactNativeLayout() {
         options={{ headerShown: false }}
       />
       <Stack.Screen name="components" options={{ headerShown: false }} />
+      <Stack.Screen name="expo-core" options={{ headerShown: false }} />
     </Stack>
   );
 }
