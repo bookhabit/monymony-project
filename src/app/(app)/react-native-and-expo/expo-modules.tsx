@@ -206,6 +206,14 @@ const expoCoreItems: ExpoCoreItem[] = [
     icon: 'devices',
     category: '시스템 정보',
   },
+  {
+    id: 'device-motion',
+    title: 'DeviceMotion',
+    description: '디바이스 모션 및 방향 센서',
+    route: '/(app)/react-native-and-expo/expo-core/device-motion',
+    icon: '3d-rotation',
+    category: '센서',
+  },
 ];
 
 export default function ExpoModulesScreen() {
