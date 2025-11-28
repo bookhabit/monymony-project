@@ -192,6 +192,19 @@ export default {
             'This identifier will be used to deliver personalized ads to you.',
         },
       ],
+      [
+        'expo-video',
+        {
+          supportsBackgroundPlayback: true,
+          supportsPictureInPicture: true,
+        },
+      ],
+      [
+        'expo-web-browser',
+        {
+          experimentalLauncherActivity: true,
+        },
+      ],
     ],
     experiments: {
       typedRoutes: true,
