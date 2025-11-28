@@ -44,6 +44,7 @@ export default {
         'VIBRATE',
         'READ_CONTACTS',
         'WRITE_CONTACTS',
+        'CAMERA',
       ],
     },
     web: {
@@ -104,6 +105,19 @@ export default {
         {
           motionPermission:
             'Allow $(PRODUCT_NAME) to access your device motion.',
+        },
+      ],
+      [
+        'expo-document-picker',
+        {
+          iCloudContainerEnvironment: 'Production',
+        },
+      ],
+      [
+        'expo-image-picker',
+        {
+          photosPermission:
+            'The app accesses your photos to let you share them with your friends.',
         },
       ],
     ],

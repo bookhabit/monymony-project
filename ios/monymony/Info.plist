@@ -100,5 +100,10 @@
     <!-- Motion permission (expo-sensors) -->
     <key>NSMotionUsageDescription</key>
     <string>Allow monymony to access your device motion.</string>
+    <!-- Photo library permission (expo-image-picker) -->
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>The app accesses your photos to let you share them with your friends.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>The app needs to save photos to your photo library.</string>
   </dict>
 </plist>
