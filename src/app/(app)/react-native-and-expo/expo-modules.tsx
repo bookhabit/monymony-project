@@ -62,22 +62,6 @@ const expoCoreItems: ExpoCoreItem[] = [
     category: '이벤트 시스템',
   },
   {
-    id: 'event-emitter',
-    title: 'EventEmitterType',
-    description: 'C++ 기반 이벤트 시스템',
-    route: '/(app)/react-native-and-expo/expo-core/event-emitter',
-    icon: 'radio',
-    category: '이벤트 시스템',
-  },
-  {
-    id: 'native-module',
-    title: 'NativeModuleType',
-    description: 'Native Module 기본 클래스',
-    route: '/(app)/react-native-and-expo/expo-core/native-module',
-    icon: 'extension',
-    category: 'Native Module Core',
-  },
-  {
     id: 'shared-objects',
     title: 'SharedObject / SharedRef',
     description: 'Native 객체 공유',
@@ -85,22 +69,7 @@ const expoCoreItems: ExpoCoreItem[] = [
     icon: 'share',
     category: 'Shared Native Objects',
   },
-  {
-    id: 'app-utils',
-    title: 'App Utilities',
-    description: 'isRunningInExpoGo / registerRootComponent / reloadAppAsync',
-    route: '/(app)/react-native-and-expo/expo-core/app-utils',
-    icon: 'settings',
-    category: '앱 유틸리티',
-  },
-  {
-    id: 'require-native',
-    title: 'requireNativeModule / requireNativeView',
-    description: 'Native Module / View 로드',
-    route: '/(app)/react-native-and-expo/expo-core/require-native',
-    icon: 'build',
-    category: '앱 유틸리티',
-  },
+
   {
     id: 'pedometer',
     title: 'Pedometer',
