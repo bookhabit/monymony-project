@@ -78,6 +78,30 @@ const expoCoreItems: ExpoCoreItem[] = [
     icon: 'directions-walk',
     category: '센서',
   },
+  {
+    id: 'accelerometer',
+    title: 'Accelerometer',
+    description: '기기의 가속도계 센서를 사용한 3차원 가속도 측정',
+    route: '/(app)/react-native-and-expo/expo-core/accelerometer',
+    icon: 'vibration',
+    category: '센서',
+  },
+  {
+    id: 'asset',
+    title: 'Expo Asset',
+    description: '애셋(이미지, 폰트, 사운드 등) 다운로드 및 관리',
+    route: '/(app)/react-native-and-expo/expo-core/asset',
+    icon: 'image',
+    category: '애셋 관리',
+  },
+  {
+    id: 'audio',
+    title: 'Expo Audio',
+    description: '오디오 재생 및 녹음 기능',
+    route: '/(app)/react-native-and-expo/expo-core/audio',
+    icon: 'volume-up',
+    category: '미디어',
+  },
 ];
 
 export default function ExpoModulesScreen() {
