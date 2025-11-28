@@ -91,5 +91,14 @@
     <!-- Audio recording permission -->
     <key>NSMicrophoneUsageDescription</key>
     <string>Allow monymony to access your microphone.</string>
+    <!-- Camera permission (expo-camera) -->
+    <key>NSCameraUsageDescription</key>
+    <string>Allow monymony to access your camera</string>
+    <!-- Contacts permission (expo-contacts) -->
+    <key>NSContactsUsageDescription</key>
+    <string>Allow monymony to access your contacts.</string>
+    <!-- Motion permission (expo-sensors) -->
+    <key>NSMotionUsageDescription</key>
+    <string>Allow monymony to access your device motion.</string>
   </dict>
 </plist>

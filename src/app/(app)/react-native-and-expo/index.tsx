@@ -19,11 +19,11 @@ interface ReactNativeTopic {
 
 const reactNativeTopics: ReactNativeTopic[] = [
   {
-    id: 'navigation',
-    title: '네비게이션',
-    route: '/(app)/react-native-and-expo/navigation',
-    icon: 'navigation',
-    emoji: '🧭',
+    id: 'react-native-components',
+    title: 'React Native 컴포넌트',
+    route: '/(app)/react-native-and-expo/react-native-components',
+    icon: 'code',
+    emoji: '💻',
   },
   {
     id: 'expo-modules',
@@ -33,6 +33,13 @@ const reactNativeTopics: ReactNativeTopic[] = [
     emoji: '📦',
   },
   {
+    id: 'navigation',
+    title: '네비게이션',
+    route: '/(app)/react-native-and-expo/navigation',
+    icon: 'navigation',
+    emoji: '🧭',
+  },
+  {
     id: 'build-deploy',
     title: '빌드 & 배포',
     route: '/(app)/react-native-and-expo/build-deploy',
@@ -40,25 +47,11 @@ const reactNativeTopics: ReactNativeTopic[] = [
     emoji: '🚀',
   },
   {
-    id: 'platform-specific',
-    title: '플랫폼 특화',
-    route: '/(app)/react-native-and-expo/platform-specific',
-    icon: 'devices',
-    emoji: '📱',
-  },
-  {
     id: 'thread',
     title: 'JS-UI 스레드',
     route: '/(app)/react-native-and-expo/thread',
     icon: 'yard',
     emoji: '🧵',
-  },
-  {
-    id: 'react-native-components',
-    title: 'React Native 컴포넌트',
-    route: '/(app)/react-native-and-expo/react-native-components',
-    icon: 'code',
-    emoji: '💻',
   },
 ];
 

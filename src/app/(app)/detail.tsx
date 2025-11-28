@@ -26,6 +26,13 @@ interface StudyTopic {
 
 const studyTopics: StudyTopic[] = [
   {
+    id: 'react-native-and-expo',
+    title: '리액트 네이티브 & 엑스포',
+    route: '/(app)/react-native-and-expo',
+    icon: 'phone-android',
+    emoji: '📱',
+  },
+  {
     id: 'algorithm',
     title: '알고리즘',
     route: '/(app)/algorithm',
@@ -52,13 +59,6 @@ const studyTopics: StudyTopic[] = [
     route: '/(app)/react',
     icon: 'extension',
     emoji: '⚛️',
-  },
-  {
-    id: 'react-native-and-expo',
-    title: '리액트 네이티브 & 엑스포',
-    route: '/(app)/react-native-and-expo',
-    icon: 'phone-android',
-    emoji: '📱',
   },
   {
     id: 'state-management',

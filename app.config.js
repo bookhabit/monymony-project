@@ -29,6 +29,22 @@ export default {
       predictiveBackGestureEnabled: false,
       versionCode: versionInfo.ANDROID_VERSION_CODE,
       version: versionInfo.ANDROID_VERSION,
+      permissions: [
+        'INTERNET',
+        'SYSTEM_ALERT_WINDOW',
+        'READ_EXTERNAL_STORAGE',
+        'WRITE_EXTERNAL_STORAGE',
+        'READ_PHONE_STATE',
+        'FOREGROUND_SERVICE',
+        'POST_NOTIFICATIONS',
+        'READ_CALENDAR',
+        'WRITE_CALENDAR',
+        'WRITE_SETTINGS',
+        'RECORD_AUDIO',
+        'VIBRATE',
+        'READ_CONTACTS',
+        'WRITE_CONTACTS',
+      ],
     },
     web: {
       output: 'static',
@@ -66,6 +82,28 @@ export default {
         {
           microphonePermission:
             'Allow $(PRODUCT_NAME) to access your microphone.',
+        },
+      ],
+      [
+        'expo-camera',
+        {
+          cameraPermission: 'Allow $(PRODUCT_NAME) to access your camera',
+          microphonePermission:
+            'Allow $(PRODUCT_NAME) to access your microphone',
+          recordAudioAndroid: true,
+        },
+      ],
+      [
+        'expo-contacts',
+        {
+          contactsPermission: 'Allow $(PRODUCT_NAME) to access your contacts.',
+        },
+      ],
+      [
+        'expo-sensors',
+        {
+          motionPermission:
+            'Allow $(PRODUCT_NAME) to access your device motion.',
         },
       ],
     ],

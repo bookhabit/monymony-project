@@ -12,6 +12,11 @@
   <uses-permission android:name="android.permission.WRITE_SETTINGS" />
   <!-- Audio recording permission -->
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+  <!-- Cellular permission (expo-cellular) -->
+  <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+  <!-- Contacts permissions (expo-contacts) -->
+  <uses-permission android:name="android.permission.READ_CONTACTS"/>
+  <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
   <queries>
     <intent>
       <action android:name="android.intent.action.VIEW"/>
