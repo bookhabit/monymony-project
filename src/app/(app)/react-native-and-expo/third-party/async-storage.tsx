@@ -10,11 +10,19 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/context/ThemeProvider';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import TextBox from '@/components/common/TextBox';
 import { CustomButton } from '@/components/common/button';
 import CustomHeader from '@/components/layout/CustomHeader';
+
+// Note: Requires native build - run: cd ios && pod install && cd .. && npx expo run:ios
+let AsyncStorage: any;
+try {
+  AsyncStorage = require('@react-native-async-storage/async-storage').default;
+} catch (e) {
+  console.warn('AsyncStorage native module not linked');
+  AsyncStorage = null;
+}
 
 export default function AsyncStorageScreen() {
   const { theme } = useTheme();
@@ -31,6 +39,10 @@ export default function AsyncStorageScreen() {
   }, []);
 
   const loadAllKeys = async () => {
+    if (!AsyncStorage) {
+      setAllKeys([]);
+      return;
+    }
     try {
       const keys = await AsyncStorage.getAllKeys();
       setAllKeys(keys);
@@ -40,6 +52,13 @@ export default function AsyncStorageScreen() {
   };
 
   const storeData = async () => {
+    if (!AsyncStorage) {
+      Alert.alert(
+        '알림',
+        'AsyncStorage 네이티브 모듈이 링크되지 않았습니다. 네이티브 빌드가 필요합니다.'
+      );
+      return;
+    }
     if (!key.trim()) {
       Alert.alert('알림', '키를 입력하세요.');
       return;
@@ -56,6 +75,13 @@ export default function AsyncStorageScreen() {
   };
 
   const getData = async () => {
+    if (!AsyncStorage) {
+      Alert.alert(
+        '알림',
+        'AsyncStorage 네이티브 모듈이 링크되지 않았습니다. 네이티브 빌드가 필요합니다.'
+      );
+      return;
+    }
     if (!key.trim()) {
       Alert.alert('알림', '키를 입력하세요.');
       return;
@@ -73,6 +99,13 @@ export default function AsyncStorageScreen() {
   };
 
   const removeData = async () => {
+    if (!AsyncStorage) {
+      Alert.alert(
+        '알림',
+        'AsyncStorage 네이티브 모듈이 링크되지 않았습니다. 네이티브 빌드가 필요합니다.'
+      );
+      return;
+    }
     if (!key.trim()) {
       Alert.alert('알림', '키를 입력하세요.');
       return;
@@ -89,6 +122,13 @@ export default function AsyncStorageScreen() {
   };
 
   const clearAll = async () => {
+    if (!AsyncStorage) {
+      Alert.alert(
+        '알림',
+        'AsyncStorage 네이티브 모듈이 링크되지 않았습니다. 네이티브 빌드가 필요합니다.'
+      );
+      return;
+    }
     try {
       await AsyncStorage.clear();
       setStoredValue(null);
@@ -100,6 +140,13 @@ export default function AsyncStorageScreen() {
   };
 
   const getMultiple = async () => {
+    if (!AsyncStorage) {
+      Alert.alert(
+        '알림',
+        'AsyncStorage 네이티브 모듈이 링크되지 않았습니다. 네이티브 빌드가 필요합니다.'
+      );
+      return;
+    }
     if (allKeys.length === 0) {
       Alert.alert('알림', '저장된 키가 없습니다.');
       return;

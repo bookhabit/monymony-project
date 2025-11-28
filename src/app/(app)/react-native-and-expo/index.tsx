@@ -53,6 +53,13 @@ const reactNativeTopics: ReactNativeTopic[] = [
     icon: 'yard',
     emoji: '🧵',
   },
+  {
+    id: 'third-party',
+    title: '써드파티 라이브러리',
+    route: '/(app)/react-native-and-expo/third-party',
+    icon: 'library-books',
+    emoji: '📚',
+  },
 ];
 
 export default function ReactNativeAndExpoScreen() {

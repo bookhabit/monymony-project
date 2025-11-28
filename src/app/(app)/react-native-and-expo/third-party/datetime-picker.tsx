@@ -3,13 +3,22 @@ import { ScrollView, StyleSheet, View, Platform, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/context/ThemeProvider';
-import DateTimePicker, {
-  DateTimePickerEvent,
-} from '@react-native-community/datetimepicker';
 
 import TextBox from '@/components/common/TextBox';
 import { CustomButton } from '@/components/common/button';
 import CustomHeader from '@/components/layout/CustomHeader';
+
+// Note: Requires native build - run: cd ios && pod install && cd .. && npx expo run:ios
+let DateTimePicker: any;
+let DateTimePickerEvent: any;
+try {
+  const dtp = require('@react-native-community/datetimepicker');
+  DateTimePicker = dtp.default;
+  DateTimePickerEvent = dtp.DateTimePickerEvent;
+} catch (e) {
+  console.warn('DateTimePicker native module not linked');
+  DateTimePicker = null;
+}
 
 export default function DateTimePickerScreen() {
   const { theme } = useTheme();
@@ -203,7 +212,7 @@ export default function DateTimePickerScreen() {
         )}
 
         {/* DateTimePicker */}
-        {show && (
+        {show && DateTimePicker ? (
           <DateTimePicker
             value={date}
             mode={mode}
@@ -218,7 +227,20 @@ export default function DateTimePickerScreen() {
             accentColor={accentColor || theme.primary}
             style={styles.picker}
           />
-        )}
+        ) : show ? (
+          <View style={[styles.picker, { padding: 20, alignItems: 'center' }]}>
+            <TextBox variant="body2" color={theme.text}>
+              DateTimePicker 네이티브 모듈이 링크되지 않았습니다.
+            </TextBox>
+            <TextBox
+              variant="body3"
+              color={theme.textSecondary}
+              style={{ marginTop: 8 }}
+            >
+              네이티브 빌드가 필요합니다: cd ios && pod install
+            </TextBox>
+          </View>
+        ) : null}
 
         {/* 참고사항 */}
         <View style={styles.section}>
