@@ -54,6 +54,20 @@ export default {
           sounds: [],
         },
       ],
+      [
+        'expo-calendar',
+        {
+          calendarPermission: 'The app needs to access your calendar.',
+          remindersPermission: 'The app needs to access your reminders.',
+        },
+      ],
+      [
+        'expo-audio',
+        {
+          microphonePermission:
+            'Allow $(PRODUCT_NAME) to access your microphone.',
+        },
+      ],
     ],
     experiments: {
       typedRoutes: true,

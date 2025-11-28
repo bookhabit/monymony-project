@@ -83,5 +83,13 @@
     <string>Automatic</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
+    <!-- Calendar permissions -->
+    <key>NSCalendarsUsageDescription</key>
+    <string>The app needs to access your calendar.</string>
+    <key>NSRemindersUsageDescription</key>
+    <string>The app needs to access your reminders.</string>
+    <!-- Audio recording permission -->
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Allow monymony to access your microphone.</string>
   </dict>
 </plist>

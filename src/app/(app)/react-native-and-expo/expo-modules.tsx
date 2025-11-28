@@ -102,6 +102,46 @@ const expoCoreItems: ExpoCoreItem[] = [
     icon: 'volume-up',
     category: '미디어',
   },
+  {
+    id: 'barometer',
+    title: 'Barometer',
+    description: '기기의 기압계 센서를 사용한 대기압 측정',
+    route: '/(app)/react-native-and-expo/expo-core/barometer',
+    icon: 'cloud',
+    category: '센서',
+  },
+  {
+    id: 'battery',
+    title: 'Battery',
+    description: '기기의 배터리 정보 및 상태 모니터링',
+    route: '/(app)/react-native-and-expo/expo-core/battery',
+    icon: 'battery-full',
+    category: '시스템 정보',
+  },
+  {
+    id: 'blur',
+    title: 'BlurView',
+    description: '하위 콘텐츠를 블러 처리하는 React 컴포넌트',
+    route: '/(app)/react-native-and-expo/expo-core/blur',
+    icon: 'blur-on',
+    category: 'UI 컴포넌트',
+  },
+  {
+    id: 'brightness',
+    title: 'Brightness',
+    description: '화면 밝기 조절 및 모니터링',
+    route: '/(app)/react-native-and-expo/expo-core/brightness',
+    icon: 'brightness-6',
+    category: '시스템 정보',
+  },
+  {
+    id: 'calendar',
+    title: 'Calendar',
+    description: '시스템 캘린더 및 이벤트 관리',
+    route: '/(app)/react-native-and-expo/expo-core/calendar',
+    icon: 'event',
+    category: '시스템 정보',
+  },
 ];
 
 export default function ExpoModulesScreen() {
