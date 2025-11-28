@@ -120,6 +120,20 @@ export default {
             'The app accesses your photos to let you share them with your friends.',
         },
       ],
+      [
+        'expo-local-authentication',
+        {
+          faceIDPermission: 'Allow $(PRODUCT_NAME) to use Face ID.',
+        },
+      ],
+      ['expo-localization'],
+      [
+        'expo-location',
+        {
+          locationAlwaysAndWhenInUsePermission:
+            'Allow $(PRODUCT_NAME) to use your location.',
+        },
+      ],
     ],
     experiments: {
       typedRoutes: true,
