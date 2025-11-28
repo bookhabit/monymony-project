@@ -19,10 +19,14 @@
   <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
   <!-- Camera permission (expo-image-picker) -->
   <uses-permission android:name="android.permission.CAMERA"/>
-  <!-- Location permissions (expo-location) -->
+  <!-- Location permissions (expo-location, expo-maps) -->
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
   <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+  <!-- Media library permissions (expo-media-library) -->
+  <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+  <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
+  <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
   <queries>
     <intent>
       <action android:name="android.intent.action.VIEW"/>

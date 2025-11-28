@@ -18,6 +18,7 @@ export default {
       supportsTablet: true,
       buildNumber: String(versionInfo.IOS_BUILD_NUMBER),
       version: versionInfo.IOS_VERSION,
+      requireFullScreen: true,
     },
     android: {
       package: 'com.hyunjin_l.monymony',
@@ -45,6 +46,15 @@ export default {
         'READ_CONTACTS',
         'WRITE_CONTACTS',
         'CAMERA',
+        'READ_MEDIA_IMAGES',
+        'READ_MEDIA_VIDEO',
+        'READ_MEDIA_AUDIO',
+        'ACCESS_FINE_LOCATION',
+        'ACCESS_COARSE_LOCATION',
+        'ACCESS_BACKGROUND_LOCATION',
+        'READ_MEDIA_IMAGES',
+        'READ_MEDIA_VIDEO',
+        'READ_MEDIA_AUDIO',
       ],
     },
     web: {
@@ -132,6 +142,54 @@ export default {
         {
           locationAlwaysAndWhenInUsePermission:
             'Allow $(PRODUCT_NAME) to use your location.',
+        },
+      ],
+      [
+        'expo-maps',
+        {
+          requestLocationPermission: true,
+          locationPermission: 'Allow $(PRODUCT_NAME) to use your location',
+        },
+      ],
+      [
+        'expo-media-library',
+        {
+          photosPermission: 'Allow $(PRODUCT_NAME) to access your photos.',
+          savePhotosPermission: 'Allow $(PRODUCT_NAME) to save photos.',
+          isAccessMediaLocationEnabled: true,
+          granularPermissions: ['audio', 'photo'],
+        },
+      ],
+      [
+        'expo-navigation-bar',
+        {
+          backgroundColor: '#0f172a',
+          barStyle: 'light',
+          borderColor: '#1f2937',
+          visibility: 'visible',
+          behavior: 'inset-swipe',
+          position: 'relative',
+        },
+      ],
+      [
+        'expo-screen-orientation',
+        {
+          initialOrientation: 'DEFAULT',
+        },
+      ],
+      [
+        'expo-secure-store',
+        {
+          configureAndroidBackup: true,
+          faceIDPermission:
+            'Allow $(PRODUCT_NAME) to access your Face ID biometric data.',
+        },
+      ],
+      [
+        'expo-tracking-transparency',
+        {
+          userTrackingPermission:
+            'This identifier will be used to deliver personalized ads to you.',
         },
       ],
     ],

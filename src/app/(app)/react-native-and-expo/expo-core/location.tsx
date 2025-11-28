@@ -23,7 +23,7 @@ import CustomHeader from '@/components/layout/CustomHeader';
 const BACKGROUND_LOCATION_TASK = 'background-location-task';
 const GEOFENCING_TASK = 'geofencing-task';
 
-TaskManager.defineTask(BACKGROUND_LOCATION_TASK, ({ data, error }) => {
+TaskManager.defineTask(BACKGROUND_LOCATION_TASK, async ({ data, error }) => {
   if (error) {
     console.error('Background location error:', error);
     return;
@@ -34,7 +34,7 @@ TaskManager.defineTask(BACKGROUND_LOCATION_TASK, ({ data, error }) => {
   }
 });
 
-TaskManager.defineTask(GEOFENCING_TASK, ({ data, error }) => {
+TaskManager.defineTask(GEOFENCING_TASK, async ({ data, error }) => {
   if (error) {
     console.error('Geofencing error:', error);
     return;

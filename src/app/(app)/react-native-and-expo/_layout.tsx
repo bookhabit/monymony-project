@@ -21,14 +21,12 @@ export default function ReactNativeLayout() {
       <Stack.Screen name="navigation" options={{ headerShown: false }} />
       <Stack.Screen name="expo-modules" options={{ headerShown: false }} />
       <Stack.Screen name="build-deploy" options={{ headerShown: false }} />
-      <Stack.Screen name="platform-specific" options={{ headerShown: false }} />
       <Stack.Screen name="thread" options={{ headerShown: false }} />
       <Stack.Screen
         name="react-native-components"
         options={{ headerShown: false }}
       />
       <Stack.Screen name="components" options={{ headerShown: false }} />
-      <Stack.Screen name="expo-core" options={{ headerShown: false }} />
     </Stack>
   );
 }
